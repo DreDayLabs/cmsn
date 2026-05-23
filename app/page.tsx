@@ -2,12 +2,21 @@
 
 import { useState, useEffect } from "react";
 
+type ProductTab = "women" | "men";
+
+type Product = {
+  name: string;
+  category: string;
+  price: string;
+  tag: string | null;
+};
+
 const CMSN = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState("women");
-  const [hoveredPillar, setHoveredPillar] = useState(null);
+  const [activeTab, setActiveTab] = useState<ProductTab>("women");
+  const [hoveredPillar, setHoveredPillar] = useState<number | null>(null);
 
   useEffect(() => {
     setTimeout(() => setLoaded(true), 150);
@@ -16,7 +25,7 @@ const CMSN = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const products = {
+  const products: Record<ProductTab, Product[]> = {
     women: [
       { name: "Commission Bra", category: "Training", price: "$68", tag: "BESTSELLER" },
       { name: "Earn Legging", category: "Performance", price: "$98", tag: "NEW" },
@@ -45,7 +54,7 @@ const CMSN = () => {
     "https://images.unsplash.com/photo-1507398941214-572c25f4b1dc?w=800&q=80&auto=format&fit=crop",
   ];
 
-  const productImages: Record<string, string[]> = {
+  const productImages: Record<ProductTab, string[]> = {
     women: [
       "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&q=80&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=600&q=80&auto=format&fit=crop",
@@ -347,7 +356,7 @@ const CMSN = () => {
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(44px, 5vw, 68px)", letterSpacing: "0.02em", color: "#0A0A0A", lineHeight: 0.95 }}>NEW ARRIVALS</h2>
             </div>
             <div style={{ display: "flex", gap: 40, borderBottom: "1px solid rgba(10,10,10,0.1)" }}>
-              {["women", "men"].map(tab => (
+              {(["women", "men"] as const).map(tab => (
                 <button key={tab} className={`tab-btn ${activeTab === tab ? "active" : ""}`}
                   style={{ color: activeTab === tab ? "#0A0A0A" : "rgba(10,10,10,0.3)", borderBottomColor: activeTab === tab ? "#0A0A0A" : "transparent" }}
                   onClick={() => setActiveTab(tab)}>
