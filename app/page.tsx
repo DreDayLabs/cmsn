@@ -45,7 +45,7 @@ const CMSN = () => {
     "https://images.unsplash.com/photo-1507398941214-572c25f4b1dc?w=800&q=80&auto=format&fit=crop",
   ];
 
-  const productImages = {
+  const productImages: Record<string, string[]> = {
     women: [
       "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&q=80&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=600&q=80&auto=format&fit=crop",
