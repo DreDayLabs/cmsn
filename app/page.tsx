@@ -27,13 +27,13 @@ const CMSN = () => {
 
   const products: Record<ProductTab, Product[]> = {
     women: [
-      { name: "Commission Bra", category: "Training", price: "$68", tag: "BESTSELLER" },
+      { name: "CMSN Bra", category: "Training", price: "$68", tag: "BESTSELLER" },
       { name: "Earn Legging", category: "Performance", price: "$98", tag: "NEW" },
       { name: "Studio Hoodie", category: "Recovery", price: "$128", tag: null },
       { name: "// Seamless Set", category: "Training", price: "$148", tag: "LOW STOCK" },
     ],
     men: [
-      { name: "Commission Short", category: "Training", price: "$78", tag: "BESTSELLER" },
+      { name: "CMSN Short", category: "Training", price: "$78", tag: "BESTSELLER" },
       { name: "Earn Jogger", category: "Performance", price: "$108", tag: "NEW" },
       { name: "Studio Quarter Zip", category: "Recovery", price: "$118", tag: null },
       { name: "// Compression Set", category: "Training", price: "$138", tag: "COMING SOON" },
@@ -263,7 +263,7 @@ const CMSN = () => {
           transform: "translateY(-50%) rotate(90deg)",
           fontSize: 8, letterSpacing: "0.35em",
           color: "rgba(250,250,248,0.2)", textTransform: "uppercase", whiteSpace: "nowrap",
-        }}>CMSN — EARN YOUR COMMISSION — SS 2026</div>
+        }}>CMSN — EARN YOUR CMSN — SS 2026</div>
 
         <div className="hero-in" style={{
           position: "absolute", bottom: 0, left: 0, right: 0,
@@ -285,7 +285,7 @@ const CMSN = () => {
           }}>
             THE BODY<br />
             IS THE<br />
-            COMMISSION.
+            CMSN.
           </h1>
 
           <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
@@ -309,7 +309,7 @@ const CMSN = () => {
         borderTop: "none", borderBottom: "none",
       }}>
         <div className="marquee-track">
-          {Array(2).fill(["EARN YOUR COMMISSION", "·", "BUILT FOR THE WORK", "·", "SPRING SUMMER 2026", "·", "CMSN", "·", "NEW YORK CITY", "·", "PERFORMANCE WEAR", "·", "EARN IT", "·"]).flat().map((t, i) => (
+          {Array(2).fill(["EARN YOUR CMSN", "·", "BUILT FOR THE WORK", "·", "SPRING SUMMER 2026", "·", "CMSN", "·", "NEW YORK CITY", "·", "PERFORMANCE WEAR", "·", "EARN IT", "·"]).flat().map((t, i) => (
             <span key={i} style={{
               fontFamily: "'Helvetica Neue', sans-serif",
               fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
@@ -460,7 +460,7 @@ const CMSN = () => {
             { num: "01", label: "FOUR-WAY STRETCH", detail: "Full range of motion in every direction. No restriction. No compromise." },
             { num: "02", label: "MOISTURE CONTROL", detail: "Proprietary wicking technology. Sweat moves. You stay dry. You stay focused." },
             { num: "03", label: "TEMPERATURE REGULATION", detail: "Adaptive fabric responds to body heat. Cools when you push. Warms when you rest." },
-            { num: "04", label: "ANTI-ODOR TREATMENT", detail: "72-hour freshness. Because the commission doesn't end at the gym door." },
+            { num: "04", label: "ANTI-ODOR TREATMENT", detail: "72-hour freshness. Because the CMSN doesn't end at the gym door." },
           ].map((spec, i) => (
             <div key={spec.num} className="stat-line">
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 13, letterSpacing: "0.1em", color: "rgba(250,250,248,0.2)" }}>{spec.num}</div>
@@ -493,7 +493,7 @@ const CMSN = () => {
             color: "#FAFAF8", lineHeight: 0.9, letterSpacing: "0.01em",
             maxWidth: 900,
           }}>
-            THE COMMISSION<br />IS EARNED IN<br />THE DARK.
+            THE CMSN<br />IS EARNED IN<br />THE DARK.
           </h2>
         </div>
       </section>
