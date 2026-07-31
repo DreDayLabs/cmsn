@@ -11,6 +11,22 @@ type Product = {
   tag: string | null;
 };
 
+// Official CMSN wordmark — rounded monoline, splayed M, // at fixed angle.
+const Wordmark = ({ height = 18 }: { height?: number }) => (
+  <svg height={height} viewBox="0 0 420 100" fill="none" role="img" aria-label="CMSN" style={{ display: "block" }}>
+    <g stroke="currentColor" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M58 10 H32 Q10 10 10 32 V68 Q10 90 32 90 H58" />
+      <path d="M104 90 L115 10 L130 62 L145 10 L156 90" />
+      <path d="M248 12 H222 Q204 12 204 30 Q204 47 222 49 L230 50 Q248 52 248 69 Q248 88 230 88 H204" />
+      <path d="M298 90 V10 L346 90 V10" />
+    </g>
+    <g stroke="currentColor" strokeWidth={10} strokeLinecap="butt">
+      <path d="M362 90 L382 10" />
+      <path d="M386 90 L406 10" />
+    </g>
+  </svg>
+);
+
 const CMSN = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -226,11 +242,8 @@ const CMSN = () => {
         transition: "all 0.5s",
       }}>
         <span className="nav-link" style={{ color: "#FAFAF8" }} onClick={() => setMenuOpen(true)}>MENU</span>
-        <div>
-          <span style={{
-            fontFamily: "'Bebas Neue', sans-serif", fontSize: 26,
-            letterSpacing: "0.18em", color: "#FAFAF8",
-          }}>CMSN //</span>
+        <div style={{ color: "#FAFAF8" }}>
+          <Wordmark height={18} />
         </div>
         <div style={{ display: "flex", gap: 32 }}>
           <span className="nav-link" style={{ color: "#FAFAF8" }}>SEARCH</span>
@@ -309,7 +322,7 @@ const CMSN = () => {
         borderTop: "none", borderBottom: "none",
       }}>
         <div className="marquee-track">
-          {Array(2).fill(["EARN YOUR CMSN", "·", "BUILT FOR THE WORK", "·", "SPRING SUMMER 2026", "·", "CMSN", "·", "NEW YORK CITY", "·", "PERFORMANCE WEAR", "·", "EARN IT", "·"]).flat().map((t, i) => (
+          {Array(2).fill(["EARN YOUR CMSN", "//", "BUILT FOR THE WORK", "//", "SPRING SUMMER 2026", "//", "CMSN", "//", "NEW YORK CITY", "//", "PERFORMANCE WEAR", "//", "EARN IT", "//"]).flat().map((t, i) => (
             <span key={i} style={{
               fontFamily: "'Helvetica Neue', sans-serif",
               fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
@@ -537,7 +550,7 @@ const CMSN = () => {
       <footer style={{ background: "#050505", padding: "52px", borderTop: "1px solid rgba(250,250,248,0.05)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr 1fr", gap: 40, marginBottom: 52 }}>
           <div>
-            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, letterSpacing: "0.15em", color: "#FAFAF8", marginBottom: 12 }}>CMSN //</div>
+            <div style={{ color: "#FAFAF8", marginBottom: 16 }}><Wordmark height={20} /></div>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 200, fontStyle: "italic", lineHeight: 1.9, color: "rgba(250,250,248,0.25)" }}>
               Performance wear.<br />New York City.<br />Earn it.
             </p>
