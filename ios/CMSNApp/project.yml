@@ -1,0 +1,100 @@
+name: CMSNApp
+options:
+  bundleIdPrefix: com.earnyourcmsn
+  deploymentTarget:
+    iOS: "17.0"
+    watchOS: "10.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_PREVIEWS: YES
+
+targets:
+  CMSNApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: CMSNApp
+    resources:
+      - path: CMSNApp/Resources
+    info:
+      path: CMSNApp/Info.plist
+      properties:
+        UILaunchScreen: {}
+        NSCalendarsUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
+        NSCalendarsFullAccessUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
+        NSHealthShareUsageDescription: "CMSN can read basic health data (like body weight) to keep your training profile current. This is optional and off by default in v0."
+        NSHealthUpdateUsageDescription: "CMSN can write completed workouts to Apple Health so they show up alongside your other activity."
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIBackgroundModes: []
+        ITSAppUsesNonExemptEncryption: false
+    capabilities:
+      com.apple.developer.healthkit: {}
+      com.apple.InAppPurchase: {}
+    dependencies:
+      - target: CMSNWatchApp
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        DEVELOPMENT_ASSET_PATHS: ""
+        SWIFT_STRICT_CONCURRENCY: complete
+
+  CMSNWatchApp:
+    type: application.watchapp2
+    platform: watchOS
+    sources:
+      - path: CMSNWatchApp
+    info:
+      path: CMSNWatchApp/Info.plist
+      properties:
+        WKApplication: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSHealthShareUsageDescription: "CMSN uses Health data to run and record your workout from your wrist."
+        NSHealthUpdateUsageDescription: "CMSN saves your workout to Apple Health when you finish."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
+        TARGETED_DEVICE_FAMILY: "4"
+        SKIP_INSTALL: NO
+
+  CMSNAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: CMSNAppTests
+    dependencies:
+      - target: CMSNApp
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+    scheme:
+      testTargets:
+        - CMSNAppTests
+      gatherCoverageData: true
+
+schemes:
+  CMSNApp:
+    build:
+      targets:
+        CMSNApp: all
+        CMSNAppTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - CMSNAppTests
+      gatherCoverageData: true
