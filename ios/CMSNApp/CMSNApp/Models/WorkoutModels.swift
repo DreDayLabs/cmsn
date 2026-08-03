@@ -94,14 +94,12 @@ final class WorkoutSession {
 
     var isComplete: Bool { endedAt != nil }
 
-    /// True the moment *anything* was logged, even if the session was never
-    /// formally ended — used by Return-state logic to distinguish "opened
-    /// the app" from "did something."
-    /// True only once a set has actually been attempted — NOT merely
-    /// whether placeholder `LoggedSet` rows exist. `WorkoutSessionView`
-    /// pre-creates every planned set (unattempted) the moment a session
-    /// starts, so checking array emptiness here would make every session
-    /// count as "worked" the instant it's opened, before anything is logged.
+    /// True only once a set has actually been attempted — used by
+    /// Return-state logic to distinguish "opened the app" from "did
+    /// something." NOT merely whether placeholder `LoggedSet` rows exist:
+    /// `WorkoutSessionView` pre-creates every planned set (unattempted) the
+    /// moment a session starts, so checking array emptiness here would make
+    /// every session count as "worked" the instant it's opened.
     var hasAnyLoggedWork: Bool {
         loggedExercises.contains { $0.loggedSets.contains { $0.isAttempted } }
     }

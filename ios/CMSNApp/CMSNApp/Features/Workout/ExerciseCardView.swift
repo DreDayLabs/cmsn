@@ -116,37 +116,57 @@ private struct SetRowView: View {
     @State private var discomfort = false
 
     var body: some View {
-        HStack(spacing: 12) {
-            Text("Set \(set.setIndex + 1)")
-                .font(CMSNTypography.numeric(15))
-                .foregroundStyle(CMSNColor.Semantic.textSecondary)
-                .frame(width: 56, alignment: .leading)
-
-            if set.isAttempted {
-                Text("\(displayWeight(set.completedWeightKG ?? 0))×\(set.completedReps ?? 0)")
-                    .font(CMSNTypography.numeric(16))
-                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                if let rpe = set.rpe {
-                    Text("RPE \(String(format: "%.0f", rpe))").font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.textSecondary)
-                }
-                Spacer()
-                Image(systemName: "checkmark").foregroundStyle(CMSNColor.Semantic.scorePositive)
-            } else {
-                Text("\(set.plannedRepRangeLow)–\(set.plannedRepRangeHigh) reps")
-                    .font(CMSNTypography.bodyQuiet())
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 12) {
+                Text("Set \(set.setIndex + 1)")
+                    .font(CMSNTypography.numeric(15))
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
-                Spacer()
-                Stepper("\(repsInput)", value: $repsInput, in: 0...50).fixedSize()
-                TextField("wt", value: $weightInput, format: .number)
-                    .keyboardType(.decimalPad)
-                    .frame(width: 50)
-                    .multilineTextAlignment(.trailing)
-                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                Button("Log") {
-                    logSet()
+                    .frame(width: 56, alignment: .leading)
+
+                if set.isAttempted {
+                    Text("\(Int(displayWeight(set.completedWeightKG ?? 0)))×\(set.completedReps ?? 0)")
+                        .font(CMSNTypography.numeric(16))
+                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    if let rpe = set.rpe {
+                        Text("RPE \(String(format: "%.0f", rpe))").font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    }
+                    if set.discomfortReported {
+                        Image(systemName: "bandage").foregroundStyle(CMSNColor.gray)
+                    }
+                    Spacer()
+                    Image(systemName: "checkmark").foregroundStyle(CMSNColor.Semantic.scorePositive)
+                } else {
+                    Text("\(set.plannedRepRangeLow)–\(set.plannedRepRangeHigh) reps")
+                        .font(CMSNTypography.bodyQuiet())
+                        .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    Spacer()
+                    Stepper("\(repsInput)", value: $repsInput, in: 0...50).fixedSize()
+                    TextField("wt", value: $weightInput, format: .number)
+                        .keyboardType(.decimalPad)
+                        .frame(width: 50)
+                        .multilineTextAlignment(.trailing)
+                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    Button("Log") {
+                        logSet()
+                    }
+                    .buttonStyle(.cmsnGhost)
+                    .fixedSize()
                 }
-                .buttonStyle(.cmsnGhost)
-                .fixedSize()
+            }
+
+            if !set.isAttempted {
+                Button {
+                    discomfort.toggle()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: discomfort ? "checkmark.square" : "square")
+                        Text("Felt discomfort on this set")
+                    }
+                    .font(.system(size: 11))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(discomfort ? CMSNColor.gray : CMSNColor.Semantic.textSecondary)
+                .padding(.leading, 68)
             }
         }
         .onAppear {
