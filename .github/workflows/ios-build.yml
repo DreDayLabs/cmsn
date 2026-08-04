@@ -13,14 +13,24 @@ jobs:
     # Apple toolchain, not a simulation of it. This is the actual answer to
     # "does ios/CMSNApp compile," run on infrastructure neither the agent
     # session nor the developer's own machine needs to provide.
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Select newest available Xcode
+        # Homebrew's xcodegen generates project files at whatever pbxproj
+        # object version its own build was compiled against, which can be
+        # newer than this runner's *default* selected Xcode understands
+        # ("future Xcode project file format" errors). Runner images ship
+        # several Xcode versions side by side under /Applications — pick
+        # the newest one instead of trusting the default.
+        run: |
+          latest=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Selecting $latest"
+          sudo xcode-select -s "$latest"
+          xcodebuild -version
 
       - name: Install XcodeGen
         run: brew install xcodegen
