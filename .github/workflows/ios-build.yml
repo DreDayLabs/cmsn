@@ -1,0 +1,69 @@
+name: iOS Build
+
+on:
+  push:
+    branches:
+      - "claude/**"
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  build-and-test:
+    # GitHub-hosted macOS runners ship Xcode preinstalled — this is the real
+    # Apple toolchain, not a simulation of it. This is the actual answer to
+    # "does ios/CMSNApp compile," run on infrastructure neither the agent
+    # session nor the developer's own machine needs to provide.
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios/CMSNApp
+        run: xcodegen generate
+
+      - name: List available simulators
+        run: xcrun simctl list devices available
+
+      - name: Build (generic iOS Simulator destination)
+        working-directory: ios/CMSNApp
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project CMSNApp.xcodeproj \
+            -scheme CMSNApp \
+            -destination 'generic/platform=iOS Simulator' \
+            -skipMacroValidation \
+            | tee build.log
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: ios/CMSNApp/build.log
+
+      - name: Run unit tests
+        working-directory: ios/CMSNApp
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project CMSNApp.xcodeproj \
+            -scheme CMSNApp \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -skipMacroValidation \
+            | tee test.log
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: ios/CMSNApp/test.log
