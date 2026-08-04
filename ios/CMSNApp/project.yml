@@ -39,8 +39,12 @@ targets:
       com.apple.developer.healthkit: {}
       com.apple.InAppPurchase: {}
     dependencies:
+      # No explicit `embed: true` here: for a modern single-target watchOS
+      # app (type: application.watchapp2), XcodeGen already wires the
+      # "Embed Watch Content" copy phase automatically. Adding embed: true
+      # on top of that created a second, colliding copy step ("Multiple
+      # commands produce .../CMSNWatchApp.app/CMSNWatchApp").
       - target: CMSNWatchApp
-        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app
