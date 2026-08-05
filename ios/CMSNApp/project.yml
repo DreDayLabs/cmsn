@@ -86,7 +86,21 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
         TARGETED_DEVICE_FAMILY: "4"
-        SKIP_INSTALL: NO
+        # SKIP_INSTALL: NO (the previous value) marks this product as
+        # independently install-eligible, which triggers an extra
+        # "product finalization" CopyAndPreserveArchs step under the new
+        # build system for a standalone (no WatchKit Extension companion)
+        # application.watchapp2 target - and that step collides with the
+        # target's own normal link output at the same path ("Multiple
+        # commands produce .../CMSNWatchApp.app/CMSNWatchApp"), confirmed
+        # after ruling out arch-multiplicity as the cause (excluding
+        # x86_64 from the simulator SDKs did NOT resolve it; the
+        # remaining collision was CopyAndPreserveArchs vs. Ld, not
+        # CreateUniversalBinary vs. Ld). Apple's own templates set
+        # SKIP_INSTALL=YES on companion targets embedded in a host app for
+        # exactly this reason - the parent's "Embed Watch Content" copy
+        # phase only needs the built artifact, not an install-packaged one.
+        SKIP_INSTALL: YES
 
   CMSNAppTests:
     type: bundle.unit-test
