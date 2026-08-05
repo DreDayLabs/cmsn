@@ -72,7 +72,17 @@ struct WorkoutRepository {
         guard let last = sessions.first(where: { $0.hasAnyLoggedWork }) ?? recentSessions(limit: 200).first(where: { $0.hasAnyLoggedWork }) else {
             return nil
         }
-        let days = Calendar.current.dateComponents([.day], from: last.date, to: referenceDate).day ?? 0
+        // Diff calendar-day boundaries (startOfDay), not elapsed wall-clock
+        // time: a session at 11:55 PM queried at 12:05 AM the next day is
+        // only ~10 minutes apart but must read as 1 day since, because the
+        // Return-loop framing keys off the day boundary crossing, not
+        // hours elapsed.
+        let calendar = Calendar.current
+        let days = calendar.dateComponents(
+            [.day],
+            from: calendar.startOfDay(for: last.date),
+            to: calendar.startOfDay(for: referenceDate)
+        ).day ?? 0
         return max(0, days)
     }
 
