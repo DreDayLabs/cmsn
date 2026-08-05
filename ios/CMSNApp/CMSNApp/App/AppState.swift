@@ -8,6 +8,7 @@ import Observation
 /// shared services — in particular, `CalendarSplitService` and
 /// `StoreKitManager` hold real system state (EventKit auth, StoreKit
 /// listeners) that must not be duplicated per-view.
+@MainActor
 @Observable
 final class AppState {
     let modelContainer: ModelContainer
@@ -28,12 +29,8 @@ final class AppState {
         self.activeProgram = activeProgram
     }
 
-    @MainActor
     var athleteRepository: AthleteRepository { AthleteRepository(context: modelContainer.mainContext) }
-    @MainActor
     var workoutRepository: WorkoutRepository { WorkoutRepository(context: modelContainer.mainContext) }
-    @MainActor
     var nutritionRepository: NutritionRepository { NutritionRepository(context: modelContainer.mainContext) }
-    @MainActor
     var scoreRepository: ScoreRepository { ScoreRepository(context: modelContainer.mainContext) }
 }
