@@ -7,12 +7,17 @@ on:
       - main
   workflow_dispatch: {}
 
-# Pinned, not "latest": macos-latest and a runtime "pick the newest Xcode"
-# script both drift silently as GitHub updates its images, which is exactly
-# what caused the first two failures here (an unreadable pbxproj format,
-# then a stale mental model of what's installed). Pinning trades "always
-# current" for "always reproducible" — bump these deliberately, on purpose,
-# when there's a reason to.
+# Runner image: GitHub only publishes a small, fixed set of macOS labels
+# (macos-13/14/15/latest, etc.) for hosted runners — the "macos-26-arm64"
+# seen in earlier logs was the runner's *internal* image name, not a
+# selectable label (confirmed: a job requesting that label sat in `queued`
+# indefinitely instead of picking up a runner within seconds like every
+# other run here). So `runs-on` stays macos-latest, the only thing GitHub
+# actually lets us request. What's fully pinned instead, deliberately, is
+# what determines actual build behavior: the exact Xcode install and the
+# exact XcodeGen version, both hard-failing loudly if they drift rather
+# than silently picking "whatever's newest" (which caused two of the
+# earlier failures here).
 env:
   XCODE_VERSION: "26.6"
   XCODE_APP_PATH: "/Applications/Xcode_26.6.app"
@@ -20,7 +25,7 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: macos-26-arm64
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
