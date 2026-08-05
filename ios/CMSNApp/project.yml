@@ -14,6 +14,18 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     ENABLE_PREVIEWS: YES
+  configs:
+    Debug:
+      # Xcode's own project template sets this for Debug by default; a
+      # hand-written project.yml doesn't get it for free. Without it, a
+      # simulator Debug build resolves both arm64 and x86_64 as valid
+      # destination archs for the watchOS simulator target and the new
+      # build system tries to merge them into one universal binary via
+      # CreateUniversalBinary — which collides with the target's own
+      # CopyAndPreserveArchs step on the same output path ("Multiple
+      # commands produce .../CMSNWatchApp.app/CMSNWatchApp"). Restricting
+      # Debug to the single active arch avoids the merge entirely.
+      ONLY_ACTIVE_ARCH: YES
 
 targets:
   CMSNApp:
