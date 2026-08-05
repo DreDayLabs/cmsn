@@ -7,50 +7,72 @@ on:
       - main
   workflow_dispatch: {}
 
+# Pinned, not "latest": macos-latest and a runtime "pick the newest Xcode"
+# script both drift silently as GitHub updates its images, which is exactly
+# what caused the first two failures here (an unreadable pbxproj format,
+# then a stale mental model of what's installed). Pinning trades "always
+# current" for "always reproducible" — bump these deliberately, on purpose,
+# when there's a reason to.
+env:
+  XCODE_VERSION: "26.6"
+  XCODE_APP_PATH: "/Applications/Xcode_26.6.app"
+  XCODEGEN_VERSION: "2.46.0"
+
 jobs:
   build-and-test:
-    # GitHub-hosted macOS runners ship Xcode preinstalled — this is the real
-    # Apple toolchain, not a simulation of it. This is the actual answer to
-    # "does ios/CMSNApp compile," run on infrastructure neither the agent
-    # session nor the developer's own machine needs to provide.
-    runs-on: macos-latest
+    runs-on: macos-26-arm64
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select newest available Xcode
-        # Homebrew's xcodegen generates project files at whatever pbxproj
-        # object version its own build was compiled against, which can be
-        # newer than this runner's *default* selected Xcode understands
-        # ("future Xcode project file format" errors). Runner images ship
-        # several Xcode versions side by side under /Applications — pick
-        # the newest one instead of trusting the default.
+      - name: Select pinned Xcode
         run: |
-          latest=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
-          echo "Selecting $latest"
-          sudo xcode-select -s "$latest"
+          if [ ! -d "$XCODE_APP_PATH" ]; then
+            echo "::error::Pinned Xcode not found at $XCODE_APP_PATH on this runner image."
+            echo "Available Xcode installs:"
+            ls -d /Applications/Xcode*.app
+            echo "Update XCODE_VERSION/XCODE_APP_PATH at the top of this workflow to match, deliberately."
+            exit 1
+          fi
+          sudo xcode-select -s "$XCODE_APP_PATH"
           xcodebuild -version
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
+      - name: Install pinned XcodeGen (via Mint)
+        # Mint builds/installs an exact tagged version, unlike `brew install
+        # xcodegen` which tracks whatever Homebrew currently bottles.
+        run: |
+          brew install mint
+          mint install yonaskolb/xcodegen@$XCODEGEN_VERSION
+          echo "$HOME/.mint/bin" >> "$GITHUB_PATH"
 
       - name: Generate Xcode project
         working-directory: ios/CMSNApp
-        run: xcodegen generate
+        run: |
+          xcodegen version
+          xcodegen generate
 
       - name: List available simulators
         run: xcrun simctl list devices available
 
-      - name: Build (generic iOS Simulator destination)
+      - name: Build (concrete simulator destination, unsigned)
+        # A *generic* simulator destination left the CMSNWatchApp target's
+        # architecture unresolved, and Xcode tried to build both arm64 and
+        # x86_64 slices into one universal binary for the same output path
+        # ("Multiple commands produce ... CreateUniversalBinary"). A
+        # concrete simulator pins it to one architecture. CODE_SIGNING_*
+        # overrides make "no signing required for a simulator build"
+        # explicit rather than assumed.
         working-directory: ios/CMSNApp
         run: |
           set -o pipefail
           xcodebuild build \
             -project CMSNApp.xcodeproj \
             -scheme CMSNApp \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
             -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
             | tee build.log
 
       - name: Upload build log
@@ -67,8 +89,10 @@ jobs:
           xcodebuild test \
             -project CMSNApp.xcodeproj \
             -scheme CMSNApp \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
             -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
             | tee test.log
 
       - name: Upload test log
