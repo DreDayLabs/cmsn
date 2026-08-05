@@ -88,6 +88,16 @@ targets:
           - UIInterfaceOrientationPortrait
         NSHealthShareUsageDescription: "CMSN uses Health data to run and record your workout from your wrist."
         NSHealthUpdateUsageDescription: "CMSN saves your workout to Apple Health when you finish."
+        ITSAppUsesNonExemptEncryption: false
+    # Entitlements are per-target, not inherited from the host app. This
+    # target's Info.plist already declares HealthKit usage descriptions
+    # (for V1's real Watch companion), so it needs its own entitlement
+    # here too, matching CMSNApp - otherwise a future signed device build
+    # would fail once real HealthKit calls are added, even though CI's
+    # unsigned build (CODE_SIGNING_ALLOWED=NO skips entitlement
+    # processing) would never catch the gap.
+    capabilities:
+      com.apple.developer.healthkit: {}
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
