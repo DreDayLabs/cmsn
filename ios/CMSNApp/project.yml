@@ -14,17 +14,22 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     ENABLE_PREVIEWS: YES
+    # ONLY_ACTIVE_ARCH alone did NOT fix the CMSNWatchApp duplicate-output
+    # error (confirmed: identical failure recurred, now surfacing during
+    # CreateBuildDescription - i.e. static build-plan construction, before
+    # any per-arch compile step runs). That means the conflict is baked
+    # into the plan itself, independent of which arch ends up "active" at
+    # run time. The actual fix: the watchOS/iOS simulator SDKs advertise
+    # both arm64 and x86_64 as valid target archs, and Xcode's new build
+    # system plans a CreateUniversalBinary merge step for the watch app's
+    # product - which collides with its own CopyAndPreserveArchs step on
+    # the same output path. Hosted GitHub macOS runners are Apple Silicon
+    # (arm64), so x86_64 simulator slices are never actually needed;
+    # excluding them removes the two-arch case entirely.
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "x86_64"
+    "EXCLUDED_ARCHS[sdk=watchsimulator*]": "x86_64"
   configs:
     Debug:
-      # Xcode's own project template sets this for Debug by default; a
-      # hand-written project.yml doesn't get it for free. Without it, a
-      # simulator Debug build resolves both arm64 and x86_64 as valid
-      # destination archs for the watchOS simulator target and the new
-      # build system tries to merge them into one universal binary via
-      # CreateUniversalBinary — which collides with the target's own
-      # CopyAndPreserveArchs step on the same output path ("Multiple
-      # commands produce .../CMSNWatchApp.app/CMSNWatchApp"). Restricting
-      # Debug to the single active arch avoids the merge entirely.
       ONLY_ACTIVE_ARCH: YES
 
 targets:

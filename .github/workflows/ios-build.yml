@@ -61,20 +61,22 @@ jobs:
         run: xcrun simctl list devices available
 
       - name: Build (concrete simulator destination, unsigned)
-        # A *generic* simulator destination left the CMSNWatchApp target's
-        # architecture unresolved, and Xcode tried to build both arm64 and
-        # x86_64 slices into one universal binary for the same output path
-        # ("Multiple commands produce ... CreateUniversalBinary"). A
-        # concrete simulator pins it to one architecture. CODE_SIGNING_*
-        # overrides make "no signing required for a simulator build"
-        # explicit rather than assumed.
+        # -destination pins a concrete simulator + arch (removes the
+        # "multiple matching destinations" arm64/x86_64 ambiguity warning).
+        # The actual "Multiple commands produce ... CreateUniversalBinary"
+        # build failure this project hit turned out to be unrelated to the
+        # destination string - it's fixed in project.yml via
+        # EXCLUDED_ARCHS[sdk=...simulator*]=x86_64, since these runners are
+        # arm64 and never need the x86_64 simulator slice at all.
+        # CODE_SIGNING_* overrides make "no signing required for a
+        # simulator build" explicit rather than assumed.
         working-directory: ios/CMSNApp
         run: |
           set -o pipefail
           xcodebuild build \
             -project CMSNApp.xcodeproj \
             -scheme CMSNApp \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
@@ -94,7 +96,7 @@ jobs:
           xcodebuild test \
             -project CMSNApp.xcodeproj \
             -scheme CMSNApp \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
