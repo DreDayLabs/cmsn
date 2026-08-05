@@ -24,7 +24,10 @@ final class StoreKitManager {
     private(set) var isSubscribed: Bool = false
     private(set) var lastError: String?
 
-    private var transactionListenerTask: Task<Void, Never>?
+    // nonisolated(unsafe): only `deinit` (always nonisolated) needs to
+    // touch this outside the main actor, and `Task.cancel()` is documented
+    // safe to call from any context.
+    private nonisolated(unsafe) var transactionListenerTask: Task<Void, Never>?
 
     init() {
         transactionListenerTask = listenForTransactions()
