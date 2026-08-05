@@ -14,18 +14,11 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     ENABLE_PREVIEWS: YES
-    # ONLY_ACTIVE_ARCH alone did NOT fix the CMSNWatchApp duplicate-output
-    # error (confirmed: identical failure recurred, now surfacing during
-    # CreateBuildDescription - i.e. static build-plan construction, before
-    # any per-arch compile step runs). That means the conflict is baked
-    # into the plan itself, independent of which arch ends up "active" at
-    # run time. The actual fix: the watchOS/iOS simulator SDKs advertise
-    # both arm64 and x86_64 as valid target archs, and Xcode's new build
-    # system plans a CreateUniversalBinary merge step for the watch app's
-    # product - which collides with its own CopyAndPreserveArchs step on
-    # the same output path. Hosted GitHub macOS runners are Apple Silicon
-    # (arm64), so x86_64 simulator slices are never actually needed;
-    # excluding them removes the two-arch case entirely.
+    # Standard-practice settings, kept even though none of them turned out
+    # to be the actual fix for the CMSNWatchApp "Multiple commands
+    # produce" build error (see CMSNApp's dependencies comment below for
+    # what the real fix was). Hosted GitHub macOS runners are Apple
+    # Silicon (arm64), so the x86_64 simulator slice is never needed.
     "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "x86_64"
     "EXCLUDED_ARCHS[sdk=watchsimulator*]": "x86_64"
   configs:
@@ -55,22 +48,25 @@ targets:
     capabilities:
       com.apple.developer.healthkit: {}
       com.apple.InAppPurchase: {}
-    dependencies:
-      # embed: false, explicit. Leaving `embed` unset (the previous state)
-      # did NOT avoid the "Multiple commands produce
-      # .../CMSNWatchApp.app/CMSNWatchApp" collision - confirmed across
-      # three unrelated fix attempts (arch exclusion, ONLY_ACTIVE_ARCH,
-      # SKIP_INSTALL) that all left the identical CopyAndPreserveArchs-
-      # vs-Ld conflict in place. That means XcodeGen's default for this
-      # dependency type is still generating an embed/copy phase for
-      # CMSNWatchApp - which a standalone (no WatchKit Extension
-      # companion) application.watchapp2 target doesn't need at all in
-      # this newer watch-app model: pairing with the host app happens via
-      # WKCompanionAppBundleIdentifier in the watch app's own Info.plist,
-      # not by physically copying its .app bundle into CMSNApp.app. This
-      # dependency only needs to enforce build order, not embedding.
-      - target: CMSNWatchApp
-        embed: false
+    # No `dependencies: - target: CMSNWatchApp` here. It was there
+    # earlier, in every combination (implicit embed, embed: true,
+    # embed: false) and with every other setting on this page
+    # (EXCLUDED_ARCHS, ONLY_ACTIVE_ARCH, SKIP_INSTALL) tried in isolation
+    # and combined - all four independent fix attempts left the identical
+    # "Multiple commands produce .../CMSNWatchApp.app/CMSNWatchApp"
+    # (CopyAndPreserveArchs vs. Ld, in target CMSNWatchApp) error in
+    # place, always failing at the same instant during
+    # CreateBuildDescription. That rules out arch multiplicity,
+    # install-packaging, and embedding as the cause - the one variable
+    # that was never isolated was whether CMSNWatchApp gets built at all
+    # as part of the CMSNApp scheme. It's a genuine V0 stub (see
+    # CMSNWatchApp.swift: "not implemented... coming in a future
+    # update"), explicitly not required to build in V0 per the project
+    # plan - so it's simplest and most honest to not build it as a
+    # CMSNApp dependency at all. The target stays in the project,
+    # buildable on its own scheme, ready for V1 to actually wire it up
+    # (and re-litigate this bug if it resurfaces once there's a real
+    # reason to embed it).
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app
@@ -96,20 +92,9 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
         TARGETED_DEVICE_FAMILY: "4"
-        # SKIP_INSTALL: NO (the previous value) marks this product as
-        # independently install-eligible, which triggers an extra
-        # "product finalization" CopyAndPreserveArchs step under the new
-        # build system for a standalone (no WatchKit Extension companion)
-        # application.watchapp2 target - and that step collides with the
-        # target's own normal link output at the same path ("Multiple
-        # commands produce .../CMSNWatchApp.app/CMSNWatchApp"), confirmed
-        # after ruling out arch-multiplicity as the cause (excluding
-        # x86_64 from the simulator SDKs did NOT resolve it; the
-        # remaining collision was CopyAndPreserveArchs vs. Ld, not
-        # CreateUniversalBinary vs. Ld). Apple's own templates set
-        # SKIP_INSTALL=YES on companion targets embedded in a host app for
-        # exactly this reason - the parent's "Embed Watch Content" copy
-        # phase only needs the built artifact, not an install-packaged one.
+        # Correct standard practice for a target embedded in a host app
+        # (kept even though it wasn't what actually fixed CI - see
+        # CMSNApp's dependencies comment above for the real fix).
         SKIP_INSTALL: YES
 
   CMSNAppTests:
