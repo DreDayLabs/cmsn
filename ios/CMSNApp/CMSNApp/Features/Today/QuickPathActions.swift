@@ -31,6 +31,7 @@ enum QuickPathAction: String, CaseIterable, Identifiable {
         }
     }
 
+    @MainActor
     func resolve(currentFocus: SplitFocus, resolver: ProgramResolver, athlete: Athlete) -> ResolvedProgramDay {
         switch self {
         case .fifteenMinutes:
