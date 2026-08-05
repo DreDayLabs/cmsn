@@ -56,12 +56,21 @@ targets:
       com.apple.developer.healthkit: {}
       com.apple.InAppPurchase: {}
     dependencies:
-      # No explicit `embed: true` here: for a modern single-target watchOS
-      # app (type: application.watchapp2), XcodeGen already wires the
-      # "Embed Watch Content" copy phase automatically. Adding embed: true
-      # on top of that created a second, colliding copy step ("Multiple
-      # commands produce .../CMSNWatchApp.app/CMSNWatchApp").
+      # embed: false, explicit. Leaving `embed` unset (the previous state)
+      # did NOT avoid the "Multiple commands produce
+      # .../CMSNWatchApp.app/CMSNWatchApp" collision - confirmed across
+      # three unrelated fix attempts (arch exclusion, ONLY_ACTIVE_ARCH,
+      # SKIP_INSTALL) that all left the identical CopyAndPreserveArchs-
+      # vs-Ld conflict in place. That means XcodeGen's default for this
+      # dependency type is still generating an embed/copy phase for
+      # CMSNWatchApp - which a standalone (no WatchKit Extension
+      # companion) application.watchapp2 target doesn't need at all in
+      # this newer watch-app model: pairing with the host app happens via
+      # WKCompanionAppBundleIdentifier in the watch app's own Info.plist,
+      # not by physically copying its .app bundle into CMSNApp.app. This
+      # dependency only needs to enforce build order, not embedding.
       - target: CMSNWatchApp
+        embed: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app
@@ -78,6 +87,7 @@ targets:
       path: CMSNWatchApp/Info.plist
       properties:
         WKApplication: true
+        WKCompanionAppBundleIdentifier: com.earnyourcmsn.app
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSHealthShareUsageDescription: "CMSN uses Health data to run and record your workout from your wrist."
