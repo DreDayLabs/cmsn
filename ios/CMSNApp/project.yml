@@ -45,6 +45,14 @@ targets:
           - UIInterfaceOrientationPortrait
         UIBackgroundModes: []
         ITSAppUsesNonExemptEncryption: false
+        # BebasNeue-Regular.ttf isn't bundled in the repo (binary file - see
+        # Resources/Fonts/README.md for the drop-in step), so this key is a
+        # no-op today: Font.custom falls back to the system font when the
+        # named font isn't present, rather than crashing. Once the .ttf
+        # lands in Resources/Fonts/, this is the only wiring needed - no
+        # further code changes.
+        UIAppFonts:
+          - BebasNeue-Regular.ttf
     capabilities:
       com.apple.developer.healthkit: {}
       com.apple.InAppPurchase: {}

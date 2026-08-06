@@ -73,17 +73,16 @@ scoring), and day-boundary/timezone handling for the Return-loop logic.
 
 ## What's missing on purpose (see the plan's "Explicitly deferred to V1/V2")
 
-- **App icon**: `Resources/Assets.xcassets/AppIcon.appiconset` exists but
-  has no image — add a 1024×1024 black-background, white-wordmark icon
-  (the wordmark SVGs are in `../../public/brand/`).
-- **Bebas Neue font file**: `CMSNTypography.swift` references
-  `BebasNeue-Regular` but the actual `.ttf` isn't bundled (binary files
-  can't be authored as text). Download the OFL-licensed family from Google
-  Fonts, drop `BebasNeue-Regular.ttf` into `CMSNApp/Resources/Fonts/`, add
-  it to the target, and register it under `UIAppFonts` in Info.plist (or
-  add a `UIAppFonts` entry to `project.yml`'s `info.properties`). Until
-  then, `Font.custom` falls back to the system font automatically — the
-  app still builds and runs, just without the condensed display look.
+- **App icon**: done — `Resources/Assets.xcassets/AppIcon.appiconset` has a
+  1024×1024 icon generated from the same path data as
+  `CMSNWordmarkSlashesShape` (the wordmark's trailing "//" mark), so it's
+  vector-accurate rather than a raster approximation.
+- **Bebas Neue font file**: `project.yml` already registers
+  `BebasNeue-Regular.ttf` under `UIAppFonts`, but the actual `.ttf` isn't
+  bundled (binary files can't be authored as text) — see
+  `CMSNApp/Resources/Fonts/README.md` for the one-file drop-in step.
+  `Font.custom` falls back to the system font automatically until then, so
+  the app still builds and runs, just without the condensed display look.
 - **Instructional video library**: `ExerciseCardView` has the UI slot
   (`demonstrationVideoAssetName`) but no real video assets — V1 scope.
 - **Apple Watch app**: `CMSNWatchApp` target is a working, minimal scaffold
