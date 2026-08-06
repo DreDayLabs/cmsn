@@ -14,7 +14,7 @@ struct CMSNAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            WelcomeView()
                 .environment(appState)
                 .preferredColorScheme(.dark) // the brand is black/white-first; V0 doesn't ship a light theme
         }
