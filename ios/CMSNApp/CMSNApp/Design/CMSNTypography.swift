@@ -3,13 +3,8 @@ import SwiftUI
 /// Typography system mirroring the marketing site: a condensed display face
 /// for headlines (Bebas Neue there), quiet system sans for everything else.
 ///
-/// NOTE for whoever opens this in Xcode: `Resources/Fonts/BebasNeue-Regular.ttf`
-/// is NOT bundled by this build (binary font files can't be authored by an
-/// agent that can only write text). Download the OFL-licensed family from
-/// Google Fonts, drop the .ttf into `Resources/Fonts/`, and add it to
-/// `UIAppFonts` in Info.plist — see `ios/CMSNApp/README.md`. Until then,
-/// `Font.custom` falls back to the system font automatically, so the app
-/// still builds and runs correctly, just without the condensed display look.
+/// `Resources/Fonts/BebasNeue-Regular.ttf` is bundled (OFL license alongside
+/// it) and registered via `UIAppFonts` in `project.yml`.
 enum CMSNTypography {
     private static let displayFontName = "BebasNeue-Regular"
 

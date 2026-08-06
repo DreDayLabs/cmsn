@@ -45,12 +45,11 @@ targets:
           - UIInterfaceOrientationPortrait
         UIBackgroundModes: []
         ITSAppUsesNonExemptEncryption: false
-        # BebasNeue-Regular.ttf isn't bundled in the repo (binary file - see
-        # Resources/Fonts/README.md for the drop-in step), so this key is a
-        # no-op today: Font.custom falls back to the system font when the
-        # named font isn't present, rather than crashing. Once the .ttf
-        # lands in Resources/Fonts/, this is the only wiring needed - no
-        # further code changes.
+        # Registers the bundled Resources/Fonts/BebasNeue-Regular.ttf (OFL
+        # license alongside it in the same folder). Its PostScript name is
+        # exactly "BebasNeue-Regular", matching CMSNTypography's
+        # Font.custom("BebasNeue-Regular", ...) calls with no further
+        # wiring needed.
         UIAppFonts:
           - BebasNeue-Regular.ttf
     capabilities:

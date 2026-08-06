@@ -77,12 +77,8 @@ scoring), and day-boundary/timezone handling for the Return-loop logic.
   1024×1024 icon generated from the same path data as
   `CMSNWordmarkSlashesShape` (the wordmark's trailing "//" mark), so it's
   vector-accurate rather than a raster approximation.
-- **Bebas Neue font file**: `project.yml` already registers
-  `BebasNeue-Regular.ttf` under `UIAppFonts`, but the actual `.ttf` isn't
-  bundled (binary files can't be authored as text) — see
-  `CMSNApp/Resources/Fonts/README.md` for the one-file drop-in step.
-  `Font.custom` falls back to the system font automatically until then, so
-  the app still builds and runs, just without the condensed display look.
+- **Bebas Neue font file**: done — `Resources/Fonts/BebasNeue-Regular.ttf`
+  is bundled (OFL license alongside it) and registered under `UIAppFonts`.
 - **Instructional video library**: `ExerciseCardView` has the UI slot
   (`demonstrationVideoAssetName`) but no real video assets — V1 scope.
 - **Apple Watch app**: `CMSNWatchApp` target is a working, minimal scaffold
