@@ -79,7 +79,7 @@ struct WorkoutPlanConfirmView: View {
         .padding(.top, 34)
     }
 
-    private func pillRow(_ values: [Int], selected: Int, label: (Int) -> String, onPick: @escaping (Int) -> Void) -> some View {
+    private func pillRow(_ values: [Int], selected: Int, label: @escaping (Int) -> String, onPick: @escaping (Int) -> Void) -> some View {
         FlowLayout(spacing: 10) {
             ForEach(values, id: \.self) { value in
                 Button {
