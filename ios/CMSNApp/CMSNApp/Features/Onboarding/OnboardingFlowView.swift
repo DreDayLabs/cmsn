@@ -10,7 +10,7 @@ struct OnboardingFlowView: View {
     /// `Athlete.hasCompletedOnboarding` flipping true: the caller (typically
     /// `OnboardingNarrativeView`) uses this to advance its own step machine
     /// rather than relying on a model change to drive navigation.
-    var onFinish: () -> Void = {}
+    let onFinish: () -> Void
     @Environment(AppState.self) private var appState
 
     @State private var draft: OnboardingDraft
@@ -18,8 +18,9 @@ struct OnboardingFlowView: View {
 
     private enum Step { case trainingProfile, equipment, limitations }
 
-    init(existingAthlete: Athlete?) {
+    init(existingAthlete: Athlete?, onFinish: @escaping () -> Void = {}) {
         self.existingAthlete = existingAthlete
+        self.onFinish = onFinish
         if let existing = existingAthlete {
             _draft = State(initialValue: OnboardingDraft(
                 name: existing.name ?? "",
