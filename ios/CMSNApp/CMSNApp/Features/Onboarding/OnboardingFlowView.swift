@@ -6,6 +6,11 @@ import SwiftUI
 /// whatever's already saved rather than starting over.
 struct OnboardingFlowView: View {
     let existingAthlete: Athlete?
+    /// Called once the wizard has saved the athlete profile. Distinct from
+    /// `Athlete.hasCompletedOnboarding` flipping true: the caller (typically
+    /// `OnboardingNarrativeView`) uses this to advance its own step machine
+    /// rather than relying on a model change to drive navigation.
+    var onFinish: () -> Void = {}
     @Environment(AppState.self) private var appState
 
     @State private var draft: OnboardingDraft
@@ -62,6 +67,7 @@ struct OnboardingFlowView: View {
         } else {
             repository.createAthlete(draft.makeAthlete())
         }
+        onFinish()
     }
 
     private func apply(_ draft: OnboardingDraft, to athlete: Athlete) {

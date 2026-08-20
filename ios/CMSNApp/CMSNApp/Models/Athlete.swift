@@ -54,6 +54,13 @@ final class Athlete {
 
     var onboardingCompletedAt: Date?
 
+    /// Distinct from `onboardingCompletedAt`: that flips the moment the
+    /// profile-intake wizard finishes, but the first-run narrative continues
+    /// past it (about/workout-plan/score-intro screens) before handing off to
+    /// `MainTabView`. `RootView` gates on this field, not on
+    /// `onboardingCompletedAt`, so it doesn't jump to the main app mid-narrative.
+    var firstRunNarrativeCompletedAt: Date?
+
     init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
@@ -78,7 +85,8 @@ final class Athlete {
         calendarAuthorized: Bool = false,
         unitPreference: UnitPreference = .imperial,
         coachingTone: CoachingTone = .encouraging,
-        onboardingCompletedAt: Date? = nil
+        onboardingCompletedAt: Date? = nil,
+        firstRunNarrativeCompletedAt: Date? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -104,6 +112,7 @@ final class Athlete {
         self.unitPreference = unitPreference
         self.coachingTone = coachingTone
         self.onboardingCompletedAt = onboardingCompletedAt
+        self.firstRunNarrativeCompletedAt = firstRunNarrativeCompletedAt
     }
 
     var preferredStyles: [TrainingStyle] {
@@ -123,4 +132,5 @@ final class Athlete {
     }
 
     var hasCompletedOnboarding: Bool { onboardingCompletedAt != nil }
+    var hasCompletedFirstRunNarrative: Bool { firstRunNarrativeCompletedAt != nil }
 }

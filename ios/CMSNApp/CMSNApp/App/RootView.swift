@@ -1,10 +1,12 @@
 import SwiftUI
 import SwiftData
 
-/// Decides Onboarding vs. the main app. V0 assumes exactly one local
-/// athlete (see `AthleteRepository`) — the moment that profile exists and
-/// `hasCompletedOnboarding` is true, every subsequent launch skips straight
-/// to `MainTabView`.
+/// Decides the first-run narrative vs. the main app. V0 assumes exactly one
+/// local athlete (see `AthleteRepository`) — the moment that profile exists
+/// and `hasCompletedFirstRunNarrative` is true, every subsequent launch
+/// skips straight to `MainTabView`. Gates on that field rather than
+/// `hasCompletedOnboarding`: the profile wizard is only the middle of the
+/// first-run narrative (see `OnboardingNarrativeView`), not the end of it.
 struct RootView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
@@ -12,10 +14,10 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if let athlete = athletes.first, athlete.hasCompletedOnboarding {
+            if let athlete = athletes.first, athlete.hasCompletedFirstRunNarrative {
                 MainTabView(athlete: athlete)
             } else {
-                OnboardingFlowView(existingAthlete: athletes.first)
+                OnboardingNarrativeView(existingAthlete: athletes.first)
             }
         }
         .tint(CMSNColor.offWhite)
