@@ -7,6 +7,28 @@ struct EarnYourCMSNView: View {
     let onContinue: () -> Void
 
     var body: some View {
+        ZStack {
+            Image("About")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .ignoresSafeArea()
+
+            LinearGradient(
+                colors: [
+                    CMSNColor.offBlack.opacity(0.55),
+                    CMSNColor.offBlack.opacity(0.5),
+                    CMSNColor.offBlack.opacity(0.92),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            content
+        }
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 22) {
                 VStack(alignment: .leading, spacing: 10) {
@@ -41,7 +63,6 @@ struct EarnYourCMSNView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
         }
-        .background(CMSNColor.offBlack.ignoresSafeArea())
     }
 }
 

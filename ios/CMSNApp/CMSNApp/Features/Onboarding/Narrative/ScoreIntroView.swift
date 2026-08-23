@@ -12,6 +12,29 @@ struct ScoreIntroView: View {
     private let breakdown = ScoreCalculator.compositeScore(from: [])
 
     var body: some View {
+        ZStack {
+            Image("Score")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .ignoresSafeArea()
+
+            LinearGradient(
+                colors: [
+                    CMSNColor.offBlack.opacity(0.75),
+                    CMSNColor.offBlack.opacity(0.88),
+                    CMSNColor.offBlack.opacity(0.97),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            content
+        }
+        .onAppear { animateIn = true }
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             VStack(spacing: 8) {
                 EyebrowLabel(text: "Your Score")
@@ -66,8 +89,6 @@ struct ScoreIntroView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
         }
-        .background(CMSNColor.offBlack.ignoresSafeArea())
-        .onAppear { animateIn = true }
     }
 
     private func dimensionRow(title: String, weight: Double) -> some View {

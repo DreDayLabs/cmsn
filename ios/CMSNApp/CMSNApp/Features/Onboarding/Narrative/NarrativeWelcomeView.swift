@@ -13,6 +13,27 @@ struct NarrativeWelcomeView: View {
     @State private var showCTA = false
 
     var body: some View {
+        ZStack {
+            LoopingVideoBackground(resourceName: "welcome-loop", resourceExtension: "mp4")
+                .ignoresSafeArea()
+
+            LinearGradient(
+                colors: [
+                    CMSNColor.offBlack.opacity(0.55),
+                    CMSNColor.offBlack.opacity(0.4),
+                    CMSNColor.offBlack.opacity(0.9),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            content
+        }
+        .onAppear(perform: runSequence)
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             Spacer()
             VStack(spacing: 28) {
@@ -48,8 +69,6 @@ struct NarrativeWelcomeView: View {
                 .opacity(showCTA ? 1 : 0)
                 .offset(y: showCTA ? 0 : 14)
         }
-        .background(CMSNColor.offBlack.ignoresSafeArea())
-        .onAppear(perform: runSequence)
     }
 
     private func runSequence() {

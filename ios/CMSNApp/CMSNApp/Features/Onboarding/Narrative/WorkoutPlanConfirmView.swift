@@ -28,15 +28,35 @@ struct WorkoutPlanConfirmView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 10) {
-                EyebrowLabel(text: "Build Your Week")
-                Text("BUILD YOUR\nWEEK.")
-                    .font(CMSNTypography.display(38))
-                    .lineSpacing(-4)
-                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            ZStack(alignment: .bottomLeading) {
+                Image("WorkoutBuilder")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 260)
+                    .clipped()
+
+                LinearGradient(
+                    colors: [
+                        .clear,
+                        CMSNColor.offBlack.opacity(0.5),
+                        CMSNColor.offBlack,
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 260)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    EyebrowLabel(text: "Build Your Week")
+                    Text("BUILD YOUR\nWEEK.")
+                        .font(CMSNTypography.display(38))
+                        .lineSpacing(-4)
+                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                }
+                .padding(.horizontal, 32)
+                .padding(.bottom, 18)
             }
-            .padding(.horizontal, 32)
-            .padding(.top, 76)
+            .ignoresSafeArea(edges: .top)
 
             section(title: "Session Length (min)") {
                 pillRow(Self.durationOptions, selected: duration, label: { "\($0)" }) { duration = $0 }

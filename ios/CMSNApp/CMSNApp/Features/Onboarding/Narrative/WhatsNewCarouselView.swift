@@ -9,25 +9,25 @@ struct WhatsNewCarouselView: View {
     private static let cards: [WhatsNewCard] = [
         WhatsNewCard(
             eyebrow: "Nutrition",
-            systemImage: "fork.knife",
+            imageName: "Nutrition",
             headline: "FOOD IS\nFUEL.",
             body: "Set your targets. Log what you eat. No calorie shame, just the numbers that get you where you're going."
         ),
         WhatsNewCard(
             eyebrow: "Supplements",
-            systemImage: "pills",
+            imageName: "Supplements",
             headline: "KNOW WHAT\nYOU'RE TAKING.",
             body: "Creatine, protein, caffeine — what it does, what the evidence says, nothing pushed on you."
         ),
         WhatsNewCard(
             eyebrow: "Profile",
-            systemImage: "person",
+            imageName: "Profile",
             headline: "ONE PROFILE.\nNO GUESSING.",
             body: "Equipment, injuries, goals — tell us once. Every session adjusts to you, not the other way around."
         ),
         WhatsNewCard(
             eyebrow: "CMSN Training Session",
-            systemImage: "dumbbell",
+            imageName: "TrainingSession",
             headline: "A SESSION BUILT\nFOR TODAY.",
             body: "Sore? Short on time? Only got dumbbells? The plan flexes. Showing up is the hard part — we handle the rest."
         ),
@@ -80,37 +80,45 @@ struct WhatsNewCarouselView: View {
     }
 
     private func cardView(_ card: WhatsNewCard) -> some View {
-        VStack(alignment: .leading, spacing: 20) {
-            ZStack {
-                Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1)
-                Image(systemName: card.systemImage)
-                    .font(.system(size: 22, weight: .regular))
+        ZStack(alignment: .bottomLeading) {
+            Image(card.imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
+
+            LinearGradient(
+                colors: [
+                    .clear,
+                    CMSNColor.offBlack.opacity(0.55),
+                    CMSNColor.offBlack.opacity(0.97),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            VStack(alignment: .leading, spacing: 14) {
+                EyebrowLabel(text: card.eyebrow)
+
+                Text(card.headline)
+                    .font(CMSNTypography.displaySmall(32))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
+
+                Text(card.body)
+                    .font(CMSNTypography.body())
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    .frame(maxWidth: 300, alignment: .leading)
             }
-            .frame(width: 56, height: 56)
-
-            EyebrowLabel(text: card.eyebrow)
-
-            Text(card.headline)
-                .font(CMSNTypography.displaySmall(34))
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
-
-            Text(card.body)
-                .font(CMSNTypography.body())
-                .foregroundStyle(CMSNColor.Semantic.textSecondary)
-                .frame(maxWidth: 300, alignment: .leading)
-
-            Spacer()
+            .padding(.horizontal, 28)
+            .padding(.bottom, 36)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 32)
-        .padding(.top, 60)
+        .clipped()
     }
 }
 
 private struct WhatsNewCard {
     let eyebrow: String
-    let systemImage: String
+    let imageName: String
     let headline: String
     let body: String
 }
