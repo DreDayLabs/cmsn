@@ -20,9 +20,9 @@ struct ScoreIntroView: View {
 
             LinearGradient(
                 colors: [
-                    CMSNColor.offBlack.opacity(0.75),
-                    CMSNColor.offBlack.opacity(0.88),
-                    CMSNColor.offBlack.opacity(0.97),
+                    CMSNColor.offBlack.opacity(0.45),
+                    CMSNColor.offBlack.opacity(0.62),
+                    CMSNColor.offBlack.opacity(0.85),
                 ],
                 startPoint: .top,
                 endPoint: .bottom

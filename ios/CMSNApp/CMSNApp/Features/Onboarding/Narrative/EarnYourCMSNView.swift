@@ -15,9 +15,9 @@ struct EarnYourCMSNView: View {
 
             LinearGradient(
                 colors: [
-                    CMSNColor.offBlack.opacity(0.55),
-                    CMSNColor.offBlack.opacity(0.5),
-                    CMSNColor.offBlack.opacity(0.92),
+                    CMSNColor.offBlack.opacity(0.3),
+                    CMSNColor.offBlack.opacity(0.26),
+                    CMSNColor.offBlack.opacity(0.62),
                 ],
                 startPoint: .top,
                 endPoint: .bottom

@@ -19,9 +19,9 @@ struct NarrativeWelcomeView: View {
 
             LinearGradient(
                 colors: [
+                    CMSNColor.offBlack.opacity(0.3),
+                    CMSNColor.offBlack.opacity(0.18),
                     CMSNColor.offBlack.opacity(0.55),
-                    CMSNColor.offBlack.opacity(0.4),
-                    CMSNColor.offBlack.opacity(0.9),
                 ],
                 startPoint: .top,
                 endPoint: .bottom
