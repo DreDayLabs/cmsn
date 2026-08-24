@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local review scratch — generated photography and raw video kept next to the
+# project while art direction is in flight. The approved, downsized assets live
+# in ios/CMSNApp/CMSNApp/Resources/; these are the multi-hundred-megabyte
+# originals behind them and are not worth carrying in history.
+/review/
