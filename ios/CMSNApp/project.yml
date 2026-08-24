@@ -41,6 +41,7 @@ targets:
         NSCalendarsFullAccessUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
         NSHealthShareUsageDescription: "CMSN can read basic health data (like body weight) to keep your training profile current. This is optional and off by default in v0."
         NSHealthUpdateUsageDescription: "CMSN can write completed workouts to Apple Health so they show up alongside your other activity."
+        NSCameraUsageDescription: "CMSN uses the camera only to scan food barcodes so you can log meals without typing. Nothing is photographed or stored."
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UIBackgroundModes: []

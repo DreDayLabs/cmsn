@@ -17,6 +17,7 @@ enum DietaryFlag: String, Codable, CaseIterable, Identifiable {
 
 enum NutritionEntrySource: String, Codable {
     case quickAddProtein, quickAddShake, mealSuggestion, manual
+    case mealBuilder, savedMeal, barcode
 }
 
 /// One day's nutrition targets + running totals. Protein is the headline
@@ -77,6 +78,10 @@ final class NutritionEntry {
     var proteinGrams: Double
     var carbGrams: Double?
     var fatGrams: Double?
+    /// Optional because V0 entries (quick-adds) never carried calories;
+    /// meal-builder entries do. Additive + optional keeps the V1→V2
+    /// migration lightweight.
+    var calories: Double?
     var sourceRaw: String
 
     var log: NutritionLog?
@@ -88,6 +93,7 @@ final class NutritionEntry {
         proteinGrams: Double,
         carbGrams: Double? = nil,
         fatGrams: Double? = nil,
+        calories: Double? = nil,
         source: NutritionEntrySource = .manual
     ) {
         self.id = id
@@ -96,6 +102,7 @@ final class NutritionEntry {
         self.proteinGrams = proteinGrams
         self.carbGrams = carbGrams
         self.fatGrams = fatGrams
+        self.calories = calories
         self.sourceRaw = source.rawValue
     }
 

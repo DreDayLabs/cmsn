@@ -133,6 +133,45 @@ struct NutritionRepository {
         context.insert(entry)
         try? context.save()
     }
+
+    func removeEntry(_ entry: NutritionEntry) {
+        context.delete(entry)
+        try? context.save()
+    }
+
+    // MARK: Saved meals (the meal-builder's reusable meals)
+
+    func savedMeals() -> [SavedMeal] {
+        let descriptor = FetchDescriptor<SavedMeal>(sortBy: [SortDescriptor(\SavedMeal.createdAt, order: .reverse)])
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    @discardableResult
+    func saveMeal(name: String, ingredients: [DraftIngredient]) -> SavedMeal {
+        let meal = SavedMeal(name: name)
+        context.insert(meal)
+        for (index, draft) in ingredients.enumerated() {
+            let ingredient = SavedMealIngredient(
+                name: draft.name,
+                portionDescription: draft.portionDescription,
+                proteinGrams: draft.macros.protein,
+                carbGrams: draft.macros.carbs,
+                fatGrams: draft.macros.fat,
+                calories: draft.macros.calories,
+                sortOrder: index
+            )
+            ingredient.meal = meal
+            meal.ingredients.append(ingredient)
+            context.insert(ingredient)
+        }
+        try? context.save()
+        return meal
+    }
+
+    func deleteSavedMeal(_ meal: SavedMeal) {
+        context.delete(meal)
+        try? context.save()
+    }
 }
 
 @MainActor
