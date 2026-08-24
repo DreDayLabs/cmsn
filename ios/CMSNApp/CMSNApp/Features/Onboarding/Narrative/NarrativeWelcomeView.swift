@@ -60,7 +60,13 @@ struct NarrativeWelcomeView: View {
                 }
             }
             .padding(.horizontal, 40)
-            Spacer()
+
+            // The type block used to sit dead-centre, which put the headline
+            // straight across the athlete's chest logo for most of the loop.
+            // Capping the lower spacer forces the upper one to absorb the
+            // remaining space, dropping the block into the lower third so the
+            // chest mark reads clear above it.
+            Spacer().frame(maxHeight: 56)
 
             Button("Get Started", action: onContinue)
                 .buttonStyle(.cmsnPrimary)
