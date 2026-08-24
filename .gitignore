@@ -45,3 +45,10 @@ next-env.d.ts
 # in ios/CMSNApp/CMSNApp/Resources/; these are the multi-hundred-megabyte
 # originals behind them and are not worth carrying in history.
 /review/
+
+# XcodeGen output — the Xcode project and both Info.plists are generated from
+# ios/CMSNApp/project.yml by `xcodegen generate`. project.yml is the source of
+# truth; edits made directly to these are overwritten on the next generate.
+/ios/CMSNApp/CMSNApp.xcodeproj/
+/ios/CMSNApp/CMSNApp/Info.plist
+/ios/CMSNApp/CMSNWatchApp/Info.plist
