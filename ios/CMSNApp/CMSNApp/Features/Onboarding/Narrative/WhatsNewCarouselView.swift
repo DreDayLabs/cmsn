@@ -81,11 +81,7 @@ struct WhatsNewCarouselView: View {
 
     private func cardView(_ card: WhatsNewCard) -> some View {
         ZStack(alignment: .bottomLeading) {
-            Image(card.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
+            PhotoBackground(imageName: card.imageName)
 
             LinearGradient(
                 colors: [

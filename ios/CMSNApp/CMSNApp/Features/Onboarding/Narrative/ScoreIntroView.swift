@@ -13,9 +13,7 @@ struct ScoreIntroView: View {
 
     var body: some View {
         ZStack {
-            Image("Score")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
+            PhotoBackground(imageName: "Score")
                 .ignoresSafeArea()
 
             LinearGradient(

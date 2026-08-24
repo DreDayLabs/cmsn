@@ -8,9 +8,7 @@ struct EarnYourCMSNView: View {
 
     var body: some View {
         ZStack {
-            Image("About")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
+            PhotoBackground(imageName: "About")
                 .ignoresSafeArea()
 
             LinearGradient(

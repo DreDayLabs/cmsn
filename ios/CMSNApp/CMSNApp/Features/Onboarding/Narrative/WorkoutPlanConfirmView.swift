@@ -29,11 +29,7 @@ struct WorkoutPlanConfirmView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .bottomLeading) {
-                Image("WorkoutBuilder")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 260)
-                    .clipped()
+                PhotoBackground(imageName: "WorkoutBuilder", height: 260)
 
                 LinearGradient(
                     colors: [
