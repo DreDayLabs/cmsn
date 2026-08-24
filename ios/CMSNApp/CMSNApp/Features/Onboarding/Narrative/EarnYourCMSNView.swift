@@ -34,6 +34,13 @@ struct EarnYourCMSNView: View {
                     Text("EARN YOUR\nCMSN.")
                         .font(CMSNTypography.display(44))
                         .lineSpacing(-6)
+                        // Without this the headline renders as "EARN YOUR..."
+                        // on a single line. It sits in a VStack between two
+                        // Spacers, so when the stack is squeezed the Text is
+                        // offered less height than its two lines need and
+                        // truncates instead of wrapping. fixedSize makes it
+                        // claim its full ideal height and push back.
+                        .fixedSize(horizontal: false, vertical: true)
                         .foregroundStyle(CMSNColor.Semantic.textPrimary)
                 }
 
