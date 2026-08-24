@@ -138,8 +138,7 @@ struct FlowToggleGrid<Item: Hashable>: View {
                         .padding(.horizontal, 12)
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(isOn(item) ? CMSNColor.offBlack : CMSNColor.Semantic.textPrimary)
-                        .background(isOn(item) ? CMSNColor.offWhite : Color.clear)
-                        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+                        .cmsnChip(isSelected: isOn(item))
                 }
                 .buttonStyle(.plain)
             }

@@ -65,7 +65,7 @@ struct ApparelFeedbackView: View {
             TextField(placeholder, text: text)
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
                 .padding(10)
-                .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+                .cmsnChip(isSelected: false)
         }
     }
 

@@ -46,7 +46,7 @@ struct ScoreView: View {
             dimensionBar(title: ScoreDimension.discipline.displayName, raw: breakdown.discipline, weight: ScoreWeights.disciplineAndRecovery)
         }
         .padding(20)
-        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+        .cmsnCard()
     }
 
     private func dimensionBar(title: String, raw: Double, weight: Double) -> some View {

@@ -62,7 +62,7 @@ struct NutritionLogView: View {
             .frame(height: 8)
         }
         .padding(20)
-        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+        .cmsnCard()
     }
 
     private var quickAddRow: some View {

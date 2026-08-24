@@ -52,7 +52,7 @@ struct ReadinessCheckView: View {
                 .buttonStyle(.cmsnPrimary)
         }
         .padding(20)
-        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+        .cmsnCard()
     }
 
     private func scaleRow(title: String, value: Binding<Int>) -> some View {

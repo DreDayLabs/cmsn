@@ -37,11 +37,16 @@ struct EquipmentProfileStepView: View {
                         }
                         .foregroundStyle(CMSNColor.Semantic.textPrimary)
                         .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
+                                .fill(CMSNSurfaceStyle.fill)
+                        )
                         .overlay(
-                            Rectangle().strokeBorder(
-                                draft.equipmentProfile == profile ? CMSNColor.offWhite : CMSNColor.Semantic.divider,
-                                lineWidth: 1
-                            )
+                            RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
+                                .strokeBorder(
+                                    draft.equipmentProfile == profile ? CMSNSurfaceStyle.edgeSelected : CMSNSurfaceStyle.edge,
+                                    lineWidth: 1
+                                )
                         )
                     }
                     .buttonStyle(.plain)

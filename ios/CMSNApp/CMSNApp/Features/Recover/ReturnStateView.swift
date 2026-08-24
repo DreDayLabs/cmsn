@@ -26,7 +26,7 @@ struct ReturnStateView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+        .cmsnCard()
     }
 }
 

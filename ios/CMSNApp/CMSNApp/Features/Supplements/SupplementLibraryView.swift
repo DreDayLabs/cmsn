@@ -78,7 +78,8 @@ private struct EvidenceBadge: View {
             .foregroundStyle(CMSNColor.Semantic.textSecondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+            .background(Capsule().fill(CMSNSurfaceStyle.fill))
+            .overlay(Capsule().strokeBorder(CMSNSurfaceStyle.edge, lineWidth: 1))
     }
 }
 

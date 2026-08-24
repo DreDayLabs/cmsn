@@ -74,7 +74,7 @@ struct SessionSummaryView: View {
             }
         }
         .padding(20)
-        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+        .cmsnCard()
     }
 
     private var scoreSection: some View {
@@ -89,7 +89,7 @@ struct SessionSummaryView: View {
             scoreRow("Discipline & Recovery", scoreBreakdown.discipline)
         }
         .padding(20)
-        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+        .cmsnCard()
     }
 
     private func scoreRow(_ label: String, _ value: Double) -> some View {

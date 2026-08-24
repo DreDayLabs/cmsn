@@ -39,7 +39,7 @@ struct SettingsView: View {
                             }
                             .foregroundStyle(CMSNColor.Semantic.textPrimary)
                             .padding(16)
-                            .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+                            .cmsnCard()
                         }
                         .buttonStyle(.plain)
 

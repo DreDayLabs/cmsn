@@ -30,7 +30,7 @@ struct RestTimerView: View {
             .buttonStyle(.cmsnText)
         }
         .padding(16)
-        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+        .cmsnCard()
         .onAppear(perform: start)
         .onDisappear { cancellable?.cancel() }
     }

@@ -68,7 +68,7 @@ struct QuickPathActionBar: View {
                         .foregroundStyle(CMSNColor.Semantic.textPrimary)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
-                        .overlay(Rectangle().strokeBorder(CMSNColor.Semantic.divider, lineWidth: 1))
+                        .cmsnCard()
                     }
                     .buttonStyle(.plain)
                 }
