@@ -9,6 +9,29 @@ struct JoinCrewView: View {
     private let previewSteps = ["Training profile", "Equipment access", "Injuries & limitations"]
 
     var body: some View {
+        ZStack {
+            PhotoBackground(imageName: "JoinCrew")
+                .ignoresSafeArea()
+
+            // Heavier than the other narrative screens on purpose: this one
+            // carries a numbered list with hairline dividers, which needs more
+            // separation from the photo than a headline block does.
+            LinearGradient(
+                colors: [
+                    CMSNColor.offBlack.opacity(0.55),
+                    CMSNColor.offBlack.opacity(0.68),
+                    CMSNColor.offBlack.opacity(0.9),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            content
+        }
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 10) {
                 EyebrowLabel(text: "Join the Crew")
@@ -59,7 +82,6 @@ struct JoinCrewView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
         }
-        .background(CMSNColor.offBlack.ignoresSafeArea())
     }
 }
 
