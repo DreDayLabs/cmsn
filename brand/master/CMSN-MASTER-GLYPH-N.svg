@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1495.41 1000.00" fill="none" role="img" aria-label="N">
+  <!-- CMSN Phase 3B reconstruction: glyph N. Same coordinate convention as C. Diagonal drawn corner-to-corner between stem centerlines; see validation report for the resulting angle vs measured edge-fit angle. -->
+  <!-- CMSN CANONICAL MASTER — Phase 3C. Geometry frozen; identical (by geometry fingerprint, see CMSN-MASTER-INTEGRITY.json) to the Phase 3B evidence-validated source in brand/vector-masters/. Do not redraw, re-fit, optically correct, simplify, round, or re-export through software that may rewrite path data. Any modification must go through a new, explicitly authorized phase, not silent edit. -->
+  <path d="M87.16 1000.00 V0.00 L1408.26 1000.00 V0.00" stroke="currentColor" stroke-width="174.31" stroke-linecap="butt" stroke-linejoin="miter" fill="none"/>
+</svg>
