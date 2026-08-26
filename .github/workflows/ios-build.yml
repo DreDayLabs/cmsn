@@ -1,0 +1,110 @@
+name: iOS Build
+
+on:
+  push:
+    branches:
+      - "claude/**"
+      - main
+  workflow_dispatch: {}
+
+# Runner image: GitHub only publishes a small, fixed set of macOS labels
+# (macos-13/14/15/latest, etc.) for hosted runners — the "macos-26-arm64"
+# seen in earlier logs was the runner's *internal* image name, not a
+# selectable label (confirmed: a job requesting that label sat in `queued`
+# indefinitely instead of picking up a runner within seconds like every
+# other run here). So `runs-on` stays macos-latest, the only thing GitHub
+# actually lets us request. What's fully pinned instead, deliberately, is
+# what determines actual build behavior: the exact Xcode install and the
+# exact XcodeGen version, both hard-failing loudly if they drift rather
+# than silently picking "whatever's newest" (which caused two of the
+# earlier failures here).
+env:
+  XCODE_VERSION: "26.6"
+  XCODE_APP_PATH: "/Applications/Xcode_26.6.app"
+  XCODEGEN_VERSION: "2.46.0"
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select pinned Xcode
+        run: |
+          if [ ! -d "$XCODE_APP_PATH" ]; then
+            echo "::error::Pinned Xcode not found at $XCODE_APP_PATH on this runner image."
+            echo "Available Xcode installs:"
+            ls -d /Applications/Xcode*.app
+            echo "Update XCODE_VERSION/XCODE_APP_PATH at the top of this workflow to match, deliberately."
+            exit 1
+          fi
+          sudo xcode-select -s "$XCODE_APP_PATH"
+          xcodebuild -version
+
+      - name: Install pinned XcodeGen (via Mint)
+        # Mint builds/installs an exact tagged version, unlike `brew install
+        # xcodegen` which tracks whatever Homebrew currently bottles.
+        run: |
+          brew install mint
+          mint install yonaskolb/xcodegen@$XCODEGEN_VERSION
+          echo "$HOME/.mint/bin" >> "$GITHUB_PATH"
+
+      - name: Generate Xcode project
+        working-directory: ios/CMSNApp
+        run: |
+          xcodegen version
+          xcodegen generate
+
+      - name: List available simulators
+        run: xcrun simctl list devices available
+
+      - name: Build (concrete simulator destination, unsigned)
+        # -destination pins a concrete simulator + arch (removes the
+        # "multiple matching destinations" arm64/x86_64 ambiguity warning).
+        # The actual "Multiple commands produce ... CreateUniversalBinary"
+        # build failure this project hit turned out to be unrelated to the
+        # destination string - it's fixed in project.yml via
+        # EXCLUDED_ARCHS[sdk=...simulator*]=x86_64, since these runners are
+        # arm64 and never need the x86_64 simulator slice at all.
+        # CODE_SIGNING_* overrides make "no signing required for a
+        # simulator build" explicit rather than assumed.
+        working-directory: ios/CMSNApp
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project CMSNApp.xcodeproj \
+            -scheme CMSNApp \
+            -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            | tee build.log
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: ios/CMSNApp/build.log
+
+      - name: Run unit tests
+        working-directory: ios/CMSNApp
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project CMSNApp.xcodeproj \
+            -scheme CMSNApp \
+            -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            | tee test.log
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: ios/CMSNApp/test.log

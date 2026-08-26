@@ -1,0 +1,79 @@
+{
+  "identifier" : "CMSNConfiguration",
+  "nonRenewingSubscriptions" : [],
+  "products" : [],
+  "settings" : {
+    "_applicationInternalID" : "0",
+    "_developerTeamID" : "0",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 0,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21000000",
+      "localizations" : [],
+      "name" : "CMSN+",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOfferSubscriptionDurations" : [],
+          "displayPrice" : "9.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21000001",
+          "introductoryOffer" : {
+            "internalID" : "21000003",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Full CMSN training system, monthly.",
+              "displayName" : "CMSN+ Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.earnyourcmsn.app.plus.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "CMSN+ Monthly",
+          "subscriptionGroupID" : "21000000",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOfferSubscriptionDurations" : [],
+          "displayPrice" : "59.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21000002",
+          "introductoryOffer" : {
+            "internalID" : "21000004",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Full CMSN training system, billed annually. Best value.",
+              "displayName" : "CMSN+ Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.earnyourcmsn.app.plus.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "CMSN+ Annual",
+          "subscriptionGroupID" : "21000000",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

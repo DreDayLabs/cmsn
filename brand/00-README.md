@@ -18,6 +18,8 @@ A fashion brand for the gym. Not performance-first, not luxury-first — *the wa
 | [04-product-and-manufacturing.md](04-product-and-manufacturing.md) | Capsule 1 line plan with margin math, tech-pack process, fabric guide, sourcing path with real MOQs (researched + cited), big-and-tall grading moat, timeline to launch |
 | [05-content-and-community.md](05-content-and-community.md) | The Instagram/TikTok engine, "walk to the gym" series, formula-tee content format, 90-day pre-launch calendar, drop mechanics, CMSNer community language |
 | [06-ai-capabilities-map.md](06-ai-capabilities-map.md) | Honest map of what Claude/AI agents can and cannot do for design, tech packs, sourcing, and growth — and which tools in your workspace do what |
+| [07-font-and-licensing.md](07-font-and-licensing.md) | Wordmark font identification, typeface vs. font-file copyright law, and where the CMSN mark's IP actually stands |
+| [08-app-strategy.md](08-app-strategy.md) | The CMSN iOS app & ecosystem strategy: the Dress→Prepare→Perform→Prove→Recover→Return loop, balanced audience positioning, Fitbod-Plus competitive analysis, CMSN Score model, CMSN+ pricing, and the V0→V1→V2 roadmap. The app itself lives at [`../ios/CMSNApp/`](../ios/CMSNApp/) |
 
 ---
 

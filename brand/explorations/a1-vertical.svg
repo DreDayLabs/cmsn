@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 82 420" fill="none" role="img" aria-label="CMSN">
+  <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+    <g transform="translate(12,10)"><path d="M58 8 H28 Q6 8 6 30 V74 Q6 96 28 96 H58"/></g>
+    <g transform="translate(8,114)"><path d="M0 96 V8 L28 58 H38 L66 8 V96"/></g>
+    <g transform="translate(18,218)"><path d="M46 10 H20 Q2 10 2 28 Q2 44 20 46 L28 48 Q46 50 46 68 Q46 94 28 94 H2"/></g>
+    <g transform="translate(17,322)"><path d="M0 96 V8 L48 96 V8"/></g>
+  </g>
+</svg>

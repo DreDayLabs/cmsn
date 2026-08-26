@@ -1,0 +1,147 @@
+name: CMSNApp
+options:
+  bundleIdPrefix: com.earnyourcmsn
+  deploymentTarget:
+    iOS: "17.0"
+    watchOS: "10.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_PREVIEWS: YES
+    # Standard-practice settings, kept even though none of them turned out
+    # to be the actual fix for the CMSNWatchApp "Multiple commands
+    # produce" build error (see CMSNApp's dependencies comment below for
+    # what the real fix was). Hosted GitHub macOS runners are Apple
+    # Silicon (arm64), so the x86_64 simulator slice is never needed.
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "x86_64"
+    "EXCLUDED_ARCHS[sdk=watchsimulator*]": "x86_64"
+  configs:
+    Debug:
+      ONLY_ACTIVE_ARCH: YES
+
+targets:
+  CMSNApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: CMSNApp
+    resources:
+      - path: CMSNApp/Resources
+    info:
+      path: CMSNApp/Info.plist
+      properties:
+        UILaunchScreen: {}
+        NSCalendarsUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
+        NSCalendarsFullAccessUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
+        NSHealthShareUsageDescription: "CMSN can read basic health data (like body weight) to keep your training profile current. This is optional and off by default in v0."
+        NSHealthUpdateUsageDescription: "CMSN can write completed workouts to Apple Health so they show up alongside your other activity."
+        NSCameraUsageDescription: "CMSN uses the camera only to scan food barcodes so you can log meals without typing. Nothing is photographed or stored."
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIBackgroundModes: []
+        ITSAppUsesNonExemptEncryption: false
+        # Registers the bundled Resources/Fonts/BebasNeue-Regular.ttf (OFL
+        # license alongside it in the same folder). Its PostScript name is
+        # exactly "BebasNeue-Regular", matching CMSNTypography's
+        # Font.custom("BebasNeue-Regular", ...) calls with no further
+        # wiring needed.
+        UIAppFonts:
+          - BebasNeue-Regular.ttf
+    capabilities:
+      com.apple.developer.healthkit: {}
+      com.apple.InAppPurchase: {}
+    # No `dependencies: - target: CMSNWatchApp` here. It was there
+    # earlier, in every combination (implicit embed, embed: true,
+    # embed: false) and with every other setting on this page
+    # (EXCLUDED_ARCHS, ONLY_ACTIVE_ARCH, SKIP_INSTALL) tried in isolation
+    # and combined - all four independent fix attempts left the identical
+    # "Multiple commands produce .../CMSNWatchApp.app/CMSNWatchApp"
+    # (CopyAndPreserveArchs vs. Ld, in target CMSNWatchApp) error in
+    # place, always failing at the same instant during
+    # CreateBuildDescription. That rules out arch multiplicity,
+    # install-packaging, and embedding as the cause - the one variable
+    # that was never isolated was whether CMSNWatchApp gets built at all
+    # as part of the CMSNApp scheme. It's a genuine V0 stub (see
+    # CMSNWatchApp.swift: "not implemented... coming in a future
+    # update"), explicitly not required to build in V0 per the project
+    # plan - so it's simplest and most honest to not build it as a
+    # CMSNApp dependency at all. The target stays in the project,
+    # buildable on its own scheme, ready for V1 to actually wire it up
+    # (and re-litigate this bug if it resurfaces once there's a real
+    # reason to embed it).
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        DEVELOPMENT_ASSET_PATHS: ""
+
+  CMSNWatchApp:
+    type: application.watchapp2
+    platform: watchOS
+    sources:
+      - path: CMSNWatchApp
+    info:
+      path: CMSNWatchApp/Info.plist
+      properties:
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: com.earnyourcmsn.app
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSHealthShareUsageDescription: "CMSN uses Health data to run and record your workout from your wrist."
+        NSHealthUpdateUsageDescription: "CMSN saves your workout to Apple Health when you finish."
+        ITSAppUsesNonExemptEncryption: false
+    # Entitlements are per-target, not inherited from the host app. This
+    # target's Info.plist already declares HealthKit usage descriptions
+    # (for V1's real Watch companion), so it needs its own entitlement
+    # here too, matching CMSNApp - otherwise a future signed device build
+    # would fail once real HealthKit calls are added, even though CI's
+    # unsigned build (CODE_SIGNING_ALLOWED=NO skips entitlement
+    # processing) would never catch the gap.
+    capabilities:
+      com.apple.developer.healthkit: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
+        TARGETED_DEVICE_FAMILY: "4"
+        # Correct standard practice for a target embedded in a host app
+        # (kept even though it wasn't what actually fixed CI - see
+        # CMSNApp's dependencies comment above for the real fix).
+        SKIP_INSTALL: YES
+
+  CMSNAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: CMSNAppTests
+    dependencies:
+      - target: CMSNApp
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+    scheme:
+      testTargets:
+        - CMSNAppTests
+      gatherCoverageData: true
+
+schemes:
+  CMSNApp:
+    build:
+      targets:
+        CMSNApp: all
+        CMSNAppTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - CMSNAppTests
+      gatherCoverageData: true
