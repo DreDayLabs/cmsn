@@ -120,7 +120,7 @@ struct NutritionLogView: View {
                         .font(CMSNTypography.bodyQuiet())
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                     Text("~\(Int(meal.approxProteinGramsLow))–\(Int(meal.approxProteinGramsHigh))g protein · \(meal.prepMinutes) min")
-                        .font(.system(size: 11))
+                        .font(CMSNTypography.caption())
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 }
                 .overlay(alignment: .bottom) { Rectangle().fill(CMSNColor.Semantic.divider).frame(height: 1) }
@@ -143,8 +143,8 @@ struct NutritionLogView: View {
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 }
                 Spacer()
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 22))
+                Text("+")
+                    .font(CMSNTypography.displaySmall(22))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
             }
             .padding(18)

@@ -67,8 +67,8 @@ struct SupplementLibraryView: View {
             ForEach(filteredGroups) { group in
                 VStack(alignment: .leading, spacing: 4) {
                     Text(group.name.uppercased())
-                        .font(.system(size: 11, weight: .semibold))
-                        .kerning(1.4)
+                        .font(CMSNTypography.eyebrow())
+                        .kerning(1.8)
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                         .padding(.top, 8)
                     ForEach(group.entries) { entry in
@@ -139,7 +139,7 @@ struct SupplementLibraryView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             EyebrowLabel(text: "Education, not prescription")
-            Text("Supplements")
+            Text("Library")
                 .font(CMSNTypography.displaySmall(36))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
         }
@@ -175,13 +175,12 @@ private struct EvidenceBadge: View {
 
     var body: some View {
         Text(level.displayName.uppercased())
-            .font(.system(size: 8, weight: .semibold))
-            .kerning(1.2)
+            .font(CMSNTypography.micro())
+            .kerning(1.4)
             .foregroundStyle(CMSNColor.Semantic.textSecondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(Capsule().fill(CMSNSurfaceStyle.fill))
-            .overlay(Capsule().strokeBorder(CMSNSurfaceStyle.edge, lineWidth: 1))
+            .cmsnChip(isSelected: false)
     }
 }
 
@@ -214,7 +213,7 @@ private struct SupplementDetailView: View {
                     section(title: "Sources", lines: entry.sourceReferences)
 
                     Text("Last reviewed \(entry.lastReviewed.formatted(date: .abbreviated, time: .omitted))")
-                        .font(.system(size: 11))
+                        .font(CMSNTypography.caption())
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
 
                     Divider().overlay(CMSNColor.Semantic.divider)

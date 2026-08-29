@@ -1,24 +1,26 @@
 import SwiftUI
 
-/// The soft card language: continuous-corner radius, a barely-raised fill,
-/// a hairline edge, and a low shadow. Replaces the V0 sharp `Rectangle()`
-/// outlines, which read as wireframe boxes rather than product surfaces.
+/// Editorial surface language aligned with the marketing site and
+/// `brand/02-identity-and-logo.md`: near-sharp corners, hairline edges,
+/// no soft elevation shadows. Soft rounded "fitness-app cards" undercut the
+/// machined / boardroom-clean positioning.
 ///
-/// Discipline still applies — no new colors. Elevation comes from opacity
-/// steps on the existing palette plus shadow, never from a new gray.
+/// Discipline still applies — no new colors. Depth comes from opacity steps
+/// on the existing palette, never from a new gray or a multi-layer shadow.
 enum CMSNSurfaceStyle {
-    /// One radius everywhere so cards, chips, and buttons agree.
-    static let cornerRadius: CGFloat = 14
+    /// Near-sharp continuous radius — reads engineered, not bubbly.
+    /// Matches the site's rectangular chrome more closely than a 14pt soft card.
+    static let cornerRadius: CGFloat = 4
     /// Slightly tighter radius for small controls (chips, badges).
-    static let chipCornerRadius: CGFloat = 10
+    static let chipCornerRadius: CGFloat = 2
 
-    static let fill = CMSNColor.offWhite.opacity(0.05)
-    static let fillPressed = CMSNColor.offWhite.opacity(0.1)
-    static let edge = CMSNColor.offWhite.opacity(0.08)
+    static let fill = CMSNColor.offWhite.opacity(0.045)
+    static let fillPressed = CMSNColor.offWhite.opacity(0.09)
+    static let edge = CMSNColor.offWhite.opacity(0.1)
     static let edgeSelected = CMSNColor.offWhite
 }
 
-/// A raised card surface. Apply after the content's own padding:
+/// A flat editorial surface. Apply after the content's own padding:
 /// `VStack { ... }.padding(20).cmsnCard()`.
 private struct CMSNCardModifier: ViewModifier {
     func body(content: Content) -> some View {
@@ -31,12 +33,12 @@ private struct CMSNCardModifier: ViewModifier {
                 RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
                     .strokeBorder(CMSNSurfaceStyle.edge, lineWidth: 1)
             )
-            .shadow(color: CMSNColor.black.opacity(0.35), radius: 12, y: 6)
     }
 }
 
 /// A selectable chip surface (goals, equipment options). Selected chips
 /// invert to the filled offWhite face, matching the primary button.
+/// Uses the near-sharp chip radius — never a Capsule / rounded-full pill.
 private struct CMSNChipModifier: ViewModifier {
     let isSelected: Bool
 
