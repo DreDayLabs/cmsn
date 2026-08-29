@@ -12,11 +12,11 @@ must ship in lockstep with apparel drops, and nothing here touches the marketing
 
 **Environment note.** This audit was performed in a Linux container with no Xcode/macOS
 toolchain — everything below is a source-level read of the Swift code, not a local build.
-Where the native gate's actual pass/fail status is asserted, it's sourced from PR #1's own
-GitHub Actions run on a real macOS runner (`ios-build.yml`, job `build-and-test`), not from
-anything run in this session. The fixes below were made by direct source edits and have not
-been compiled locally; pushing this branch re-triggers `ios-build.yml` (it runs on any
-`claude/**` branch), which is the actual verification step.
+Where the native gate's actual pass/fail status is asserted, it's sourced from GitHub
+Actions runs on a real macOS runner (`ios-build.yml`), not from anything executed directly
+in this session. The fixes below were made by direct source edits and validated by pushing
+this branch (`ios-build.yml` runs on any `claude/**` branch) rather than by a local build —
+see "Verification" at the end for the actual CI run this was confirmed against.
 
 ---
 
@@ -60,11 +60,11 @@ Verified either by reading the code against its own tests/spec, or by the PR's o
 - **Onboarding softlock risk.** None found — every `OnboardingDraft` field ships a sane
   default, so there's no required-field dead end.
 
-## BLOCKED
+## BLOCKED (fixed and CI-verified)
 
-Real defects found this audit, **fixed in this session** (source-level, unverified by a
-local build — see "Verification still pending"). Do not consider these closed until CI is
-green on the commit that includes them.
+Real defects found this audit, fixed in this session and confirmed by a green CI run —
+see "Verification" at the end. "BLOCKED" here describes what this audit found in PR #1's
+code before the fix, not the current state of this branch.
 
 1. **CMSN Score could be farmed by instantly finishing empty sessions.**
    `WorkoutSessionView.finishSession()` set `session.endedAt` *before* calling
@@ -213,15 +213,27 @@ completeness, not as gaps.
 
 ---
 
-## Verification still pending
+## Verification
 
 This audit's fixes (BLOCKED #1–#6) were made as direct source edits with no local Xcode
-toolchain available to compile or run them. Regression tests were added for #1, #3, #4, and
-#5, following the existing test files' own conventions exactly
-(`ScoreCalculatorTests.swift`, `WorkoutRepositoryTests.swift`, `ProgramResolverTests.swift`),
-and hand-traced against the real exercise catalog and equipment data to confirm the expected
-before/after behavior — but "hand-traced" is not "compiled and green." Pushing this branch
-re-triggers `ios-build.yml` on a real macOS runner; **do not treat these six fixes as closed
-until that run is confirmed green**, and do not merge PR #1 into `main` on the basis of this
-document alone — per the audit brief, PR #1 requires founder review before merge regardless
-of CI status.
+toolchain available to compile or run them, then validated by actually pushing the branch
+and reading the real CI result rather than by local compilation:
+
+- First push (commit `9fc8277`,
+  [run 33270504079](https://github.com/DreDayLabs/cmsn/actions/runs/33270504079)): build
+  succeeded (all fixes compile clean), but one **pre-existing** test,
+  `ScoreCalculatorTests.testPartialSessionWithNoCompletionStillEarnsWorkPoints`, failed. Its
+  fixture used a session with exactly one set, fully attempted — under the newly-correct
+  `wasFullyCompleted` signal, that session genuinely is fully completed, not partial, so the
+  test's own premise no longer held now that completeness is measured honestly. Not a bug in
+  the fix; the fixture needed a second, unattempted set to actually represent partial work.
+- Second push (commit `c8944e1`,
+  [run 33271088291](https://github.com/DreDayLabs/cmsn/actions/runs/33271088291)): **green**
+  — build succeeded, all 60 tests passed (0 failures), including the ~9 new regression tests
+  added for BLOCKED #1, #3, #4, and #5 across `ScoreCalculatorTests.swift`,
+  `WorkoutRepositoryTests.swift`, and `ProgramResolverTests.swift`.
+
+The six BLOCKED fixes above are CI-confirmed on branch `claude/cmsn-ios-audit-8d9xql` as of
+commit `c8944e1`. This does **not** mean PR #1 is ready to merge: per the audit brief, PR #1
+requires founder review before merge regardless of CI status, and the FOUNDER REVIEW items
+above are unresolved product/business decisions, not verified-safe defaults.
