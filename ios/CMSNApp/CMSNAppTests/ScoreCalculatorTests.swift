@@ -27,8 +27,13 @@ final class ScoreCalculatorTests: XCTestCase {
 
     func testPartialSessionWithNoCompletionStillEarnsWorkPoints() {
         let session = makeSession(endedAt: nil) // never formally ended
-        let set = attemptedSet(reps: 7, weight: 80)
-        session.loggedExercises = [makeLoggedExercise(sets: [set])]
+        let attempted = attemptedSet(reps: 7, weight: 80)
+        // A second, unattempted set is what actually makes this session
+        // partial rather than fully completed — one-set-attempted-out-of-one-
+        // planned is fully done work by any reasonable definition, regardless
+        // of whether `endedAt` happens to be set.
+        let stillPending = LoggedSet(setIndex: 1, plannedRepRangeLow: 8, plannedRepRangeHigh: 12, plannedWeightKG: nil)
+        session.loggedExercises = [makeLoggedExercise(sets: [attempted, stillPending])]
 
         let events = ScoreCalculator.events(forSession: session)
         let workEvents = events.filter { $0.dimension == .work }
