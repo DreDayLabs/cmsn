@@ -21,16 +21,6 @@ enum QuickPathAction: String, CaseIterable, Identifiable {
         }
     }
 
-    var systemImage: String {
-        switch self {
-        case .fifteenMinutes: return "timer"
-        case .dumbbellsOnly: return "dumbbell"
-        case .walk: return "figure.walk"
-        case .soreToday: return "bandage"
-        case .comingBack: return "arrow.uturn.backward"
-        }
-    }
-
     @MainActor
     func resolve(currentFocus: SplitFocus, resolver: ProgramResolver, athlete: Athlete) -> ResolvedProgramDay {
         switch self {
@@ -48,29 +38,31 @@ enum QuickPathAction: String, CaseIterable, Identifiable {
     }
 }
 
-/// A horizontal row of quick-path buttons on the Today screen.
+/// Horizontal quick-path row — text-only uppercase labels, no SF Symbol
+/// icon chips. Icon-in-card rows are a generic fitness-app pattern; CMSN's
+/// chrome is quiet type, matching the site's eyebrow language.
 struct QuickPathActionBar: View {
     let onSelect: (QuickPathAction) -> Void
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(QuickPathAction.allCases) { action in
-                    Button {
-                        onSelect(action)
-                    } label: {
-                        VStack(spacing: 6) {
-                            Image(systemName: action.systemImage)
+        VStack(alignment: .leading, spacing: 12) {
+            EyebrowLabel(text: "Quick Path")
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(QuickPathAction.allCases) { action in
+                        Button {
+                            onSelect(action)
+                        } label: {
                             Text(action.title.uppercased())
-                                .font(.system(size: 9, weight: .semibold))
-                                .kerning(1.2)
+                                .font(CMSNTypography.eyebrow())
+                                .kerning(1.6)
+                                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                                .padding(.vertical, 14)
+                                .padding(.horizontal, 16)
+                                .cmsnChip(isSelected: false)
                         }
-                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                        .cmsnCard()
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }

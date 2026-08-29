@@ -75,7 +75,7 @@ private struct LegalPageScaffold<Content: View>: View {
                     }
                     content
                     Text("Last updated August 2026")
-                        .font(.system(size: 11))
+                        .font(CMSNTypography.caption())
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 }
                 .padding(24)

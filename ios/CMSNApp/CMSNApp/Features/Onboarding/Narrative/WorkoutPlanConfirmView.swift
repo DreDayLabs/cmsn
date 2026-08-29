@@ -102,7 +102,7 @@ struct WorkoutPlanConfirmView: View {
                     onPick(value)
                 } label: {
                     Text(label(value))
-                        .font(.system(size: 13, weight: .medium))
+                        .font(CMSNTypography.body())
                         .padding(.vertical, 11)
                         .padding(.horizontal, 16)
                         .foregroundStyle(value == selected ? CMSNColor.offBlack : CMSNColor.Semantic.textPrimary)

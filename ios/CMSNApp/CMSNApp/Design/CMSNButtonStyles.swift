@@ -1,24 +1,24 @@
 import SwiftUI
 
 /// Button styles mirroring the site's `.btn-white` / `.btn-ghost-white` /
-/// `.btn-ghost-black` — uppercase, letter-spaced, no color beyond the
-/// five-color palette. Shapes follow `CMSNSurfaceStyle`: continuous rounded
-/// corners and soft elevation replaced the V0 sharp rectangles.
+/// `.btn-ghost-black` — uppercase, letter-spaced, flat faces, no soft
+/// elevation. Shapes follow `CMSNSurfaceStyle` (near-sharp continuous corners).
 
 private struct CMSNButtonLabelStyle: ViewModifier {
     let textColor: Color
     func body(content: Content) -> some View {
         content
             .font(CMSNTypography.eyebrow())
-            .kerning(1.6)
+            .kerning(2.0)
             .foregroundStyle(textColor)
             .padding(.vertical, 16)
-            .padding(.horizontal, 32)
+            .padding(.horizontal, 40)
             .frame(maxWidth: .infinity)
     }
 }
 
 /// The filled, highest-emphasis action. Use once per screen.
+/// Flat offWhite face — matches the site's `btn-white`, no drop shadow.
 struct CMSNPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -27,7 +27,6 @@ struct CMSNPrimaryButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
                     .fill(CMSNColor.offWhite)
             )
-            .shadow(color: CMSNColor.black.opacity(0.35), radius: 10, y: 4)
             .opacity(configuration.isPressed ? 0.82 : 1)
     }
 }
@@ -39,11 +38,11 @@ struct CMSNGhostButtonStyle: ButtonStyle {
             .modifier(CMSNButtonLabelStyle(textColor: CMSNColor.offWhite))
             .background(
                 RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .fill(configuration.isPressed ? CMSNSurfaceStyle.fillPressed : CMSNSurfaceStyle.fill)
+                    .fill(configuration.isPressed ? CMSNSurfaceStyle.fillPressed : Color.clear)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .strokeBorder(CMSNColor.offWhite.opacity(configuration.isPressed ? 0.7 : 0.12), lineWidth: 1)
+                    .strokeBorder(CMSNColor.offWhite.opacity(configuration.isPressed ? 0.7 : 0.25), lineWidth: 1)
             )
     }
 }
@@ -55,11 +54,11 @@ struct CMSNGhostOnSurfaceButtonStyle: ButtonStyle {
             .modifier(CMSNButtonLabelStyle(textColor: CMSNColor.offBlack))
             .background(
                 RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .fill(CMSNColor.offBlack.opacity(configuration.isPressed ? 0.1 : 0.04))
+                    .fill(CMSNColor.offBlack.opacity(configuration.isPressed ? 0.08 : 0))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .strokeBorder(CMSNColor.offBlack.opacity(configuration.isPressed ? 1 : 0.2), lineWidth: 1)
+                    .strokeBorder(CMSNColor.offBlack.opacity(configuration.isPressed ? 1 : 0.25), lineWidth: 1)
             )
     }
 }
@@ -69,7 +68,7 @@ struct CMSNTextButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(CMSNTypography.eyebrow())
-            .kerning(1.6)
+            .kerning(2.0)
             .foregroundStyle(CMSNColor.offWhite.opacity(configuration.isPressed ? 0.4 : 1))
     }
 }

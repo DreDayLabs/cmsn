@@ -55,7 +55,9 @@ struct ScoreView: View {
         let fraction = min(1, raw / max(maxBarRaw, 1))
         return VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(title.uppercased()).font(.system(size: 10, weight: .semibold)).kerning(1.2)
+                Text(title.uppercased())
+                    .font(CMSNTypography.eyebrow())
+                    .kerning(1.8)
                 Spacer()
                 Text("\(Int(contribution)) pts · \(Int(weight * 100))% weight")
                     .font(CMSNTypography.bodyQuiet())
@@ -85,7 +87,7 @@ struct ScoreView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(event.reason).font(CMSNTypography.body()).foregroundStyle(CMSNColor.Semantic.textPrimary)
                         Text(event.date.formatted(date: .abbreviated, time: .omitted))
-                            .font(.system(size: 10))
+                            .font(CMSNTypography.caption())
                             .foregroundStyle(CMSNColor.Semantic.textSecondary)
                     }
                     Spacer()
