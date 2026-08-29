@@ -131,7 +131,7 @@ struct ProgramResolver {
                 // never even reaches equipment substitution.
                 if let conflict = limitationConflict(for: original, limitations: activeLimitations) {
                     if conflict.severity.requiresExclusionRatherThanSubstitution {
-                        if let alt = substitute(for: original, context: context, avoiding: conflict.area) {
+                        if let alt = substitute(for: original, context: context) {
                             notes.append("Swapped \(original.name) → \(alt.name): you reported \(conflict.severity.displayName.lowercased()) in your \(conflict.area.displayName.lowercased()).")
                             return ResolvedPlannedExercise(plannedExercise: planned, exercise: alt, wasSubstitutedFromExerciseID: original.id, substitutionReason: "limitation")
                         } else {
@@ -148,7 +148,7 @@ struct ProgramResolver {
                 let available = context.equipmentProfile.availableEquipment
                 let hasEquipment = original.equipmentRequired.isEmpty || original.equipmentRequired.contains { available.contains($0) }
                 if !hasEquipment {
-                    if let alt = substitute(for: original, context: context, avoiding: nil) {
+                    if let alt = substitute(for: original, context: context) {
                         notes.append("Swapped \(original.name) → \(alt.name): \(context.equipmentProfile.displayName) doesn't have the equipment for \(original.name).")
                         return ResolvedPlannedExercise(plannedExercise: planned, exercise: alt, wasSubstitutedFromExerciseID: original.id, substitutionReason: "equipment")
                     } else {
@@ -179,26 +179,32 @@ struct ProgramResolver {
             .first
     }
 
-    private func substitute(for exercise: any ExerciseRepresentable, context: ResolutionContext, avoiding area: BodyArea?) -> (any ExerciseRepresentable)? {
+    /// A substitute must be safe against *every* area the athlete has an
+    /// active limitation on, not just the one area that triggered this
+    /// particular swap — otherwise a substitute picked to dodge a shoulder
+    /// limitation could still land on an athlete's separately-reported knee
+    /// limitation with no check at all.
+    private func substitute(for exercise: any ExerciseRepresentable, context: ResolutionContext) -> (any ExerciseRepresentable)? {
+        let areasToAvoid = Set(context.activeLimitations.map(\.area))
         if let easierID = exercise.easierAlternativeExerciseID,
            let easier = ExerciseCatalog.find(id: easierID, customExercises: customExercises),
-           isUsable(easier, context: context, avoiding: area) {
+           isUsable(easier, context: context, avoiding: areasToAvoid) {
             return easier
         }
         // Fall back to any catalog exercise sharing a muscle group that is
-        // both equipment-available and doesn't load the area being avoided.
+        // both equipment-available and doesn't load any area being avoided.
         let candidates = SeedData.exercises.filter { candidate in
             candidate.id != exercise.id
                 && !Set(candidate.primaryMuscleGroups).isDisjoint(with: Set(exercise.primaryMuscleGroups))
-                && isUsable(candidate, context: context, avoiding: area)
+                && isUsable(candidate, context: context, avoiding: areasToAvoid)
         }
         return candidates.first
     }
 
-    private func isUsable(_ exercise: any ExerciseRepresentable, context: ResolutionContext, avoiding area: BodyArea?) -> Bool {
+    private func isUsable(_ exercise: any ExerciseRepresentable, context: ResolutionContext, avoiding areas: Set<BodyArea>) -> Bool {
         let available = context.equipmentProfile.availableEquipment
         let equipmentOK = exercise.equipmentRequired.isEmpty || exercise.equipmentRequired.contains { available.contains($0) }
-        let areaOK = area.map { !exercise.loadedBodyAreas.contains($0) } ?? true
+        let areaOK = areas.isEmpty || Set(exercise.loadedBodyAreas).isDisjoint(with: areas)
         return equipmentOK && areaOK
     }
 

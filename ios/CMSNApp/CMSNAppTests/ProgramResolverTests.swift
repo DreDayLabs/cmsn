@@ -61,6 +61,55 @@ final class ProgramResolverTests: XCTestCase {
         XCTAssertTrue(hasReducedLoadEntry, "A mild limitation should reduce load, not remove the exercise or substitute it.")
     }
 
+    func testSignificantQuadricepsLimitationExcludesOrSubstitutesSquats() {
+        // Regression test: `.quadriceps`/`.glute` were previously never
+        // present in any seeded exercise's `loadedBodyAreas` (only the joint
+        // areas — knee, hip — were tagged), so a reported quad/glute
+        // limitation silently matched nothing and heavy squats/leg press
+        // were prescribed unmodified.
+        let limitation = BodyLimitation(area: .quadriceps, severity: .significant)
+        let athlete = makeAthlete(equipment: .residentialGym, limitations: [limitation])
+        let resolved = resolver().resolveToday(program: SeedData.pushPullLegs, athlete: athlete, lastCompletedDayIndex: 1)
+
+        let stillHasDirectQuadConflict = resolved.resolvedExercises.contains {
+            $0.exercise.loadedBodyAreas.contains(.quadriceps) && $0.wasSubstitutedFromExerciseID == nil && !$0.loadReduced
+        }
+        XCTAssertFalse(stillHasDirectQuadConflict, "A significant quadriceps limitation must exclude or substitute quad-dominant lifts like squats and leg press, not pass them through untouched.")
+    }
+
+    func testSubstituteNeverLoadsASecondActiveLimitationArea() {
+        // Regression test: substitution used to only avoid the single area
+        // that triggered the swap (`conflict.area`), never the athlete's
+        // full limitation list — so a substitute picked to dodge a shoulder
+        // limitation could land squarely on a separately-reported lower-back
+        // limitation with no check at all.
+        let shoulderLimitation = BodyLimitation(area: .shoulder, severity: .significant)
+        let lowerBackLimitation = BodyLimitation(area: .lowerBack, severity: .significant)
+        let athlete = makeAthlete(equipment: .residentialGym, limitations: [shoulderLimitation, lowerBackLimitation])
+        let resolved = resolver().resolveToday(program: SeedData.pushPullLegs, athlete: athlete, lastCompletedDayIndex: 0)
+
+        let unsafeSubstitute = resolved.resolvedExercises.contains { entry in
+            entry.wasSubstitutedFromExerciseID != nil
+                && (entry.exercise.loadedBodyAreas.contains(.shoulder) || entry.exercise.loadedBodyAreas.contains(.lowerBack))
+        }
+        XCTAssertFalse(unsafeSubstitute, "A substitute chosen to dodge one limitation must not land on a different area the athlete also has an active limitation on.")
+    }
+
+    func testEquipmentSubstitutionAlsoRespectsActiveLimitations() {
+        // Regression test: the equipment-substitution path called
+        // `substitute(..., avoiding: nil)`, so it never consulted the
+        // athlete's limitations at all — an exercise swapped purely for
+        // equipment availability could still land on an actively injured area.
+        let shoulderLimitation = BodyLimitation(area: .shoulder, severity: .significant)
+        let athlete = makeAthlete(equipment: .travel, limitations: [shoulderLimitation])
+        let resolved = resolver().resolveToday(program: SeedData.pushPullLegs, athlete: athlete, lastCompletedDayIndex: 0)
+
+        let unsafeSubstitute = resolved.resolvedExercises.contains {
+            $0.exercise.loadedBodyAreas.contains(.shoulder)
+        }
+        XCTAssertFalse(unsafeSubstitute, "Equipment-driven substitution must still avoid an athlete's actively reported limitation areas, not just check equipment availability.")
+    }
+
     func testAdjustmentNotesAreNeverEmptyWhenSubstitutionOccurs() {
         let limitation = BodyLimitation(area: .chest, severity: .significant)
         let athlete = makeAthlete(equipment: .residentialGym, limitations: [limitation])

@@ -103,6 +103,18 @@ final class WorkoutSession {
     var hasAnyLoggedWork: Bool {
         loggedExercises.contains { $0.loggedSets.contains { $0.isAttempted } }
     }
+
+    /// True only when every planned set across every exercise was actually
+    /// attempted. Deliberately distinct from `isComplete`/`endedAt`, which
+    /// only records *when the session was ended*, not what happened during
+    /// it — ending a session the instant it's created (`endedAt != nil`,
+    /// zero sets attempted) must never read as "fully completed" for
+    /// scoring purposes. An empty session (no planned sets at all) is never
+    /// "fully completed."
+    var wasFullyCompleted: Bool {
+        let allSets = loggedExercises.flatMap(\.loggedSets)
+        return !allSets.isEmpty && allSets.allSatisfy(\.isAttempted)
+    }
 }
 
 @Model

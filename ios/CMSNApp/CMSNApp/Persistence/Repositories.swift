@@ -93,6 +93,27 @@ struct WorkoutRepository {
         return session
     }
 
+    /// Any session that was started but never ended — the moment the user
+    /// backgrounds the app, kills it, or navigates away mid-workout before
+    /// tapping "Finish Session," its `WorkoutSession` row is already
+    /// persisted (created up front in `WorkoutSessionView.buildSession()`)
+    /// but `endedAt` stays nil forever unless something resumes it. Without
+    /// this, `WorkoutSessionView` would build a brand-new session from
+    /// scratch next time, silently orphaning any real logged work in the
+    /// abandoned one — the exact "partial completion... never coerced into
+    /// didn't happen" guarantee the model layer documents, broken in
+    /// practice. Used by `WorkoutSessionView` to resume instead of
+    /// duplicate.
+    func openSession() -> WorkoutSession? {
+        let descriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.endedAt == nil },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        var limited = descriptor
+        limited.fetchLimit = 1
+        return (try? context.fetch(limited))?.first
+    }
+
     /// Called on every set entry — the "save immediately, never batch to
     /// session end" reliability requirement.
     func saveImmediately() {

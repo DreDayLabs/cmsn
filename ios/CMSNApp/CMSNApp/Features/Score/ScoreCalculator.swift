@@ -86,7 +86,7 @@ enum ScoreCalculator {
             }
         }
 
-        if session.isComplete {
+        if session.wasFullyCompleted {
             events.append(ScoreEvent(dimension: .work, points: ScorePoints.sessionCompletionBonus, reason: "Completed today's session", relatedSessionID: session.id))
         } else if session.hasAnyLoggedWork {
             events.append(ScoreEvent(dimension: .work, points: ScorePoints.partialSessionBonus, reason: "Logged partial work — it still counts", relatedSessionID: session.id))
