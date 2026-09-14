@@ -89,6 +89,36 @@ final class WorkoutRepositoryTests: XCTestCase {
         XCTAssertEqual(history.first?.completedWeightKG, 90, "Most recent set must come first for the suggestion engine to use it.")
     }
 
+    // MARK: - openSession (resume abandoned in-progress sessions)
+
+    func testOpenSessionReturnsNilWhenNoSessionInProgress() {
+        let finished = WorkoutSession(date: Date(), splitFocus: .push, equipmentProfileUsed: .residentialGym, endedAt: Date())
+        repository.createSession(finished)
+
+        XCTAssertNil(repository.openSession(), "A session that was already finished must not be returned as an open/in-progress session.")
+    }
+
+    func testOpenSessionReturnsAnAbandonedInProgressSession() {
+        // Regression test: if the app is backgrounded/killed, or the user
+        // navigates away before tapping "Finish Session," the session row
+        // (already persisted when the workout started) must be resumable —
+        // otherwise the next workout attempt silently orphans it and any
+        // real logged work in it never contributes to score or history.
+        let abandoned = WorkoutSession(date: daysAgo(1), splitFocus: .push, equipmentProfileUsed: .residentialGym)
+        repository.createSession(abandoned)
+
+        XCTAssertEqual(repository.openSession()?.id, abandoned.id)
+    }
+
+    func testOpenSessionIgnoresFinishedSessionsEvenWhenMostRecent() {
+        let finished = WorkoutSession(date: Date(), splitFocus: .push, equipmentProfileUsed: .residentialGym, endedAt: Date())
+        let abandoned = WorkoutSession(date: daysAgo(3), splitFocus: .legs, equipmentProfileUsed: .residentialGym)
+        repository.createSession(finished)
+        repository.createSession(abandoned)
+
+        XCTAssertEqual(repository.openSession()?.id, abandoned.id, "Only an unfinished session counts as open, regardless of which session is chronologically most recent.")
+    }
+
     // MARK: - Midnight / timezone boundary
 
     func testDaysSinceLastLoggedWorkCrossingMidnightCountsAFullDay() {

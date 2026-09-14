@@ -20,7 +20,7 @@ struct SessionSummaryView: View {
     private var totalSetsPlanned: Int {
         session.loggedExercises.flatMap(\.loggedSets).count
     }
-    private var wasFullyCompleted: Bool { totalSetsAttempted >= totalSetsPlanned && totalSetsPlanned > 0 }
+    private var wasFullyCompleted: Bool { session.wasFullyCompleted }
 
     var body: some View {
         ZStack {

@@ -27,8 +27,13 @@ final class ScoreCalculatorTests: XCTestCase {
 
     func testPartialSessionWithNoCompletionStillEarnsWorkPoints() {
         let session = makeSession(endedAt: nil) // never formally ended
-        let set = attemptedSet(reps: 7, weight: 80)
-        session.loggedExercises = [makeLoggedExercise(sets: [set])]
+        let attempted = attemptedSet(reps: 7, weight: 80)
+        // A second, unattempted set is what actually makes this session
+        // partial rather than fully completed — one-set-attempted-out-of-one-
+        // planned is fully done work by any reasonable definition, regardless
+        // of whether `endedAt` happens to be set.
+        let stillPending = LoggedSet(setIndex: 1, plannedRepRangeLow: 8, plannedRepRangeHigh: 12, plannedWeightKG: nil)
+        session.loggedExercises = [makeLoggedExercise(sets: [attempted, stillPending])]
 
         let events = ScoreCalculator.events(forSession: session)
         let workEvents = events.filter { $0.dimension == .work }
@@ -45,6 +50,35 @@ final class ScoreCalculatorTests: XCTestCase {
         let events = ScoreCalculator.events(forSession: session)
         XCTAssertTrue(events.contains { $0.points == ScorePoints.sessionCompletionBonus })
         XCTAssertFalse(events.contains { $0.points == ScorePoints.partialSessionBonus })
+    }
+
+    func testEndingAnEmptySessionEarnsNoCompletionOrPartialBonus() {
+        // Regression test: `finishSession()` sets `endedAt` *before* scoring,
+        // so `isComplete` alone (endedAt != nil) can never distinguish a real
+        // full completion from tapping "Finish" the instant a session is
+        // created with zero attempted sets. Scoring must key off actual
+        // logged work, not merely whether the session was formally ended.
+        let session = makeSession(endedAt: Date())
+        let unattempted = LoggedSet(setIndex: 0, plannedRepRangeLow: 8, plannedRepRangeHigh: 12, plannedWeightKG: nil)
+        session.loggedExercises = [makeLoggedExercise(sets: [unattempted])]
+
+        let events = ScoreCalculator.events(forSession: session)
+        XCTAssertFalse(events.contains { $0.points == ScorePoints.sessionCompletionBonus }, "An instantly-finished, zero-work session must never earn the full completion bonus — that would let CMSN Score be farmed by repeatedly starting and immediately finishing empty sessions.")
+        XCTAssertFalse(events.contains { $0.points == ScorePoints.partialSessionBonus }, "No real work was logged, so no partial bonus either.")
+    }
+
+    func testPartiallyAttemptedSessionEndedEarnsPartialBonusNotFull() {
+        // Regression test: a session where the athlete honestly logs some
+        // but not all planned sets, then taps "Finish," must be scored as
+        // partial — not full completion — even though `endedAt` is set.
+        let session = makeSession(endedAt: Date())
+        let attempted = attemptedSet(reps: 8, weight: 60)
+        let unattempted = LoggedSet(setIndex: 1, plannedRepRangeLow: 8, plannedRepRangeHigh: 12, plannedWeightKG: nil)
+        session.loggedExercises = [makeLoggedExercise(sets: [attempted, unattempted])]
+
+        let events = ScoreCalculator.events(forSession: session)
+        XCTAssertTrue(events.contains { $0.points == ScorePoints.partialSessionBonus }, "Partial real work, ended early, must still earn the partial bonus.")
+        XCTAssertFalse(events.contains { $0.points == ScorePoints.sessionCompletionBonus }, "Partial work must never earn the full completion bonus just because the session was formally ended.")
     }
 
     func testUnattemptedSetsEarnNothingButDoNotReduceScore() {

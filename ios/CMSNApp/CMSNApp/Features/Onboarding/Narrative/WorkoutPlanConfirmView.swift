@@ -11,6 +11,8 @@ struct WorkoutPlanConfirmView: View {
     let athlete: Athlete
     let onContinue: () -> Void
 
+    @Environment(AppState.self) private var appState
+
     private static let durationOptions = [15, 30, 45, 60, 90]
     /// `1` doubles as "just today" — the model has no separate one-off
     /// flag, and framing a single session as "1x" is honest, not a stretch.
@@ -82,6 +84,7 @@ struct WorkoutPlanConfirmView: View {
     private func save() {
         athlete.preferredSessionLengthMinutes = duration
         athlete.trainingFrequencyPerWeek = frequency
+        appState.athleteRepository.save()
         onContinue()
     }
 

@@ -85,6 +85,14 @@ struct WorkoutSessionView: View {
     }
 
     private func buildSession() {
+        if let existing = appState.workoutRepository.openSession() {
+            // Resume the abandoned in-progress session instead of building
+            // a duplicate — starting fresh here would orphan any real work
+            // already logged against it.
+            session = existing
+            return
+        }
+
         let newSession = WorkoutSession(
             splitFocus: resolvedDay.focus,
             equipmentProfileUsed: athlete.equipmentProfile,
@@ -128,7 +136,11 @@ struct WorkoutSessionView: View {
         session.endedAt = Date()
 
         var events = ScoreCalculator.events(forSession: session, previousBestE1RMByExercise: previousBestE1RMByExercise(excluding: session))
-        events.append(contentsOf: ScoreCalculator.eventsForOnScheduleConsistency(sessionID: session.id))
+        // Consistency credit is for showing up and doing real work, not for
+        // creating-then-immediately-ending an empty session.
+        if session.hasAnyLoggedWork {
+            events.append(contentsOf: ScoreCalculator.eventsForOnScheduleConsistency(sessionID: session.id))
+        }
         if let daysInactiveAtStart, daysInactiveAtStart >= 7 {
             events.append(contentsOf: ScoreCalculator.eventsForReturnAfterInactivity(daysInactive: daysInactiveAtStart, sessionID: session.id))
         }

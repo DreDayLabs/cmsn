@@ -251,7 +251,7 @@ enum SeedData {
             whyThisExercise: "The Smith machine's guided path makes squatting safer without a spotter — a real strength-training option even in a residential gym.",
             easierAlternativeExerciseID: "kb-goblet-squat",
             advancedAlternativeExerciseID: nil,
-            loadedBodyAreas: [.knee, .hip, .lowerBack],
+            loadedBodyAreas: [.knee, .hip, .lowerBack, .quadriceps, .glute],
             trackingType: .repsAndWeight
         ),
         Exercise(
@@ -265,7 +265,7 @@ enum SeedData {
             whyThisExercise: "Trains the hip hinge and hamstrings — the movement pattern most leg days under-train.",
             easierAlternativeExerciseID: nil,
             advancedAlternativeExerciseID: nil,
-            loadedBodyAreas: [.lowerBack, .hamstring, .hip],
+            loadedBodyAreas: [.lowerBack, .hamstring, .hip, .glute],
             trackingType: .repsAndWeight
         ),
         Exercise(
@@ -279,7 +279,7 @@ enum SeedData {
             whyThisExercise: "Loads the legs heavily with less lower-back demand than a squat.",
             easierAlternativeExerciseID: "kb-goblet-squat",
             advancedAlternativeExerciseID: nil,
-            loadedBodyAreas: [.knee, .lowerBack],
+            loadedBodyAreas: [.knee, .lowerBack, .quadriceps, .glute],
             trackingType: .repsAndWeight
         ),
         Exercise(
@@ -293,7 +293,7 @@ enum SeedData {
             whyThisExercise: "Unilateral leg work that also trains balance.",
             easierAlternativeExerciseID: nil,
             advancedAlternativeExerciseID: nil,
-            loadedBodyAreas: [.knee, .hip],
+            loadedBodyAreas: [.knee, .hip, .quadriceps, .glute],
             trackingType: .repsAndWeight,
             isUnilateral: true
         ),
@@ -383,7 +383,7 @@ enum SeedData {
             whyThisExercise: "A full-body, conditioning-and-strength hybrid that's fast to load and fits small spaces.",
             easierAlternativeExerciseID: nil,
             advancedAlternativeExerciseID: nil,
-            loadedBodyAreas: [.lowerBack, .hip, .shoulder],
+            loadedBodyAreas: [.lowerBack, .hip, .shoulder, .glute],
             trackingType: .repsOnly
         ),
         Exercise(
@@ -397,7 +397,7 @@ enum SeedData {
             whyThisExercise: "An accessible squat pattern that's easy on the lower back — a natural easier alternative to a barbell/Smith squat.",
             easierAlternativeExerciseID: nil,
             advancedAlternativeExerciseID: "smith-squat",
-            loadedBodyAreas: [.knee, .hip],
+            loadedBodyAreas: [.knee, .hip, .quadriceps, .glute],
             trackingType: .repsAndWeight
         ),
         Exercise(
