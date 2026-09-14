@@ -46,9 +46,9 @@ next-env.d.ts
 # originals behind them and are not worth carrying in history.
 /review/
 
-# XcodeGen output — the Xcode project and both Info.plists are generated from
-# ios/CMSNApp/project.yml by `xcodegen generate`. project.yml is the source of
-# truth; edits made directly to these are overwritten on the next generate.
-/ios/CMSNApp/CMSNApp.xcodeproj/
-/ios/CMSNApp/CMSNApp/Info.plist
-/ios/CMSNApp/CMSNWatchApp/Info.plist
+# Canonical generated project/plists are committed alongside project.yml.
+# Keep per-user Xcode state and build output local.
+**/xcuserdata/
+**/*.xcuserstate
+**/DerivedData/
+*.xcresult/

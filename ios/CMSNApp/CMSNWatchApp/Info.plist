@@ -18,6 +18,8 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>CMSN uses Health data to run and record your workout from your wrist.</string>
 	<key>NSHealthUpdateUsageDescription</key>
@@ -28,5 +30,7 @@
 	</array>
 	<key>WKApplication</key>
 	<true/>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>com.earnyourcmsn.app</string>
 </dict>
 </plist>

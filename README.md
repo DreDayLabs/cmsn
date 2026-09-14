@@ -1,25 +1,25 @@
-# CMSN
+# CMSN / Commission
 
-**A luxury-neutral athleisure brand built with Next.js, TypeScript, and AI-assisted development.**
+One brand umbrella: native training app, website, identity, apparel and campaigns.
 
-Live at [cmsn-silk.vercel.app](https://cmsn-silk.vercel.app)
+**Founder direction — 2026-09-14:** `//` is the standalone symbol and highest-recognition asset; CMSN is the primary compact wordmark; COMMISSION is the approved extended name/wordmark; CMSN// is the combined signature. This supersedes earlier prohibitions on spelling out Commission. Existing approved C/M/S/N geometry remains authoritative; new lockups and O/I extensions are production candidates for founder review.
 
-## What This Is
+## Canonical product
 
-CMSN is a luxury-neutral athleisure brand — minimal design, neutral palette, elevated everyday wear. This repository is the web presence and commerce foundation.
+- `ios/CMSNApp/`: SwiftUI Training Kernel, native Xcode project and tests.
+- `app/`, `public/`, root package files: working Next.js 16 website; kept in place to preserve deployment paths. `web/README.md` maps this surface.
+- `brand/master/`: previously approved CMSN glyph geometry and validator.
+- `brand/identity/`, `brand/guidelines/`, `brand/exports/`: production candidates, governance, export references.
+- `apparel/`: Collection 01 preparation, placements, flats and references.
+- `content/`: campaign, social and AI production planning.
+- `strategy/`: product and business source links.
 
-Built in collaboration with Cursor AI, demonstrating how a non-engineer can ship production-ready Next.js applications using AI-assisted development workflows.
+Read `docs/consolidation/2026-09-14.md` for branch provenance, validation and founder review. This is a founder-review baseline, not an App Store release certification.
 
-CMSN represents the idea that everything worth having is earned. The brand is built on that principle. The name is always written CMSN — you say it out loud; you never spell it out.
+## Run
 
-## Tech Stack
+Website: `npm ci`, `npm run dev`. Checks: `npm run lint`, `npm run build`.
 
-- Next.js 14
-- TypeScript
-- Tailwind CSS
-- Vercel (Production)
-- Cursor AI
+App: open `ios/CMSNApp/CMSNApp.xcodeproj`. Configuration changes belong in `project.yml`; regenerate with XcodeGen 2.46.0 and commit the synchronized project/plists. Xcode 26.6 is the tested toolchain; iOS deployment target remains 17.
 
-## Built By
-
-**DreDayLabs** — [github.com/DreDayLabs](https://github.com/DreDayLabs)
+Creative masters live in the CMSN Creative Cloud workspace. Existing purchased Opus files remain at their original paths until a verified cloud copy exists; no destructive migration or separate clothing repo.

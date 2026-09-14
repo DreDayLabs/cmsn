@@ -1,0 +1,14 @@
+{
+  "identityMaster": {
+    "path": "CMSN/Identity/CMSN-Identity-Production-Candidate.ai",
+    "assetId": "urn:aaid:sc:US:ff9dd152-e657-4759-b734-a4cdf1d89399"
+  },
+  "opusMens": {
+    "assetId": "urn:aaid:sc:US:92e14827-6542-44c7-85f1-106e3918ebe4",
+    "path": "CMSN/Apparel/Source-Flats/Opus Flat Mens Activewear File.ai"
+  },
+  "opusWomens": {
+    "assetId": "urn:aaid:sc:US:61ac2125-3c02-4d7f-b63b-0ab202cb0c3b",
+    "path": "CMSN/Apparel/Source-Flats/Opus Flat Womens Activewear File.ai"
+  }
+}

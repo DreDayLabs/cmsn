@@ -1,0 +1,89 @@
+{
+  "generator": "Adobe Illustrator 30.8.1; Outline Stroke; native SVG export; individual groups extracted without rewriting path/shape coordinates",
+  "items": [
+    {
+      "file": "cmsn-symbol-positive.svg",
+      "sha256": "f72ca0069d02f1a6bfe853657a88089f662f57eb802a945b18ccd4c76784ef9f",
+      "sourceGroup": 0,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-symbol-reversed.svg",
+      "sha256": "0152aba4dc47b267d8444c981998322e62cf0bd0756ab697ad5dab343a173a2f",
+      "sourceGroup": 1,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-cmsn-positive.svg",
+      "sha256": "2682d6a4c58a8cbe403572d50a4cc5b419ae20f7483825f1c99b5753d90af037",
+      "sourceGroup": 2,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-cmsn-reversed.svg",
+      "sha256": "3ff2f92773bcfd33878da84e635a97327864256e3c440926d6581708e0c85d85",
+      "sourceGroup": 3,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-commission-positive.svg",
+      "sha256": "9f5ba57a39182f89918a52f5b2360ba6a8df40675ae40b31316ce29c4124f82b",
+      "sourceGroup": 4,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-commission-reversed.svg",
+      "sha256": "6e4bac1d88f7df5902e98c6f062e1791a5927fe4637f984bf3e181ac0e607f9b",
+      "sourceGroup": 5,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-horizontal-positive.svg",
+      "sha256": "46696518f99405771574d4cf4d053348fbae60af59f6cf6023dedffa03ae7826",
+      "sourceGroup": 6,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-horizontal-reversed.svg",
+      "sha256": "2990daba95bc3b5f40eeb4cb3253824773a6895d8057a300f6400b5e5024a503",
+      "sourceGroup": 7,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-stacked-positive.svg",
+      "sha256": "bcaf5bee06401bb778528fe00cd50f2a4789f61a3bac65ce887786cc5352fc12",
+      "sourceGroup": 8,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-stacked-reversed.svg",
+      "sha256": "c44fe282c926bf302bb62e09dec03445e064cbc7b3fc30be489ee4a632bb83ac",
+      "sourceGroup": 9,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-micro-symbol-positive.svg",
+      "sha256": "e7f071b6a27ba8d7a975b5f73d7c5e8b50254b4321425484362fd0d79f16d2df",
+      "sourceGroup": 10,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-micro-symbol-reversed.svg",
+      "sha256": "f82bad3c6dc3da985a61a4195b9a56d2dafdd7a15070ae0a682b96bd9afbdd0c",
+      "sourceGroup": 11,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-embroidery-symbol-positive.svg",
+      "sha256": "c80158fc435b1bdf12bc9b8b5c9293fb998a3e92902aa61d6b1fa5213fbddabc",
+      "sourceGroup": 12,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    },
+    {
+      "file": "cmsn-embroidery-symbol-reversed.svg",
+      "sha256": "4db79ab53de2660c69b2e58408055d07e31ade01216d97b8051b53d3a1380fd9",
+      "sourceGroup": 13,
+      "status": "outlined in Adobe Illustrator; founder review candidate"
+    }
+  ]
+}

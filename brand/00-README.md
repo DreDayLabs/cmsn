@@ -1,5 +1,9 @@
 # CMSN — Brand Build Playbook
 
+**Founder direction — 2026-09-14:** `//` is the standalone symbol and highest-recognition asset; CMSN is the primary compact wordmark; COMMISSION is the approved extended name/wordmark; CMSN// is the combined signature. This supersedes earlier prohibitions on spelling out Commission. Existing approved C/M/S/N geometry remains authoritative; new lockups and O/I extensions are production candidates for founder review.
+
+Historical brief below is retained for context; conflicting naming and exploration instructions are superseded.
+
 **Brand:** CMSN · **Tagline:** Earn Your CMSN · **Site:** [earnyourcmsn.com](https://earnyourcmsn.com) · **Founder identity:** Dre — The CMSNer
 
 > **Naming rule (locked):** the brand is written **CMSN** — always, everywhere, in every brand context. The spelled-out dictionary word never appears in brand copy, on garments, in captions, or in these docs describing the brand. You *say* the name out loud; you never spell it out. The only exceptions are legal search terms (phonetic-equivalent trademark searches must include the spoken word — see [03](03-legal-and-entity.md)) and literal domain strings.

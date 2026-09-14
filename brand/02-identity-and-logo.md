@@ -1,5 +1,9 @@
 # CMSN — Identity & Logo
 
+**Founder direction — 2026-09-14:** `//` is the standalone symbol and highest-recognition asset; CMSN is the primary compact wordmark; COMMISSION is the approved extended name/wordmark; CMSN// is the combined signature. This supersedes earlier prohibitions on spelling out Commission. Existing approved C/M/S/N geometry remains authoritative; new lockups and O/I extensions are production candidates for founder review.
+
+Historical brief below is retained for context; conflicting naming and exploration instructions are superseded.
+
 ## The mark system
 
 You don't need one logo. You need a small system, because apparel branding lives at wildly different scales — a 1cm chest hit and a 40cm jacket back are different jobs.

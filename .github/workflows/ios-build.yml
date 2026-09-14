@@ -5,6 +5,9 @@ on:
     branches:
       - "claude/**"
       - main
+      - "codex/**"
+  pull_request:
+    branches: [main]
   workflow_dispatch: {}
 
 # Runner image: GitHub only publishes a small, fixed set of macOS labels

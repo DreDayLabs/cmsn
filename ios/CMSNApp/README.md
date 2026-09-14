@@ -5,20 +5,15 @@ the software half of **Dress → Prepare → Perform → Prove → Recover → R
 See `../../brand/08-app-strategy.md` for the full product/business strategy
 this build implements, and the plan this was built from for scope decisions.
 
-**This code was written in an environment with no Xcode or macOS toolchain.**
-Every file is real, complete Swift — not pseudocode — but it has not been
-compiled or run. Follow the steps below on a Mac to build it for the first
-time, and read "Known things to double-check" before assuming a build error
-is yours.
+The canonical project is preserved from `preservation/cmsn-canonical-ios-project-20260826`
+and synchronized with current sources using XcodeGen 2.46.0. Both generated project and
+plists are committed; `project.yml` governs configuration changes. See
+`../../docs/consolidation/2026-09-14.md` for current verification and limitations.
 
 ## Requirements
 
-- macOS with **Xcode 15 or newer** (targets iOS 17 / watchOS 10 SDKs).
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) — this project has no
-  hand-committed `.xcodeproj`; it's generated from `project.yml`.
-  ```
-  brew install xcodegen
-  ```
+- macOS, Xcode 26.6 for the verified build; iOS deployment target 17.
+- XcodeGen 2.46.0 to regenerate after configuration/source changes.
 
 ## First build
 
