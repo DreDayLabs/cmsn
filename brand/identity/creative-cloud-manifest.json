@@ -1,7 +1,8 @@
 {
   "identityMaster": {
     "path": "CMSN/Identity/CMSN-Identity-Production-Candidate.ai",
-    "assetId": "urn:aaid:sc:US:ff9dd152-e657-4759-b734-a4cdf1d89399"
+    "assetId": "urn:aaid:sc:US:ff9dd152-e657-4759-b734-a4cdf1d89399",
+    "sha256": "ce8f736d7b16b0770afa62a7029eee52fe5518978dafe7532c1ad899af6340d3"
   },
   "opusMens": {
     "assetId": "urn:aaid:sc:US:92e14827-6542-44c7-85f1-106e3918ebe4",
@@ -10,5 +11,27 @@
   "opusWomens": {
     "assetId": "urn:aaid:sc:US:61ac2125-3c02-4d7f-b63b-0ab202cb0c3b",
     "path": "CMSN/Apparel/Source-Flats/Opus Flat Womens Activewear File.ai"
+  },
+  "exports": {
+    "eps": {
+      "assetId": "urn:aaid:sc:US:fba04030-ca4d-41ba-a8e6-6a759eec2c23",
+      "path": "CMSN/Identity/Exports/CMSN-Identity-Production-Candidate.eps",
+      "sha256": "dddc2242e6e3a3e80efbc1c84f6115c1590e1f961c7d810f00dbb1527556b652"
+    },
+    "pdf": {
+      "assetId": "urn:aaid:sc:US:79baef49-0cbc-4124-9a81-b3ccf9b3c296",
+      "path": "CMSN/Identity/Exports/CMSN-Identity-Production-Candidate.pdf",
+      "sha256": "e3d7031e0b71d2a291c9c157db572003340b4228b81849ee3949e09f1e38297e"
+    },
+    "png": {
+      "assetId": "urn:aaid:sc:US:e7f80aad-749c-4b29-830d-de78e9e3b2a9",
+      "path": "CMSN/Identity/Exports/CMSN-Identity-Production-Candidate.png",
+      "sha256": "094935281ffba9a13173f8eeb593b6424671eecde45fb52af42c650bfbbd9e70"
+    },
+    "svg": {
+      "assetId": "urn:aaid:sc:US:7a1b99d2-c10a-419f-aff9-e4dbb4081de8",
+      "path": "CMSN/Identity/Exports/CMSN-Identity-Production-Candidate.svg",
+      "sha256": "be93015c742b689b5265b4fe034dc41310bc284df976edf113c45c9da984cb11"
+    }
   }
 }
