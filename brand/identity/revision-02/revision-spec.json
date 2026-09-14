@@ -1,5 +1,5 @@
 {
-  "status": "standalone symbol and CMSN wordmark approved; revised horizontal awaiting visual confirmation",
+  "status": "Founder approved Revision 02: standalone symbol, CMSN and revised horizontal CMSN//",
   "wordmarkSource": "Adobe Illustrator outlined sheet, group 2; unchanged paths",
   "N_visible_y": [
     -175.32612264705872,
@@ -24,5 +24,10 @@
     "shirt/jacket symbol",
     "tights/pants symbol",
     "water bottle symbol"
-  ]
+  ],
+  "approval": {
+    "date": "2026-09-14",
+    "founder": "Dre",
+    "statement": "this is perfect"
+  }
 }

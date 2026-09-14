@@ -1,0 +1,13 @@
+{
+  "identity": "Revision 02 / founder approved",
+  "sourceSha256": "f72ca0069d02f1a6bfe853657a88089f662f57eb802a945b18ccd4c76784ef9f",
+  "status": "garment scale/location proposed; actual Opus edits pending",
+  "files": {
+    "CMSN-Symbol-25mm.svg": "4361b4c8e2ddefc789acc6d4afb2107bcdb4f56f938826899c50e2d418e9c0b3",
+    "CMSN-Symbol-20mm.svg": "4d49e13e38c948d9013bdda26ca94d184ff4ca2c861a36f3294c277bd04804f8",
+    "Collection-01-Brief.md": "b8aa7cd3afce13af8fcdf414affb2349e203ad0e768847b3f13e5f0f99b932ec",
+    "CMSN-Collection-01-Review.html": "93f6fdbc5cd70ec7525fc103b6fdc2d3746d6f57472cb184789cda17e227a32f",
+    "CMSN-Symbol-30mm.svg": "26e1d676433f0ce6f26dac7e33235234178d33abffa7159c43d4333244e8feac",
+    "Placement-Schedule.csv": "331833934162894d2198de331c6fb049e6b13f186e4e872b79312a56663fa19f"
+  }
+}

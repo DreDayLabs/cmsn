@@ -4,7 +4,7 @@
 
 ## Active files
 
-Use brand/identity/revision-02/ and brand/identity/FOUNDER-REVIEW.html. Revision 01 exports and cloud masters are superseded reference material; do not supply the rejected extended or stacked treatments to vendors. The revised horizontal is ready for visual confirmation.
+Use brand/identity/revision-02/ and brand/identity/FOUNDER-REVIEW.html. Revision 01 exports and cloud masters are superseded reference material; do not supply the rejected extended or stacked treatments to vendors. Dre approved the revised horizontal on 2026-09-14: “this is perfect.” Revision 02 is the approved visual identity; native export completion and physical production validation remain separate steps.
 
 ## Geometry and production
 
