@@ -6,7 +6,7 @@ Historical brief below is retained for context; conflicting naming and explorati
 
 **Brand:** CMSN · **Tagline:** Earn Your CMSN · **Site:** [earnyourcmsn.com](https://earnyourcmsn.com) · **Founder identity:** Dre — The CMSNer
 
-> **Naming rule (locked):** the brand is written **CMSN** — always, everywhere, in every brand context. The spelled-out dictionary word never appears in brand copy, on garments, in captions, or in these docs describing the brand. You *say* the name out loud; you never spell it out. The only exceptions are legal search terms (phonetic-equivalent trademark searches must include the spoken word — see [03](03-legal-and-entity.md)) and literal domain strings.
+> Naming authority: CMSN and COMMISSION are approved names; // is the standalone symbol. See guidelines/IDENTITY-AUTHORITY.md.
 
 A fashion brand for the gym. Not performance-first, not luxury-first — *the walk to the gym is the runway.* Built for the covered-up flyness of bigger guys (6'2"+/230+) first, and the "oh, she's going to class" energy next. Black, white, navy, a hint of gray. No pastels. Bronx fresh, corporate comfortable.
 
@@ -33,7 +33,7 @@ The interactive Q&A tool failed in the session that produced this playbook, so e
 
 | # | Question | Default the playbook assumes |
 |---|---|---|
-| 0 | Brand name | **CMSN** (confirmed by you) — always written CMSN, never the spelled-out word, in every brand context. Statement pieces carry an **oversized CMSN**, not the full word. Site audit needed: current product names on earnyourcmsn.com spell the word out (e.g. the bra) — rename to CMSN Bra etc. |
+| 0 | Brand name | CMSN / COMMISSION, // standalone symbol, CMSN// signature. Founder direction 2026-09-14. |
 | 1 | Hero customer, drop 1 | **Big men lead** — 6'2"+/230+, covered-up training wear. Women's capsule in drop 2–3 |
 | 2 | 12-month success | **Staged** — audience first (90 days), then convert at launch |
 | 3 | Budget to first drop | Written in three tiers; **recommended path: $10k–$25k** |

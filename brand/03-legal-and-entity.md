@@ -28,7 +28,7 @@
 ### What to file, in order
 
 1. **Word mark: "CMSN"** — International Class 25 (clothing: shirts, pants, leggings, shorts, jackets, compression garments). This is the crown jewel: a *standard character* mark protects the name in any font, so it isn't hostage to logo redesigns. Consider adding **Class 18** (gym bags) and **Class 21** (water bottles) later — you literally described the walk with the gym bag and bottle; those are natural extensions, but each class costs money, so start with 25.
-2. **Word mark: "EARN YOUR CMSN"** — Class 25, matching the domain and the locked naming rule (the brand name is never spelled out). Slogans are registrable when used as a brand (on hang tags, neck labels, marketing) and not merely ornamentally — which means: put it on labels and tags, not only splashed across shirt backs. A tagline used *only* as a big decorative back print can be refused as "ornamental use"; the neck-label use is what makes it function as a mark.
+2. **Word mark: "EARN YOUR CMSN"** — Class 25, matching the domain and the tagline treatment (the old spelling ban is superseded by founder direction dated 2026-09-14). Slogans are registrable when used as a brand (on hang tags, neck labels, marketing) and not merely ornamentally — which means: put it on labels and tags, not only splashed across shirt backs. A tagline used *only* as a big decorative back print can be refused as "ornamental use"; the neck-label use is what makes it function as a mark.
 3. **(Optional, later) Stylized mark** — the final designed CMSN wordmark, once the type designer delivers. Only worth it if the letterforms are genuinely distinctive (direction 3 in [02-identity-and-logo.md](02-identity-and-logo.md)).
 
 ### Before filing: the knockout search (do this now, it's free)

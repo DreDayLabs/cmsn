@@ -13,13 +13,13 @@ You don't need one logo. You need a small system, because apparel branding lives
 | **Primary wordmark: CMSN** | Four letters, engineered sans, condensed, generous tracking | Chest hit (left chest or center-chest under the neck), waistbands, leg hits on leggings/compression, zipper pulls, labels, app icon, IG avatar |
 | **Statement lockup: oversized CMSN** | The same four letters scaled up — big bold white letters, shoulder-to-shoulder | Jacket backs, the long knee-length track jacket, hoodie-alternative pieces — the "everyone in the elevator reads it" piece |
 | **Tagline lockup: EARN YOUR CMSN** | Three words, stacked or single-line | Inside neck print, hang tags, campaign graphics, the back of formula tees, packaging |
-| **Monogram (optional, later): the C** | A single distinctive C — only if a great one falls out of the wordmark work | Sock hits, cap fronts, embroidery. Don't force it; Nike found the swoosh, Alo never needed a symbol. You said it yourself: a symbol is a nice-to-have. |
+| **Standalone symbol: //** | Two source-derived slashes; highest-recognition asset | Garments, bags, bottles, labels, embroidery and digital icons |
 
-Rule of thumb: **small CMSN is quiet, big CMSN is loud.** The muted pieces (leggings, compression, shorts) get the small mark. The statement pieces (long track jackets, back prints) get the oversized mark. Never the spelled-out word — the four letters at two volumes ARE the brand voice: mostly whispering, occasionally announcing. (One mark at two scales is also cheaper and tighter than two lockups: one embroidery digitization, one screen, one trademark.)
+Small CMSN is quiet; large CMSN or COMMISSION is a statement. The standalone // symbol leads recognition across garments and accessories.
 
 ## The typography brief (hand this to any designer or AI)
 
-> Design a typographic wordmark for "CMSN," a premium athleisure brand. Positioning: between Nike's athletic authority and Alo's fashion minimalism. Attributes: engineered, condensed-to-medium width sans-serif; flat terminals; high or slightly-high tracking; feels machined, not friendly; monochrome only (black on white, white on black). It must hold up embroidered at 8mm tall and printed at 400mm wide. Avoid: rounded/bubbly forms, italic/speed slants (too UA/Puma), thin fashion serifs (too fragile for gym wear), anything that needs color to work. The brand name is only ever written "CMSN" — no spelled-out variant exists; large back prints use the same four letters oversized. Tagline lockup: "EARN YOUR CMSN."
+> Production direction: retain the approved CMSN letter masters and standalone slash source. Build outlined black/white CMSN, COMMISSION and CMSN// variants from those assets. The old exploration brief and spelling prohibition are superseded by founder direction dated 2026-09-14.
 
 ### Three concept directions to explore first
 
