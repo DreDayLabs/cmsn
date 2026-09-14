@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>CMSN checks today's calendar for a scheduled workout (like "Leg Day") so it can auto-select your split instead of guessing.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>CMSN checks today's calendar for a scheduled workout (like "Leg Day") so it can auto-select your split instead of guessing.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>CMSN can read basic health data (like body weight) to keep your training profile current. This is optional and off by default in v0.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>CMSN can write completed workouts to Apple Health so they show up alongside your other activity.</string>
+	<key>UIBackgroundModes</key>
+	<array/>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+</dict>
+</plist>
