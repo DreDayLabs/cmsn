@@ -1,0 +1,291 @@
+{
+  "meta": {
+    "phase": "3A - measurement only, no production geometry constructed",
+    "measurementDate": "2026-08-25",
+    "repo": "~/Documents/DreDayLabs/Projects/cmsn",
+    "branch": "claude/cmsn-ios-fitness-app-yozz0i",
+    "discrepancyNote": "The brief stated slashes were removed from the reference PNG. The file actually contains rendered // slashes and an 'EARN YOUR CMSN' tagline in both colorway panels. Both were identified and excluded from all CMSN measurements below. See PROVENANCE.md."
+  },
+  "source": {
+    "downloadsPath": "~/Downloads/brand source approved-reference CMSN-horizontal-approved-reference.png",
+    "repoPath": "brand/source/approved-reference/CMSN-horizontal-approved-reference.png",
+    "sha256": "2e7e8e4e0d331e588aebf73fecfe5db15e44db4d639691e2484bb95f399560c5",
+    "sha256Verified": true,
+    "pixelWidth": 1536,
+    "pixelHeight": 1024,
+    "fileType": "PNG, 8-bit RGB, non-interlaced",
+    "colorwayPanelMeasured": "white-background/black-ink (absolute rows 565-1023)",
+    "panelLocalToAbsoluteYOffset": 565
+  },
+  "coordinateSystem": {
+    "capHeightUnits": 1000.0,
+    "baselineY": 0,
+    "baselineSourcePxAbsolute": 841,
+    "baselineSourcePxPanelLocal": 276,
+    "capLineY": 1000,
+    "capLineSourcePxAbsolute": 733,
+    "capLineSourcePxPanelLocal": 168,
+    "scaleUnitsPerPx": 9.174311926605505
+  },
+  "global": {
+    "sourceImageWidthPx": 1536,
+    "sourceImageHeightPx": 1024,
+    "cmsnBboxWidthPx": 823,
+    "cmsnBboxWidthUnits": 7550.46,
+    "cmsnBboxHeightPx": 109,
+    "cmsnBboxHeightUnits": 1000.0,
+    "normalizedCapHeight": 1000.0,
+    "normalizedWordmarkWidth": 7550.46,
+    "widthToHeightRatio": 7.5505,
+    "primaryStrokeThicknessPx": 19,
+    "primaryStrokeThicknessUnits": 174.31,
+    "strokeToCapHeightRatio": 0.1743,
+    "horizontalVisualCenterBboxMidpointPx": 673,
+    "inkMassCentroidPx": { "x": 681.97, "y": 221.29, "note": "panel-local y" },
+    "totalOccupiedAreaPx2": 33645,
+    "totalOccupiedAreaUnits2": 2831832.34,
+    "excludedElements": {
+      "tagline": { "text": "EARN YOUR CMSN", "panelLocalYRange": [324, 339], "componentCount": 15 },
+      "slashes": { "panelLocalXRange": [1111, 1317], "panelLocalYRange": [119, 306], "heightPx": 188, "note": "not authoritative; documented for context only, not used as geometry source" }
+    },
+    "measurementConfidence": "MEASURED"
+  },
+  "glyphs": {
+    "C": {
+      "bbox": { "x0": 262, "y0": 168, "x1": 437, "y1": 276, "widthPx": 176, "heightPx": 109 },
+      "widthUnits": 1614.68,
+      "heightUnits": 1000.0,
+      "widthToHeightRatio": 1.6147,
+      "primaryStrokeThicknessPx": 19,
+      "primaryStrokeThicknessUnits": 174.31,
+      "topTerminal": { "y": 168, "xRange": [294, 437], "widthPx": 144, "widthUnits": 1321.10, "confidence": "MEASURED" },
+      "bottomTerminal": { "y": 276, "xRange": [291, 437], "widthPx": 147, "widthUnits": 1348.62, "confidence": "MEASURED" },
+      "outerCurveTop": { "centerPx": [360.37, 141.77], "radiusPx": 81.14, "radiusUnits": 744.39, "fitResidualRmsPx": 0.28, "fitResidualMaxPx": 0.52, "confidence": "INFERRED" },
+      "outerCurveBottom": { "centerPx": [358.71, 302.89], "radiusPx": 82.92, "radiusUnits": 760.70, "fitResidualRmsPx": 0.43, "confidence": "INFERRED" },
+      "innerCurvature": { "measured": false },
+      "apertureWidthPx": 157,
+      "apertureWidthUnits": 1440.37,
+      "apertureWidthConfidence": "INFERRED",
+      "apertureHeightTransitionRows": { "upper": 187, "lower": 258 },
+      "apertureHeightPx": 71,
+      "apertureHeightUnits": 651.38,
+      "apertureHeightConfidence": "MEASURED_TRANSITION_INFERRED_DEFINITION",
+      "opticalOvershoot": "none",
+      "symmetry": { "topBottomTerminalWidthDeltaPct": 2.0, "topBottomRadiusDeltaPct": 2.2, "assessment": "vertically symmetric within raster tolerance" }
+    },
+    "M": {
+      "bbox": { "x0": 473, "y0": 168, "x1": 659, "y1": 276, "widthPx": 187, "heightPx": 109 },
+      "widthUnits": 1715.60,
+      "heightUnits": 1000.0,
+      "widthToHeightRatio": 1.7156,
+      "leftStem": { "thicknessPx": 19, "thicknessUnits": 174.31, "xRange": [473, 491], "confidence": "MEASURED" },
+      "rightStem": { "thicknessPx": 19, "thicknessUnits": 174.31, "xRange": [641, 659], "confidence": "MEASURED" },
+      "upperLeftAnchor": [473, 168],
+      "upperRightAnchor": [659, 168],
+      "centerVApex": {
+        "innerEdgesTouchRow": 239,
+        "innerEdgesTouchDepthPx": 71,
+        "innerEdgesTouchDepthUnits": 651.38,
+        "outerEdgesConvergeRow": 258,
+        "outerEdgesConvergeDepthPx": 90,
+        "outerEdgesConvergeDepthUnits": 825.69,
+        "widthAtRow240Px": 52,
+        "widthAtRow240Units": 477.06,
+        "confidence": "MEASURED_TRANSITION_INFERRED_DEFINITION"
+      },
+      "leftDiagonal": { "outerAngleFromVerticalDeg": 46.33, "innerAngleFromVerticalDeg": 46.65, "confidence": "MEASURED" },
+      "rightDiagonal": { "outerAngleFromVerticalDeg": 46.70, "innerAngleFromVerticalDeg": 46.89, "confidence": "MEASURED" },
+      "diagonalPerpendicularThicknessPx": 18.64,
+      "diagonalPerpendicularThicknessUnits": 171.05,
+      "diagonalPerpendicularThicknessConfidence": "INFERRED",
+      "innerNegativeSpaceAtCapLinePx": 150,
+      "innerNegativeSpaceAtCapLineUnits": 1375.99,
+      "diagonalStemIntersections": { "left": [491, 168], "right": [641, 168], "confidence": "MEASURED_INFERRED_CORNER_COINCIDENCE" },
+      "symmetry": { "stemWidthMatch": true, "diagonalAngleDeltaDeg": 0.3, "assessment": "symmetric about vertical centerline within tolerance" },
+      "measurementPitfallNote": "Top/bottom ~27 rows show stem+diagonal merged into one run (overlap), which if read naively inflates apparent stem width up to 46px. True constant stem width (19px) confirmed from ~80 isolated rows (195-276)."
+    },
+    "S": {
+      "bbox": { "x0": 690, "y0": 168, "x1": 891, "y1": 276, "widthPx": 202, "heightPx": 109 },
+      "widthUnits": 1853.21,
+      "heightUnits": 1000.0,
+      "widthToHeightRatio": 1.8532,
+      "primaryStrokeThicknessPx": 19,
+      "primaryStrokeThicknessUnits": 174.31,
+      "upperSection": { "rowRange": [168, 212], "rowCount": 45, "spanUnits": 412.84 },
+      "lowerSection": { "rowRange": [232, 276], "rowCount": 45, "spanUnits": 412.84 },
+      "upperTerminal": { "y": 168, "xRange": [724, 891], "widthPx": 168, "widthUnits": 1541.28, "confidence": "MEASURED" },
+      "lowerTerminal": { "y": 276, "xRange": [690, 858], "widthPx": 169, "widthUnits": 1550.45, "confidence": "MEASURED" },
+      "spine": { "rowRange": [213, 231], "centeredOnRow": 222, "glyphExactMidpointRow": 222.0, "angleFromVerticalDeg": 48.09, "confidence": "MEASURED" },
+      "upperBowlWallXRangeApprox": [696, 723],
+      "lowerBowlWallXRangeApprox": [856, 883],
+      "curvature": { "upperRadius": "not measured", "lowerRadius": "not measured" },
+      "independentFromN": true,
+      "symmetry": { "terminalWidthDeltaPct": 0.6, "sectionSpanMatch": true, "spineCentered": true, "assessment": "strong 180-degree rotational symmetry" }
+    },
+    "N": {
+      "bbox": { "x0": 922, "y0": 168, "x1": 1084, "y1": 276, "widthPx": 163, "heightPx": 109 },
+      "widthUnits": 1495.41,
+      "heightUnits": 1000.0,
+      "widthToHeightRatio": 1.4954,
+      "leftStem": { "thicknessPx": 19, "thicknessUnits": 174.31, "xRange": [922, 940], "confidence": "MEASURED" },
+      "rightStem": { "thicknessPx": 19, "thicknessUnits": 174.31, "xRange": [1066, 1084], "confidence": "MEASURED" },
+      "diagonal": {
+        "crossSectionWidthPx": { "min": 32, "max": 34, "median": 33 },
+        "crossSectionWidthUnits": 302.75,
+        "perpendicularThicknessPx": 19.28,
+        "perpendicularThicknessUnits": 176.91,
+        "perpendicularThicknessConfidence": "INFERRED",
+        "startCoordApprox": [940, 168],
+        "endCoordApprox": [1066, 276],
+        "startEndConfidence": "MEASURED_INFERRED_CORNER_COINCIDENCE",
+        "angleFromVerticalDeg": { "leftEdge": 54.24, "rightEdge": 54.02, "avg": 54.13 },
+        "angleConfidence": "MEASURED"
+      },
+      "independentFromS": true,
+      "symmetry": { "stemWidthMatch": true, "assessment": "consistent with 180-degree rotational symmetry (not left-right mirror, as expected for N)" },
+      "measurementPitfallNote": "Same overlap pattern as M: diagonal merges with each stem for ~22 rows at top and bottom. True constant stem width (19px) confirmed from ~65 isolated rows (190-255)."
+    }
+  },
+  "spacing": {
+    "_supersededNote": "CM/MS/SN bboxGapPx and bboxGapUnits below are the ORIGINAL Phase 3A values, preserved verbatim for audit purposes. They use a gap convention (next.x0 - prev.x1) that does not compose correctly with the width convention (x1-x0+1) used elsewhere in this spec - see phase3bCorrections.item1_wordmarkGaps for the proof and the corrected values actually used in CMSN-WORDMARK-NOSLASH.svg. Do not use these bboxGapPx/bboxGapUnits values for wordmark assembly; use phase3bCorrections.item1_wordmarkGaps.correctedGaps instead.",
+    "CM": { "bboxGapPx": 36, "bboxGapUnits": 330.28, "nearestDistPx": 36.00, "nearestDistUnits": 330.28, "gapPctCapHeight": 33.03, "gapPctStroke": 189.47, "confidence": "MEASURED", "supersededForAssemblyBy": "phase3bCorrections.item1_wordmarkGaps" },
+    "MS": { "bboxGapPx": 31, "bboxGapUnits": 284.40, "nearestDistPx": 31.02, "nearestDistUnits": 284.55, "gapPctCapHeight": 28.44, "gapPctStroke": 163.16, "confidence": "MEASURED", "supersededForAssemblyBy": "phase3bCorrections.item1_wordmarkGaps" },
+    "SN": { "bboxGapPx": 31, "bboxGapUnits": 284.40, "nearestDistPx": 31.00, "nearestDistUnits": 284.40, "gapPctCapHeight": 28.44, "gapPctStroke": 163.16, "confidence": "MEASURED", "supersededForAssemblyBy": "phase3bCorrections.item1_wordmarkGaps" },
+    "opticalInterpretation": "Spacing is not uniform. C-M is ~16% wider than M-S and S-N, which are identical to within 0.02px. INFERRED: C's open aperture reads lighter than M's solid stem, so wider C-M spacing likely compensates optically. This qualitative conclusion still holds after the Phase 3B gap correction (the relative proportions barely change).",
+    "assumeEqualSpacing": false
+  },
+  "slashMaster": {
+    "source": "public/brand/cmsn-slashes-dark.svg",
+    "sha256Unchanged": "9845d5b83c5e7a2f42a8b7802ed47d051f94d2a2ee4847fd5c28dcd0fc3903cd",
+    "viewBox": "0 0 78 104",
+    "paths": ["M8 96 L32 8", "M42 96 L66 8"],
+    "strokeWidth": 13,
+    "strokeLinecap": "butt",
+    "intrinsicWidthUnits": 78,
+    "intrinsicHeightUnits": 104,
+    "inkSpanX": [8, 66],
+    "inkSpanY": [8, 96],
+    "angleFromVerticalDeg": 15.24,
+    "slashToSlashCenterlineSpacing": 34,
+    "confidence": "EXACT_VECTOR_SOURCE_NOT_RASTER_MEASURED",
+    "locked": true,
+    "modifiedThisPhase": false
+  },
+  "pendingLockupCalibration": {
+    "slashHeightRelativeToCmsnCapHeight": "PENDING",
+    "slashWidthRelativeToCmsnWidth": "PENDING",
+    "verticalAlignment": "PENDING",
+    "topOvershoot": "PENDING",
+    "bottomOvershoot": "PENDING",
+    "nToSlashGap": "PENDING",
+    "referenceNoteOnly": "In the approved PNG's own illustrative rendering, the slash artwork is ~188px tall vs a 109px CMSN cap height (~1.72x). Not authoritative; recorded for Phase 3B context only."
+  },
+  "measurementConfidence": {
+    "glyphBoundingBoxes": "HIGH_MEASURED",
+    "capLineBaseline": "HIGH_MEASURED",
+    "primaryStrokeThickness": "HIGH_MEASURED",
+    "straightStemPositions": "HIGH_MEASURED",
+    "diagonalAngles": "HIGH_MEASURED",
+    "curveRadiiCAndS": "MEDIUM_HIGH_INFERRED",
+    "apertureApexDepthDefinitions": "MEDIUM_INFERRED",
+    "letterSpacing": "HIGH_MEASURED",
+    "negativeSpaceAreas": "LOW_INFERRED_NOT_COMPUTED",
+    "cInnerCurvatureAndSBowlRadii": "NOT_MEASURED"
+  },
+  "tolerances": {
+    "primaryOuterGeometryPctCapHeight": 0.50,
+    "strokeThicknessPctCapHeight": 0.25,
+    "characterWidthPct": 0.50,
+    "internalStructuralCoordinatesPctCapHeight": 0.50,
+    "letterSpacingPctCapHeight": 0.50,
+    "finalSlashGeometryDeviation": "ZERO",
+    "futureSlashScalePct": 0.25,
+    "futureSlashPositionPct": 0.25,
+    "documentedLimitation": {
+      "straightEdges": "0px variation across threshold sweep 60-200; comfortably within all tolerances",
+      "curvedEdges": "up to 2px variation across the same sweep, equivalent to ~1.83% of cap height - exceeds the +/-0.50% target tolerance for primary outer geometry on C and S curved boundaries",
+      "recommendation": "Phase 3B cannot honestly claim +/-0.50% conformance on curved boundaries from this raster source via simple thresholding; would need higher-resolution source or sub-pixel edge estimation from the anti-aliasing gradient",
+      "toleranceSilentlyLoosened": false
+    }
+  },
+  "blackBackgroundPanelCrossValidation": {
+    "purpose": "Verify 'one geometry, two colorways' by independently measuring the black-bg/white-ink panel and comparing to the primary white-bg/black-ink measurements in glyphs/spacing above",
+    "panelAbsoluteRowRange": [0, 559],
+    "capHeightPx": 113,
+    "capHeightDeltaVsPrimaryPanelPct": 3.67,
+    "note": "Black-bg panel is rendered ~3.67% larger in absolute pixels than the white-bg panel; this is a render-scale difference between two independently-exported panels, not a claim about the underlying vector design",
+    "bboxes": {
+      "C": { "x0": 257, "y0": 222, "x1": 435, "y1": 334, "widthPx": 179, "heightPx": 113 },
+      "M": { "x0": 472, "y0": 222, "x1": 662, "y1": 334, "widthPx": 191, "heightPx": 113, "note": "raw scan returned y0=223 (112px height); treated as anti-aliasing noise after row-level check" },
+      "S": { "x0": 694, "y0": 222, "x1": 900, "y1": 334, "widthPx": 207, "heightPx": 113 },
+      "N": { "x0": 932, "y0": 222, "x1": 1100, "y1": 334, "widthPx": 169, "heightPx": 113 }
+    },
+    "primaryStrokeThicknessPx": 20,
+    "primaryStrokeThicknessPctCapHeight": 17.70,
+    "primaryStrokeThicknessPctCapHeightDeltaVsWhitePanel": 0.27,
+    "spacingPctCapHeight": {
+      "CM": { "blackPanel": 32.74, "whitePanel": 33.03, "deltaPts": 0.29 },
+      "MS": { "blackPanel": 28.32, "whitePanel": 28.44, "deltaPts": 0.12 },
+      "SN": { "blackPanel": 28.32, "whitePanel": 28.44, "deltaPts": 0.12 }
+    },
+    "widthToHeightRatioComparison": {
+      "N": { "blackPanel": 1.4956, "whitePanel": 1.4954, "deltaPct": 0.01, "assessment": "essentially identical" },
+      "S": { "blackPanel": 1.8319, "whitePanel": 1.8532, "deltaPct": 1.15, "assessment": "close, within measurement noise" },
+      "M": { "blackPanel": 1.6903, "whitePanel": 1.7156, "deltaPct": 1.48, "assessment": "within documented anti-aliasing tolerance" },
+      "C": { "blackPanel": 1.5841, "whitePanel": 1.6147, "deltaPct": 1.90, "assessment": "largest divergence found, still within threshold-sensitivity range documented in tolerances.documentedLimitation" }
+    },
+    "artifactCaughtAndCorrected": {
+      "description": "S terminal width read at row y0=222 initially returned an anomalous 34px run (867-900) instead of the expected ~170-180px flat terminal",
+      "resolution": "Row 223 (one row into the glyph) shows the full flat terminal (724-900, 177px), matching the white-bg panel's pattern. Row 222 was catching only the anti-aliased tip of the terminal's rounded corner.",
+      "lessonApplied": "Same category of edge-reading caution already documented for M and N stem/diagonal overlap in section E/G"
+    },
+    "conclusion": "Black-bg panel confirms the same underlying letterform design as the white-bg panel: matching stroke-to-cap-height system (~17.4-17.7%), matching relative spacing (within 0.3 percentage points per pair), near-identical N proportions (0.01% apart). C and M show 1.5-1.9% width:height divergence, attributable to independent rasterization of curved/diagonal boundaries across two separately-exported panels, not a second materially different design.",
+    "recommendationForPhase3B": "Continue treating the white-bg panel as primary source of truth; use black-bg panel only as a confirmatory cross-check given its slightly lower measurement precision and the small residual proportion drift on C and M"
+  },
+  "phase3bCorrections": {
+    "_note": "This section documents corrections made during the Phase 3B correction pass. It supplements, and never silently overwrites, the original Phase 3A findings elsewhere in this file. Where a corrected value is used for reconstruction, the original value remains in its original location above, cross-referenced here.",
+    "item1_wordmarkGaps": {
+      "problem": "Original spacing.CM/.MS/.SN bboxGapPx (36/31/31) were computed as next.x0-prev.x1, a convention that does not compose with glyph widths (computed as x1-x0+1). Summing the four original widths and three original gaps gives 826px, but the raster's true, directly-measured C-to-N span is 823px - a proven 3px inconsistency.",
+      "correctedConvention": "gap = next.x0 - (prev.x1 + 1), consistent with width = x1-x0+1",
+      "proof": "C_width(176) + gap_CM + M_width(187) + gap_MS + S_width(202) + gap_SN + N_width(163) must equal the raster's measured whole-wordmark span (N.x1 - C.x0 + 1 = 1084-262+1 = 823px). Solving with the corrected convention: gap_CM=473-(437+1)=35, gap_MS=690-(659+1)=30, gap_SN=922-(891+1)=30. Check: 176+35+187+30+202+30+163=823. Exact match.",
+      "originalGapsPx": { "CM": 36, "MS": 31, "SN": 31, "supersededDoNotUseForAssembly": true },
+      "correctedGapsPx": { "CM": 35, "MS": 30, "SN": 30 },
+      "correctedGapsUnits": { "CM": 321.10, "MS": 275.23, "SN": 275.23 },
+      "wordmarkWidthBeforeCorrection": { "assembledWidthUnits": 7577.98, "targetUnits": 7550.46, "deviationUnits": 27.52, "deviationPctCapHeight": 2.75 },
+      "wordmarkWidthAfterCorrection": { "assembledWidthUnits": 7550.46, "targetUnits": 7550.46, "deviationUnits": -0.0004, "deviationPctCapHeight": -0.00004 },
+      "appliedTo": "CMSN-WORDMARK-NOSLASH.svg"
+    },
+    "item2_sBottomTerminal": {
+      "problem": "Phase 3B originally constructed S's bottom terminal width as 168px, mirrored from the top terminal's own measured left-anchor (202-34=168), rather than independently re-measuring the bottom terminal itself.",
+      "independentMeasurement": "Raster run at baseline (y=276): [690,858]. Continuous width = 858+1-690 = 169px. This exactly matches the value already recorded in glyphs.S.lowerTerminal.widthPx (169) elsewhere in this file - the spec's own measurement was already correct; only the Phase 3B SVG construction had used the wrong (symmetry-assumed) value.",
+      "originalConstructedPx": 168,
+      "correctedConstructedPx": 169,
+      "deviationBeforeCorrectionUnits": -9.17,
+      "deviationBeforeCorrectionPctCapHeight": -0.92,
+      "deviationAfterCorrectionUnits": 0.0004,
+      "deviationAfterCorrectionPctCapHeight": 0.00004,
+      "appliedTo": "CMSN-GLYPH-S.svg"
+    },
+    "item3_nDiagonalReevaluation": {
+      "action": "No geometry change applied. Root-cause analysis performed instead.",
+      "method": "Row-by-row comparison of the constructed centerline (corner-to-corner, stem centerline to stem centerline) against the measured raster centerline (midpoint of each row's isolated diagonal run) at 7 independently sampled rows.",
+      "finding": "Residuals ranged from +1.67px to -2.03px and CROSSED ZERO across the sampled rows (not a one-directional bias) - RMS residual approx 1.5px (~1.4% of cap height). This indicates the existing corner-to-corner centerline construction closely tracks the raster's true centerline path despite differing from the Phase 3A edge-slope-regression angle (54.13 deg) by 1.25 degrees as an abstract angle metric.",
+      "conclusion": "The 1.25-degree figure characterizes a difference in angle-measurement methodology (edge-slope regression over an isolated row range, vs. corner-to-corner centerline chord), not a meaningful silhouette-fidelity problem. The existing construction is retained unchanged.",
+      "rootCauseAttribution": "Primarily (d) the nature of the Phase 3A edge-fit measurement, which characterizes local slope over a row range that excludes the corner/merge zones - not (a) centerline methodology, (b) stroke-cap geometry, or (c) endpoint placement, all of which check out as sound.",
+      "geometryChanged": false
+    },
+    "item4_mVertexReevaluation": {
+      "action": "No geometry change applied. Marked explicitly as derived, with new supporting and countervailing evidence documented.",
+      "label": "DERIVED - NOT DIRECTLY MEASURED",
+      "sameRowByRowMethodAsN": "Applied to M's left diagonal at 6 sampled rows: residuals were consistently +3.9px to +4.6px - a systematic, one-directional bias (unlike N's), averaging ~4.2px (~4.3% of cap height).",
+      "alternativeVertexAnalysis": "Independently fitting a line to the measured left-diagonal centerline points (6 rows) and the right-diagonal centerline points, then intersecting them, gives a fitted vertex at approximately (92.89, 83.63) - close in X to the original derived (93.5, 80.5) but ~3.1 units deeper - with fitted line start-points at approximately x=4.93 (left) and x=181.75 (right) at y=0, NOT at the stem centerlines (9.5 and 177.5).",
+      "whyNotApplied": "Adopting the fitted vertex while keeping the diagonal's start point pinned to the stem centerline (as required to avoid a discontinuity, and per the instruction that endpoints remain locked) only partially closes the gap (residual improves from ~4.2px to ~2.9px) and simultaneously worsens the separately-reported diagonal-angle deviation (46.22 deg constructed would become ~44.92 deg, vs. the 46.65 deg measured target - a larger miss than before). Fully resolving the discrepancy would require either moving the fixed stem-centerline endpoint (not authorized) or introducing new corner-curve geometry at the stem/diagonal junction analogous to C's corners (not requested, and a materially new design element).",
+      "recommendation": "This is an unresolved ambiguity requiring an explicit decision, not something to resolve unilaterally. Options: (1) leave as-is (current state), (2) adopt the fitted vertex (92.89,83.63) as a partial improvement with the stated angle trade-off, (3) authorize a corner-curve treatment at the M stem/diagonal junction as new, explicitly-scoped follow-up work.",
+      "geometryChanged": false
+    },
+    "item5_cAndSCurvature": {
+      "action": "No changes made to C's corner curves. S's bowl/wall/spine curves unchanged except for the bottom-terminal endpoint shift documented in item2 (negligible effect on the adjoining corner curve's control point, which was not otherwise touched).",
+      "reasoning": "No evidence was found or requested indicating C's or S's curve control points (other than the item2 endpoint) fail to correspond with the approved raster silhouette. Per the instruction to refine curves 'only when doing so materially improves correspondence,' no refinement was made."
+    }
+  }
+}

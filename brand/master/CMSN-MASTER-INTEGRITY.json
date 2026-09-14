@@ -1,0 +1,83 @@
+{
+  "specVersion": "1.0.0",
+  "phase": "3C",
+  "dateGenerated": "2026-08-26",
+  "geometryFingerprintAlgorithm": {
+    "description": "SHA-256 of a canonical JSON extraction of geometry-critical SVG data. Excludes comments, aria-label, role, id, class, and formatting/whitespace - stable under cosmetic edits, changes on any geometry-affecting edit.",
+    "extractionRule": "Parse the SVG as XML. Record the root <svg> viewBox attribute. Walk the document in order; for every <g> element, append its transform attribute (if present) to a running transform-chain; for every <path> element, record: the current transform-chain, d, stroke-width, stroke-linecap, stroke-linejoin, fill, fill-rule. Serialize {viewBox, paths:[...]} as JSON with sort_keys=True and separators=(',',':'). SHA-256 the resulting UTF-8 string.",
+    "referenceImplementation": "brand/master/validate-cmsn-masters.py, function geometry_fingerprint()"
+  },
+  "masters": [
+    {
+      "glyph": "C",
+      "masterFile": "brand/master/CMSN-MASTER-GLYPH-C.svg",
+      "sourceFile": "brand/vector-masters/CMSN-GLYPH-C.svg",
+      "viewBox": "0 0 1614.68 1000.00",
+      "fileSha256": "c9ec4b35710a44db6dc0631fa3ad5b1f01105f176d0e16c3c4a1b31fdb7a8ea6",
+      "geometryFingerprint": "0623dd289b4e06ef43f06146a796de5c3f245ebaaab25459edb9a0e7a3fd0c5e",
+      "sourceGeometryFingerprint": "0623dd289b4e06ef43f06146a796de5c3f245ebaaab25459edb9a0e7a3fd0c5e",
+      "zeroDriftVerified": true
+    },
+    {
+      "glyph": "M",
+      "masterFile": "brand/master/CMSN-MASTER-GLYPH-M.svg",
+      "sourceFile": "brand/vector-masters/CMSN-GLYPH-M.svg",
+      "viewBox": "0 0 1715.60 1000.00",
+      "fileSha256": "a22c275577ab3dbe29a38d8daca6f5824da6fe00190e5d6735ddd4055d260014",
+      "geometryFingerprint": "295532f1b9f348bc5f353bbfc24f9db559354f9a428b558346aa798ba40498cf",
+      "sourceGeometryFingerprint": "295532f1b9f348bc5f353bbfc24f9db559354f9a428b558346aa798ba40498cf",
+      "zeroDriftVerified": true,
+      "note": "Contains the authorized corner-curve treatment. This exact fingerprint is the permanence guarantee referenced in CMSN-MASTER-SPEC.json.mCornerCurvePreservationRule."
+    },
+    {
+      "glyph": "S",
+      "masterFile": "brand/master/CMSN-MASTER-GLYPH-S.svg",
+      "sourceFile": "brand/vector-masters/CMSN-GLYPH-S.svg",
+      "viewBox": "0 0 1853.21 1000.00",
+      "fileSha256": "49ae986d56852f913686231a50bdd640495b918eb4a7132ff1803d4464396446",
+      "geometryFingerprint": "56bc78d193f117cfedf10382cdc6bc890d0be0b61c8b07e494d4e663ceab8b7c",
+      "sourceGeometryFingerprint": "56bc78d193f117cfedf10382cdc6bc890d0be0b61c8b07e494d4e663ceab8b7c",
+      "zeroDriftVerified": true
+    },
+    {
+      "glyph": "N",
+      "masterFile": "brand/master/CMSN-MASTER-GLYPH-N.svg",
+      "sourceFile": "brand/vector-masters/CMSN-GLYPH-N.svg",
+      "viewBox": "0 0 1495.41 1000.00",
+      "fileSha256": "3253c1e739b05bfacffb8c5a6cec8f0694a0465165deadcf8f3ab42d6695b0b1",
+      "geometryFingerprint": "8a3f0c88d974172a81a17992a824d9149776e1014f5fd854ce49d6105e1dfd17",
+      "sourceGeometryFingerprint": "8a3f0c88d974172a81a17992a824d9149776e1014f5fd854ce49d6105e1dfd17",
+      "zeroDriftVerified": true
+    },
+    {
+      "glyph": "WORDMARK",
+      "masterFile": "brand/master/CMSN-MASTER-WORDMARK-HORIZONTAL.svg",
+      "sourceFile": "brand/vector-masters/CMSN-WORDMARK-NOSLASH.svg",
+      "viewBox": "0 0 7550.46 1000.00",
+      "fileSha256": "d196e3084a287209a6a5857bd81bf9eabb020bbb40ff40844f599b4c04a087cf",
+      "geometryFingerprint": "b846149192848d3fc5e0a4b575376a01adf1b3c07772a19c86d96f0773d1d732",
+      "sourceGeometryFingerprint": "b846149192848d3fc5e0a4b575376a01adf1b3c07772a19c86d96f0773d1d732",
+      "zeroDriftVerified": true
+    }
+  ],
+  "protectedFiles": {
+    "approvedReference": {
+      "path": "brand/source/approved-reference/CMSN-horizontal-approved-reference.png",
+      "sha256": "2e7e8e4e0d331e588aebf73fecfe5db15e44db4d639691e2484bb95f399560c5",
+      "verifiedAtPhase3CStart": true,
+      "verifiedAtPhase3CEnd": true
+    },
+    "slashMaster": {
+      "path": "public/brand/cmsn-slashes-dark.svg",
+      "sha256": "9845d5b83c5e7a2f42a8b7802ed47d051f94d2a2ee4847fd5c28dcd0fc3903cd",
+      "verifiedAtPhase3CStart": true,
+      "verifiedAtPhase3CEnd": true
+    }
+  },
+  "wordmarkAssemblyCheck": {
+    "masterFile": "brand/master/CMSN-MASTER-WORDMARK-HORIZONTAL.svg",
+    "description": "The four <g transform=\"translate(x,0)\"> offsets found in document order in the wordmark master, verified against the assembly-contract formula in CMSN-MASTER-SPEC.json.",
+    "expectedOffsets": [0.00, 1935.78, 3926.61, 6055.05]
+  },
+  "howToRegenerate": "Run `python3 brand/master/validate-cmsn-masters.py --root <repo-root>` from any location; it reads this file and re-derives every fingerprint fresh from the current file contents, failing loudly on any mismatch."
+}
