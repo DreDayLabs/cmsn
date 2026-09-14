@@ -1,8 +1,10 @@
 # CMSN / Commission
 
+**Founder visual review — Revision 02:** // in black and white and the first CMSN wordmark are approved. The spelled-out COMMISSION artwork and stacked lockup are rejected and must not be used. CMSN// remains horizontal; its revised slashes extend slightly beyond the N and sit farther away. Use 32px for the selected small digital symbol presentation. Apparel is primarily symbol-led, with shirt, tights/pants and bottle placements approved in direction.
+
+
 One brand umbrella: native training app, website, identity, apparel and campaigns.
 
-**Founder direction — 2026-09-14:** `//` is the standalone symbol and highest-recognition asset; CMSN is the primary compact wordmark; COMMISSION is the approved extended name/wordmark; CMSN// is the combined signature. This supersedes earlier prohibitions on spelling out Commission. Existing approved C/M/S/N geometry remains authoritative; new lockups and O/I extensions are production candidates for founder review.
 
 ## Canonical product
 

@@ -33,5 +33,12 @@
       "path": "CMSN/Identity/Exports/CMSN-Identity-Production-Candidate.svg",
       "sha256": "be93015c742b689b5265b4fe034dc41310bc284df976edf113c45c9da984cb11"
     }
+  },
+  "activeRevision": "revision-02",
+  "revision01Status": "superseded: extended and stacked artwork rejected; old horizontal replaced",
+  "revision02": {
+    "svgAssetId": "urn:aaid:sc:US:e314dc4d-5bd2-4a95-865d-263ea0a5ee74",
+    "path": "CMSN/Identity/Revision-02/CMSN-Identity-Revision-02.svg",
+    "nativeExportStatus": "Pending refresh: Illustrator Open/Save controls unavailable during revision; SVG review and source assets completed"
   }
 }

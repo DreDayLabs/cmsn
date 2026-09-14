@@ -1,6 +1,8 @@
 # CMSN — Brand Build Playbook
 
-**Founder direction — 2026-09-14:** `//` is the standalone symbol and highest-recognition asset; CMSN is the primary compact wordmark; COMMISSION is the approved extended name/wordmark; CMSN// is the combined signature. This supersedes earlier prohibitions on spelling out Commission. Existing approved C/M/S/N geometry remains authoritative; new lockups and O/I extensions are production candidates for founder review.
+**Founder visual review — Revision 02:** // in black and white and the first CMSN wordmark are approved. The spelled-out COMMISSION artwork and stacked lockup are rejected and must not be used. CMSN// remains horizontal; its revised slashes extend slightly beyond the N and sit farther away. Use 32px for the selected small digital symbol presentation. Apparel is primarily symbol-led, with shirt, tights/pants and bottle placements approved in direction.
+
+
 
 Historical brief below is retained for context; conflicting naming and exploration instructions are superseded.
 
@@ -33,7 +35,7 @@ The interactive Q&A tool failed in the session that produced this playbook, so e
 
 | # | Question | Default the playbook assumes |
 |---|---|---|
-| 0 | Brand name | CMSN / COMMISSION, // standalone symbol, CMSN// signature. Founder direction 2026-09-14. |
+| 0 | Brand name | CMSN, // standalone symbol, horizontal CMSN// signature. Extended and stacked artwork rejected in Revision 02. |
 | 1 | Hero customer, drop 1 | **Big men lead** — 6'2"+/230+, covered-up training wear. Women's capsule in drop 2–3 |
 | 2 | 12-month success | **Staged** — audience first (90 days), then convert at launch |
 | 3 | Budget to first drop | Written in three tiers; **recommended path: $10k–$25k** |

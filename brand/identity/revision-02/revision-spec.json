@@ -1,0 +1,28 @@
+{
+  "status": "standalone symbol and CMSN wordmark approved; revised horizontal awaiting visual confirmation",
+  "wordmarkSource": "Adobe Illustrator outlined sheet, group 2; unchanged paths",
+  "N_visible_y": [
+    -175.32612264705872,
+    1175.3179279411768
+  ],
+  "slash_visible_y": [
+    -202.33900365882351,
+    1202.3308089529417
+  ],
+  "slashHeightRelativeToN": 1.04,
+  "gapFromN": 650,
+  "priorGap": 348.62,
+  "angleFromVerticalDegrees": 15.255118703057775,
+  "perpendicularThickness": 142.20001272857152,
+  "internalPitch": 371.9077255978024,
+  "smallSymbolInkWidthPx": 32,
+  "rejected": [
+    "COMMISSION extended wordmark",
+    "stacked lockup"
+  ],
+  "approvedPlacements": [
+    "shirt/jacket symbol",
+    "tights/pants symbol",
+    "water bottle symbol"
+  ]
+}
