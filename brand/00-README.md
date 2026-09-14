@@ -1,8 +1,12 @@
 # CMSN — Brand Build Playbook
 
+**Founder direction — 2026-09-14:** `//` is the standalone symbol and highest-recognition asset; CMSN is the primary compact wordmark; COMMISSION is the approved extended name/wordmark; CMSN// is the combined signature. This supersedes earlier prohibitions on spelling out Commission. Existing approved C/M/S/N geometry remains authoritative; new lockups and O/I extensions are production candidates for founder review.
+
+Historical brief below is retained for context; conflicting naming and exploration instructions are superseded.
+
 **Brand:** CMSN · **Tagline:** Earn Your CMSN · **Site:** [earnyourcmsn.com](https://earnyourcmsn.com) · **Founder identity:** Dre — The CMSNer
 
-> **Naming rule (locked):** the brand is written **CMSN** — always, everywhere, in every brand context. The spelled-out dictionary word never appears in brand copy, on garments, in captions, or in these docs describing the brand. You *say* the name out loud; you never spell it out. The only exceptions are legal search terms (phonetic-equivalent trademark searches must include the spoken word — see [03](03-legal-and-entity.md)) and literal domain strings.
+> Naming authority: CMSN and COMMISSION are approved names; // is the standalone symbol. See guidelines/IDENTITY-AUTHORITY.md.
 
 A fashion brand for the gym. Not performance-first, not luxury-first — *the walk to the gym is the runway.* Built for the covered-up flyness of bigger guys (6'2"+/230+) first, and the "oh, she's going to class" energy next. Black, white, navy, a hint of gray. No pastels. Bronx fresh, corporate comfortable.
 
@@ -18,6 +22,8 @@ A fashion brand for the gym. Not performance-first, not luxury-first — *the wa
 | [04-product-and-manufacturing.md](04-product-and-manufacturing.md) | Capsule 1 line plan with margin math, tech-pack process, fabric guide, sourcing path with real MOQs (researched + cited), big-and-tall grading moat, timeline to launch |
 | [05-content-and-community.md](05-content-and-community.md) | The Instagram/TikTok engine, "walk to the gym" series, formula-tee content format, 90-day pre-launch calendar, drop mechanics, CMSNer community language |
 | [06-ai-capabilities-map.md](06-ai-capabilities-map.md) | Honest map of what Claude/AI agents can and cannot do for design, tech packs, sourcing, and growth — and which tools in your workspace do what |
+| [07-font-and-licensing.md](07-font-and-licensing.md) | Wordmark font identification, typeface vs. font-file copyright law, and where the CMSN mark's IP actually stands |
+| [08-app-strategy.md](08-app-strategy.md) | The CMSN iOS app & ecosystem strategy: the Dress→Prepare→Perform→Prove→Recover→Return loop, balanced audience positioning, Fitbod-Plus competitive analysis, CMSN Score model, CMSN+ pricing, and the V0→V1→V2 roadmap. The app itself lives at [`../ios/CMSNApp/`](../ios/CMSNApp/) |
 
 ---
 
@@ -27,7 +33,7 @@ The interactive Q&A tool failed in the session that produced this playbook, so e
 
 | # | Question | Default the playbook assumes |
 |---|---|---|
-| 0 | Brand name | **CMSN** (confirmed by you) — always written CMSN, never the spelled-out word, in every brand context. Statement pieces carry an **oversized CMSN**, not the full word. Site audit needed: current product names on earnyourcmsn.com spell the word out (e.g. the bra) — rename to CMSN Bra etc. |
+| 0 | Brand name | CMSN / COMMISSION, // standalone symbol, CMSN// signature. Founder direction 2026-09-14. |
 | 1 | Hero customer, drop 1 | **Big men lead** — 6'2"+/230+, covered-up training wear. Women's capsule in drop 2–3 |
 | 2 | 12-month success | **Staged** — audience first (90 days), then convert at launch |
 | 3 | Budget to first drop | Written in three tiers; **recommended path: $10k–$25k** |

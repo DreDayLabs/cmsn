@@ -1,0 +1,272 @@
+{
+  "specVersion": "1.0.0",
+  "phase": "3C - Master Reconstruction and Production Lock",
+  "dateGenerated": "2026-08-26",
+  "status": "APPROVED",
+  "statusNote": "Clear-space unit (1 Stroke Width) explicitly approved by Dre on 2026-08-26. Remaining open item: print minimum-size figure is a DPI-math extrapolation, not independently verified by physical print proof (see minimumSize.printMinimum).",
+  "authorityHierarchy": [
+    "Level 1: brand/source/approved-reference/CMSN-horizontal-approved-reference.png (visual authority, immutable)",
+    "Level 2: brand/vector-masters/CMSN-GLYPH-{C,M,S,N}.svg (Phase 3B evidence-validated geometry, immutable)",
+    "Level 3: brand/master/CMSN-MASTER-GLYPH-{C,M,S,N}.svg and CMSN-MASTER-WORDMARK-HORIZONTAL.svg (this phase's canonical copies - geometrically identical to Level 2 by fingerprint, see integrityFile)",
+    "Level 4: all future production assets (web, app, print, apparel, social, motion, favicon, icon, vendor) - may scale/format, may not reinterpret geometry"
+  ],
+  "sourceReference": {
+    "path": "brand/source/approved-reference/CMSN-horizontal-approved-reference.png",
+    "sha256": "2e7e8e4e0d331e588aebf73fecfe5db15e44db4d639691e2484bb95f399560c5",
+    "pixelDimensions": "1536x1024",
+    "note": "Byte-identical to Phase 3A/3B. Verified unchanged at start and end of Phase 3C."
+  },
+  "slashMaster": {
+    "canonicalProjectPath": "public/brand/cmsn-slashes-dark.svg",
+    "sha256": "9845d5b83c5e7a2f42a8b7802ed47d051f94d2a2ee4847fd5c28dcd0fc3903cd",
+    "viewBox": "0 0 78 104",
+    "relationshipToCMSNSystem": "Separate governed asset, outside the four-letter geometry reconstruction. Not merged into CMSN-MASTER-WORDMARK-HORIZONTAL.svg in this phase - no already-approved slash+wordmark lockup construction exists yet. Slash lockups are explicitly out of scope for Phase 3C (see stop condition) and will be governed in a separate, later phase.",
+    "modifiedThisPhase": false
+  },
+  "coordinateSystem": {
+    "convention": "SVG-native, y-down",
+    "capLineY": 0,
+    "baselineY": 1000.00,
+    "capHeightUnits": 1000.00,
+    "note": "This is the mathematical inverse of the typographic Y convention in CMSN-GEOMETRY-SPEC.json (baseline=Y0, capline=Y1000). Documented inversion for SVG authoring, not a design change. Established in Phase 3A/3B, unchanged here.",
+    "coordinatePrecisionPolicy": "2 decimal places on all path/viewBox coordinates (0.01 unit = 0.001% of cap height, far below any established tolerance). This precision was already used throughout Phase 3B construction and is preserved exactly, not re-rounded."
+  },
+  "glyphs": {
+    "order": ["C", "M", "S", "N"],
+    "C": {
+      "masterFile": "brand/master/CMSN-MASTER-GLYPH-C.svg",
+      "sourceFile": "brand/vector-masters/CMSN-GLYPH-C.svg",
+      "fileSha256": "c9ec4b35710a44db6dc0631fa3ad5b1f01105f176d0e16c3c4a1b31fdb7a8ea6",
+      "geometryFingerprint": "0623dd289b4e06ef43f06146a796de5c3f245ebaaab25459edb9a0e7a3fd0c5e",
+      "viewBox": "0 0 1614.68 1000.00",
+      "boundingBox": { "x0": 0, "y0": 0, "x1": 1614.68, "y1": 1000.00, "note": "Stroke-inclusive visual ink bounding box equals the viewBox exactly - verified analytically: every path terminus is a butt cap positioned exactly at a viewBox edge, and every stroke's perpendicular half-width (87.155u) is already absorbed into the centerline inset used during Phase 3B construction." },
+      "widthUnits": 1614.68,
+      "heightUnits": 1000.00,
+      "pathCount": 1,
+      "strokeWidthUnits": 174.31,
+      "strokeLinecap": "butt",
+      "strokeLinejoin": "round",
+      "constructionNote": "Validated Phase 3B reconstruction. No further geometry work authorized (Phase 3C instruction 4)."
+    },
+    "M": {
+      "masterFile": "brand/master/CMSN-MASTER-GLYPH-M.svg",
+      "sourceFile": "brand/vector-masters/CMSN-GLYPH-M.svg",
+      "fileSha256": "a22c275577ab3dbe29a38d8daca6f5824da6fe00190e5d6735ddd4055d260014",
+      "geometryFingerprint": "295532f1b9f348bc5f353bbfc24f9db559354f9a428b558346aa798ba40498cf",
+      "viewBox": "0 0 1715.60 1000.00",
+      "boundingBox": { "x0": 0, "y0": 0, "x1": 1715.60, "y1": 1000.00, "note": "Same butt-cap-at-viewBox-edge property as C; verified for both stems and both corner-curve termini." },
+      "widthUnits": 1715.60,
+      "heightUnits": 1000.00,
+      "pathCount": 1,
+      "strokeWidthUnits": 174.31,
+      "strokeLinecap": "butt",
+      "strokeLinejoin": "round",
+      "cornerCurveTreatment": {
+        "status": "AUTHORIZED AND PERMANENT - DO NOT REVERT TO STRAIGHT-LINE CONSTRUCTION",
+        "description": "Each stem/diagonal junction is a cubic Bezier fit by least-squares directly to the raster's measured edge boundary, anchored at the stem-top point and the independently-established straight-diagonal line.",
+        "vertex": [92.80, 83.64],
+        "vertexNote": "Directly evidenced as the intersection of two independently-fit straight diagonal lines - not the earlier midpoint-of-transition-rows derivation.",
+        "diagonalZoneRmsBefore": "3.55% of cap height (straight-line construction)",
+        "diagonalZoneRmsAfter": "0.20-0.39% of cap height (corner-curve construction)",
+        "evidenceDocuments": ["CMSN-M-CORNER-CURVE-EVALUATION.md", "CMSN-M-VERTEX-CANDIDATE-EVALUATION.html", "CMSN-PHASE3B-CORRECTION-LOG.md"]
+      },
+      "constructionNote": "Validated Phase 3B corrected reconstruction with authorized corner-curve treatment. This curve is intentional and permanent (Phase 3C instruction 4). Do not straighten, clean up, or replace with a conventional vertex."
+    },
+    "S": {
+      "masterFile": "brand/master/CMSN-MASTER-GLYPH-S.svg",
+      "sourceFile": "brand/vector-masters/CMSN-GLYPH-S.svg",
+      "fileSha256": "49ae986d56852f913686231a50bdd640495b918eb4a7132ff1803d4464396446",
+      "geometryFingerprint": "56bc78d193f117cfedf10382cdc6bc890d0be0b61c8b07e494d4e663ceab8b7c",
+      "viewBox": "0 0 1853.21 1000.00",
+      "boundingBox": { "x0": 0, "y0": 0, "x1": 1853.21, "y1": 1000.00, "note": "Top and bottom terminals are butt-capped horizontal segments touching the viewBox edges exactly; stroke perpendicular extension already absorbed via the established centerline inset." },
+      "widthUnits": 1853.21,
+      "heightUnits": 1000.00,
+      "pathCount": 1,
+      "strokeWidthUnits": 174.31,
+      "strokeLinecap": "butt",
+      "strokeLinejoin": "round",
+      "bottomTerminalCorrection": {
+        "status": "APPROVED AND PERMANENT - DO NOT REVERT",
+        "widthPx": 169,
+        "widthUnits": 1550.46,
+        "before": "168px / 1541.28u (symmetry-assumed, incorrect)",
+        "after": "169px / 1550.46u (independently re-measured from raster run [690,858])"
+      },
+      "constructionNote": "Validated Phase 3B corrected reconstruction. Spine remains a constructed cubic-Bezier interpolation (start tangent matches measured 48.09 deg; end tangent assumed symmetric) - unchanged since Phase 3B, not re-examined in Phase 3C."
+    },
+    "N": {
+      "masterFile": "brand/master/CMSN-MASTER-GLYPH-N.svg",
+      "sourceFile": "brand/vector-masters/CMSN-GLYPH-N.svg",
+      "fileSha256": "3253c1e739b05bfacffb8c5a6cec8f0694a0465165deadcf8f3ab42d6695b0b1",
+      "geometryFingerprint": "8a3f0c88d974172a81a17992a824d9149776e1014f5fd854ce49d6105e1dfd17",
+      "viewBox": "0 0 1495.41 1000.00",
+      "boundingBox": { "x0": 0, "y0": 0, "x1": 1495.41, "y1": 1000.00, "note": "Both stems are butt-capped vertical segments touching the viewBox top/bottom edges exactly." },
+      "widthUnits": 1495.41,
+      "heightUnits": 1000.00,
+      "pathCount": 1,
+      "strokeWidthUnits": 174.31,
+      "strokeLinecap": "butt",
+      "strokeLinejoin": "miter",
+      "diagonalRetention": {
+        "status": "RETAINED AS-IS - DO NOT MODIFY FOR CONVENTIONALITY",
+        "note": "Corner-to-corner centerline construction between stem centerlines. Row-by-row check (7 rows) showed RMS ~1.5px (1.4% cap height) with zero-crossing residuals - a good fit, despite a 1.25-degree gap against a separately-measured edge-fit angle metric. Root-caused to measurement methodology, not a construction defect. Do not change merely because a different construction might appear more geometrically conventional (Phase 3C instruction 4)."
+      },
+      "constructionNote": "Validated Phase 3B reconstruction. Retained without modification through the Phase 3B correction pass and Phase 3C."
+    }
+  },
+  "wordmark": {
+    "masterFile": "brand/master/CMSN-MASTER-WORDMARK-HORIZONTAL.svg",
+    "sourceFile": "brand/vector-masters/CMSN-WORDMARK-NOSLASH.svg",
+    "fileSha256": "d196e3084a287209a6a5857bd81bf9eabb020bbb40ff40844f599b4c04a087cf",
+    "geometryFingerprint": "b846149192848d3fc5e0a4b575376a01adf1b3c07772a19c86d96f0773d1d732",
+    "viewBox": "0 0 7550.46 1000.00",
+    "widthUnits": 7550.46,
+    "heightUnits": 1000.00,
+    "widthToHeightRatio": 7.5505,
+    "boundingBox": { "x0": 0, "y0": 0, "x1": 7550.46, "y1": 1000.00 },
+    "glyphOrder": "C -> M -> S -> N",
+    "assemblyContract": {
+      "description": "The wordmark is deterministic from 4 immutable glyph masters + 3 explicit gap values. A future developer can reconstruct it without visual judgment: place C at x=0; place M at x = C.width + gapCM; place S at x = M.x + M.width + gapMS; place N at x = S.x + S.width + gapSN. Total width = N.x + N.width. No kerning, no per-pair visual adjustment, no glyph modification for spacing.",
+      "formula": "x_C=0; x_M=x_C+widthC+gapCM; x_S=x_M+widthM+gapMS; x_N=x_S+widthS+gapSN; totalWidth=x_N+widthN",
+      "computedOffsets": { "x_C": 0.00, "x_M": 1935.78, "x_S": 3926.61, "x_N": 6055.05 },
+      "verification": "0 + 1614.68 + 321.10 + 1715.60 + 275.23 + 1853.21 + 275.23 + 1495.41 = 7550.46 (exact)"
+    },
+    "spacing": {
+      "CM": { "gapUnits": 321.10, "gapPx": 35, "status": "APPROVED (Phase 3B correction pass)", "supersedes": "330.28u/36px (original Phase 3A convention mismatch, see CMSN-PHASE3B-CORRECTION-LOG.md item 1)" },
+      "MS": { "gapUnits": 275.23, "gapPx": 30, "status": "APPROVED (Phase 3B correction pass)", "supersedes": "284.40u/31px" },
+      "SN": { "gapUnits": 275.23, "gapPx": 30, "status": "APPROVED (Phase 3B correction pass)", "supersedes": "284.40u/31px" },
+      "doNotReKern": true,
+      "note": "Spacing is an assembly property only. Do not modify glyph geometry to create optical spacing effects."
+    }
+  },
+  "mCornerCurvePreservationRule": {
+    "rule": "IMMUTABLE",
+    "text": "CMSN-MASTER-GLYPH-M.svg's cubic Bezier corner-curve junctions (vertex at 92.80,83.64; left curve control points 11.80,7.0 and 26.20,20.5; right curve control points 175.60,7.0 and 163.20,17.0, all in local glyph units) are a permanent, evidence-derived feature of the CMSN identity. Any tool, process, or person that regenerates, optimizes, simplifies, or re-exports this file MUST preserve these exact path coordinates. A geometry fingerprint mismatch against 295532f1b9f348bc5f353bbfc24f9db559354f9a428b558346aa798ba40498cf indicates an unauthorized alteration."
+  },
+  "prohibitedTransformations": [
+    "Altering Bezier control points, path nodes, or endpoints",
+    "Altering stroke widths or stem widths",
+    "Altering diagonal angles",
+    "Altering terminal geometry",
+    "Altering the M corner curve",
+    "Altering glyph proportions, cap height, or bounding boxes",
+    "Optical correction or visual compensation",
+    "Path simplification or coordinate rounding beyond the established 2-decimal precision",
+    "Curve-construction conversion (e.g., cubic to quadratic or arc)",
+    "Adding or removing path nodes",
+    "SVG optimization tools that rewrite geometry (e.g., SVGO with path-merging or curve-simplification plugins enabled)",
+    "Illustrator/vector-editor 'cleanup' or 'simplify path' operations",
+    "Automatic image tracing of any kind",
+    "Font-software reinterpretation of the paths",
+    "AI-generated approximation or regeneration of the letterforms",
+    "Re-kerning or optical spacing adjustment beyond the approved 3 gap values",
+    "Merging the slash master into the wordmark without a separately-approved lockup construction"
+  ],
+  "productionExportRules": {
+    "allowedTransformations": ["Uniform scaling (preserving aspect ratio)", "Format conversion (SVG to PNG/PDF/EPS etc.) without geometry rewriting", "Color substitution limited to the approved color system (black, white; transparent background)", "Translation/positioning for layout purposes"],
+    "colorSystem": {
+      "approvedColors": ["#000000 (black)", "#FFFFFF (white)"],
+      "transparentBackgroundBehavior": "Master SVGs use stroke=\"currentColor\" with fill=\"none\", enabling colorway-agnostic rendering. Background is transparent by default (no background rect). One geometry, two colorways (black fill / white fill), per existing brand architecture.",
+      "prohibited": ["Gradients", "Gray/tonal logo variants", "Effects (drop shadow, glow, bevel, etc.)", "Outlines/strokes added around the mark", "New brand colors beyond black/white"]
+    },
+    "svgRequirements": ["Preserve viewBox exactly", "Preserve path d data exactly (verify via geometry fingerprint before any redistribution)", "stroke-width, stroke-linecap, stroke-linejoin must match the master exactly", "No embedded raster images", "No font-family or @font-face references", "No <text> elements as production geometry"],
+    "rasterExportRequirements": ["Export at minimum the tested legibility floor - see minimumSize below", "Use vector-to-raster export that samples the exact master path data, not an intermediate re-traced version", "Maintain aspect ratio (7.5505:1 for the horizontal wordmark)"],
+    "apparelVendorHandling": "Vendors must receive the master SVG (or a format converted from it without geometry rewriting, e.g. PDF/EPS export preserving path data) plus this specification. Vendors must not be permitted to 'clean up' or 'vectorize' the mark themselves. Any vendor-side digitization (e.g., for embroidery) is a separate, explicitly-scoped derivative process outside this phase and must be validated against the geometry fingerprint before approval."
+  },
+  "clearSpace": {
+    "status": "APPROVED",
+    "approvedRule": {
+      "unitName": "1 Stroke Width (SW)",
+      "unitValueUnits": 174.31,
+      "unitValuePctCapHeight": 17.43,
+      "minHorizontalClearSpace": "1 SW (174.31u)",
+      "minVerticalClearSpace": "1 SW (174.31u)",
+      "measurementOrigin": "Wordmark visible ink bounding box edges (identical to viewBox per boundingBox notes above)",
+      "approvedDate": "2026-08-26",
+      "approvedVia": "Explicit user approval: \"Approve stroke width as the clear-space unit\""
+    },
+    "note": "Candidate 1 (below) is now the approved rule. Candidates 2 and 3 are retained for the audit trail only - they were not chosen.",
+    "candidates": [
+      {
+        "id": 1,
+        "unitName": "1 Stroke Width (SW)",
+        "unitValueUnits": 174.31,
+        "unitValuePctCapHeight": 17.43,
+        "derivation": "The single structural measurement shared exactly and identically across all four glyph masters (C, M, S, N all use stroke-width=174.31u). The most literal 'native unit' of the system.",
+        "proposedMinHorizontalClearSpace": "1 SW (174.31u)",
+        "proposedMinVerticalClearSpace": "1 SW (174.31u)",
+        "measurementOrigin": "Wordmark visible ink bounding box edges (identical to viewBox per boundingBox notes above)",
+        "recommended": true
+      },
+      {
+        "id": 2,
+        "unitName": "1 Cap Height (CH)",
+        "unitValueUnits": 1000.00,
+        "unitValuePctCapHeight": 100.00,
+        "derivation": "Cap height is the fundamental vertical measurement of the whole system (already the normalization basis for every other measurement). Common convention in many logo systems ('clear space = 1x cap height').",
+        "proposedMinHorizontalClearSpace": "1 CH (1000u)",
+        "proposedMinVerticalClearSpace": "1 CH (1000u)",
+        "measurementOrigin": "Wordmark visible ink bounding box edges",
+        "recommended": false
+      },
+      {
+        "id": 3,
+        "unitName": "Average Inter-Glyph Gap (AG)",
+        "unitValueUnits": 290.52,
+        "unitValuePctCapHeight": 29.05,
+        "derivation": "Mean of the three approved wordmark gaps ((321.10+275.23+275.23)/3 = 290.52u). Ties clear space to the wordmark's own internal rhythm rather than to stroke or cap height.",
+        "proposedMinHorizontalClearSpace": "1 AG (290.52u)",
+        "proposedMinVerticalClearSpace": "1 AG (290.52u)",
+        "measurementOrigin": "Wordmark visible ink bounding box edges",
+        "recommended": false
+      }
+    ]
+  },
+  "minimumSize": {
+    "status": "TESTED - DIGITAL RECOMMENDATION ESTABLISHED; PRINT IS AN EXTRAPOLATION PENDING PHYSICAL PROOF",
+    "testMethod": "Wordmark master rasterized at exact target pixel widths via canvas, then magnified 8x with nearest-neighbor (no smoothing) for direct pixel inspection. No special small-size logo was created; the master geometry was rendered as-is at each size.",
+    "testedWidthsPx": [48, 60, 72, 90, 120, 160, 200],
+    "observations": [
+      { "widthPx": 48, "capHeightPx": 6, "strokePx": 1.05, "result": "Letterforms remain nominally distinguishable but are at/below a safe legibility floor - S's internal crossing and M's corner-curve are not reliably discernible." },
+      { "widthPx": 60, "capHeightPx": 8, "strokePx": 1.39, "result": "All four letters clearly distinguishable; fine details (M corner curve) are not perceptible at this size but do not harm legibility." },
+      { "widthPx": 72, "capHeightPx": 10, "strokePx": 1.74, "result": "Good legibility." },
+      { "widthPx": 90, "capHeightPx": 12, "strokePx": 2.09, "result": "Very good legibility; counters and S crossing read clearly." },
+      { "widthPx": 120, "capHeightPx": 16, "strokePx": 2.79, "result": "Excellent legibility, no concerns." },
+      { "widthPx": 160, "capHeightPx": 21, "strokePx": 3.69, "result": "Excellent." },
+      { "widthPx": 200, "capHeightPx": 27, "strokePx": 4.62, "result": "Excellent." }
+    ],
+    "digitalRecommendedMinimum": { "wordmarkWidthPx": 90, "capHeightPx": 12, "rationale": "Smallest tested size at which all counters and the S crossing read clearly without strain" },
+    "digitalAbsoluteFloor": { "wordmarkWidthPx": 48, "capHeightPx": 6, "rationale": "Below this, stroke width approaches 1px and fine structure is not reliably reproduced; not recommended for production use" },
+    "printMinimum": {
+      "status": "ESTIMATED BY DPI EXTRAPOLATION - NOT INDEPENDENTLY VERIFIED BY PHYSICAL PRINT PROOF",
+      "at300dpi": { "recommendedWordmarkWidthIn": 0.30, "rationale": "90px digital recommendation / 300dpi = 0.30in; a direct unit conversion of the digital test, not a separately-run print test" },
+      "recommendation": "Physical print proofing (multiple substrates/print methods) should be run before this print figure is treated as validated."
+    }
+  },
+  "customTypeSystemFoundation": {
+    "status": "FOUNDATION DOCUMENTED ONLY - NO ADDITIONAL LETTERS DESIGNED",
+    "capHeightSystem": "1000-unit normalized cap height, SVG-native y-down coordinate convention, baseline at y=1000",
+    "structuralStrokeLogic": "Single monoline stroke weight (174.31u = 17.43% of cap height) used identically across every structural element of every glyph - stems, diagonals, terminals, curves. No weight variation within or between letters.",
+    "terminalLogic": "Flat (butt-capped) terminals throughout; no rounded caps used anywhere in the four validated glyphs.",
+    "cornerLogic": "Two corner treatments exist in the validated system: (1) C's two large-radius outer corners (circle-fit derived, see CMSN-GEOMETRY-SPEC.md Section D), and (2) M's evidence-derived cubic-Bezier corner-curve junctions. Both are raster-evidence-derived, not stylistic conventions - a future typeface must derive any new letter's corners the same way (from evidence, or from explicit new design decisions), not by copying these specific curves onto unrelated shapes.",
+    "curveBehavior": "All curves in the validated system (C's corners, M's corner-curves, S's bowl transitions and spine) are cubic or quadratic Beziers fit to or anchored on raster evidence where available; none are stylistic embellishment.",
+    "diagonalLogic": "M's diagonals run at ~46.2-46.8 degrees from vertical; N's diagonal runs at ~52.9 degrees from vertical (see CMSN-PHASE3B-CORRECTION-LOG.md item 3 for why N's angle was retained despite differing from an edge-fit measurement). These angles are specific to C/M/S/N as measured and are not a generalized 'CMSN diagonal angle' rule to be applied to hypothetical new letters without their own evidence.",
+    "spacingPhilosophy": "Non-uniform, evidenced spacing (wider C-M gap than M-S/S-N) rather than uniform advance widths - the existing gaps are specific to these four letters' shapes and adjacencies, not a general kerning table.",
+    "featuresUniqueToCMSN": ["The M corner-curve junction (evidence-derived, not a common typographic convention)", "C's large-radius outer corner treatment", "The specific non-uniform C-M/M-S/S-N spacing rhythm", "The single shared 17.43%-of-cap-height stroke weight across every glyph"],
+    "logoVsFutureTypefaceDistinction": "CMSN-MASTER-GLYPH-{C,M,S,N}.svg and CMSN-MASTER-WORDMARK-HORIZONTAL.svg are LOGO geometry - frozen, immutable, governed by this spec. A future CMSN display typeface would need its OWN full character set (numerals, remaining letters, punctuation) designed to extend this system's logic (stroke weight, terminal/corner philosophy, spacing philosophy) - it must not be used as a pretext to retroactively 'normalize', 'clean up', or redraw C, M, S, or N. Any typeface work is out of scope for Phase 3C and requires separate authorization."
+  },
+  "validationTolerances": {
+    "note": "Restated from CMSN-GEOMETRY-SPEC.json for convenience; Level 2/3 master geometry itself is held to zero-drift (geometry fingerprint match), not merely these percentage tolerances, which apply to reconstruction-from-raster fidelity.",
+    "primaryOuterGeometryPctCapHeight": 0.50,
+    "strokeThicknessPctCapHeight": 0.25,
+    "characterWidthPct": 0.50,
+    "internalStructuralCoordinatesPctCapHeight": 0.50,
+    "letterSpacingPctCapHeight": 0.50,
+    "masterGeometryDriftTolerance": "ZERO (geometry fingerprint must match exactly, byte-for-byte on the canonical JSON representation - see CMSN-MASTER-INTEGRITY.json)"
+  },
+  "discrepanciesFound": [
+    {
+      "description": "CMSN-GEOMETRY-SPEC.json spacing.CM/.MS/.SN.bboxGapUnits (330.28/284.40/284.40) still reflect the original Phase 3A gap convention, superseded for wordmark assembly by phase3bCorrections.item1_wordmarkGaps.correctedGaps (321.10/275.23/275.23). This is an ALREADY-DOCUMENTED, intentional discrepancy from the Phase 3B correction pass (both values remain on record with clear superseded/corrected labels), not a new inconsistency discovered in Phase 3C. Restated here per instruction 9's requirement not to silently resolve disagreements between documents - this spec (Level 3) uses the corrected values exclusively for the master wordmark."
+    }
+  ]
+}

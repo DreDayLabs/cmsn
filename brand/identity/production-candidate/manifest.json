@@ -1,0 +1,114 @@
+{
+  "source": "brand/master + public/brand/cmsn-slashes-dark.svg",
+  "slash": {
+    "angleFromVerticalDegrees": 15.255118703057777,
+    "centerlineLength": 91.21403400793103,
+    "thickness": 13,
+    "centerlineLengthToThickness": 7.016464154456234,
+    "horizontalPitch": 34,
+    "perpendicularGap": 19.801969922082897,
+    "terminals": "butt"
+  },
+  "wordmarkGapToSymbol": 348.62,
+  "extendedWordmarkWidth": 16302.760000000002,
+  "variants": [
+    {
+      "file": "cmsn-symbol-positive.svg",
+      "sha256": "463fed6a9cf435bcaa1d5bff83e28107bfe78cfa938b021021f18f6f5743a151",
+      "inkWidth": 771.6202536798514,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-symbol-reversed.svg",
+      "sha256": "c045aaf205c21c483dbd8540ebc13648ee3a69b690712347a8f1b53e53c07e9a",
+      "inkWidth": 771.6202536798514,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-cmsn-positive.svg",
+      "sha256": "0ca11d642ad754132b3fcca809f8a5c0d48e6f574d258a2beda012000ba6cd8f",
+      "inkWidth": 7550.46,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-cmsn-reversed.svg",
+      "sha256": "1866441749dfc460a77d712c065c01f1efa773940293d302b5baf33ac9bbd65c",
+      "inkWidth": 7550.46,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-commission-positive.svg",
+      "sha256": "b7d255647f56928a0ee8ada8e171f5815003d8870c9292c08e2e366348ce173b",
+      "inkWidth": 16302.760000000002,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-commission-reversed.svg",
+      "sha256": "04b1b7fde4dab076ba33e8c7aaf7981b336019182712aec25248ef135c3d51d5",
+      "inkWidth": 16302.760000000002,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-horizontal-positive.svg",
+      "sha256": "03d12e43c9e99d8042ffdb504052741889e1884bb771c9041f78fdae59cea883",
+      "inkWidth": 8670.700253679852,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-horizontal-reversed.svg",
+      "sha256": "6d3e6b154e20626688892c90df3bfbbe78f9d99b21c0ef2216ae0f864e47da24",
+      "inkWidth": 8670.700253679852,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-stacked-positive.svg",
+      "sha256": "ff88d64a25fa2537ac08d25165be01c6ab7827abe4e7590307592865bd18efd5",
+      "inkWidth": 7550.46,
+      "inkHeight": 2348.62,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-stacked-reversed.svg",
+      "sha256": "f2f8b562c452685a4cbd702dbf2d88ce92b44801fb1e08537caabb74147ae0ee",
+      "inkWidth": 7550.46,
+      "inkHeight": 2348.62,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-micro-symbol-positive.svg",
+      "sha256": "f17fab0affc0bb92a366565b67e8f1d23755ff469f0b1644bfb7fa7df29704d5",
+      "inkWidth": 771.6202536798514,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-micro-symbol-reversed.svg",
+      "sha256": "7e125562f4b08616ff7e7205293d27dd6cefc1e10274239212e5516cde96937e",
+      "inkWidth": 771.6202536798514,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-embroidery-symbol-positive.svg",
+      "sha256": "01553d480b9b113ee0e524521b8fefacb83cef8fe5b2048923682d0bfc5b4942",
+      "inkWidth": 771.6202536798514,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    },
+    {
+      "file": "cmsn-embroidery-symbol-reversed.svg",
+      "sha256": "410f3c64e8bb75febd78a646bd45965f6bef75e76596c8e58d163c03b9aad36b",
+      "inkWidth": 771.6202536798514,
+      "inkHeight": 1000,
+      "status": "founder-review; embroidery requires physical sew-out"
+    }
+  ]
+}

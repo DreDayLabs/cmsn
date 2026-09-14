@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CMSN — Wordmark Exploration Proof (A vs D)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #f2f1ee;
+    color: #111;
+    font-family: Helvetica, Arial, sans-serif;
+    padding: 32px;
+    margin: 0;
+  }
+  header.doc {
+    max-width: 900px;
+    margin-bottom: 40px;
+  }
+  header.doc h1 {
+    font-size: 22px;
+    letter-spacing: 0.03em;
+    margin: 0 0 8px;
+  }
+  header.doc p {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+    margin: 4px 0;
+  }
+  .candidate {
+    border-top: 2px solid #ccc;
+    padding-top: 24px;
+    margin-bottom: 56px;
+  }
+  .candidate h2 {
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    margin: 0 0 4px;
+  }
+  .candidate .family-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid #999;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    color: #444;
+  }
+  .candidate p.desc {
+    font-size: 13px;
+    color: #444;
+    max-width: 720px;
+    line-height: 1.5;
+    margin: 0 0 16px;
+  }
+  h3.section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin: 20px 0 10px;
+  }
+  .views {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+  }
+  .view {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-height: 110px;
+  }
+  .view svg { display: block; color: #111; }
+  .view span {
+    font-size: 9px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: center;
+    max-width: 120px;
+  }
+  .apps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .app {
+    width: 170px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .app span {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.75;
+  }
+  .app.white-garment { background: #ffffff; color: #0A0A0A; border: 1px solid #ddd; }
+  .app.black-garment { background: #0A0A0A; color: #FAFAF8; }
+  .app.tonal { background: #0A0A0A; color: #202020; }
+  .app.embroidery { background: #eae6db; color: #161616; filter: saturate(0.9) contrast(1.08) blur(0.35px); }
+  .app.zipper {
+    background: linear-gradient(135deg, #9297a0 0%, #565a60 38%, #cfd3d6 55%, #6d7176 100%);
+    color: #16181b;
+  }
+  .lock-note {
+    font-size: 11px;
+    color: #a15;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Shared symbol defs — one definition per candidate view, reused via <use> at every size/context below -->
+<svg style="display:none" aria-hidden="true">
+<defs>
+
+  <symbol id="a1-h" viewBox="0 0 368 104">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M58 8 H28 Q6 8 6 30 V74 Q6 96 28 96 H58"/></g>
+      <g transform="translate(74,0)"><path d="M0 96 V8 L28 58 H38 L66 8 V96"/></g>
+      <g transform="translate(156,0)"><path d="M46 10 H20 Q2 10 2 28 Q2 44 20 46 L28 48 Q46 50 46 68 Q46 94 28 94 H2"/></g>
+      <g transform="translate(218,0)"><path d="M0 96 V8 L48 96 V8"/></g>
+    </g>
+    <g transform="translate(290,0)" stroke="currentColor" stroke-width="13" stroke-linecap="butt" fill="none">
+      <path d="M8 96 L32 8"/><path d="M42 96 L66 8"/>
+    </g>
+  </symbol>
+  <symbol id="a1-w" viewBox="0 0 266 104">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M58 8 H28 Q6 8 6 30 V74 Q6 96 28 96 H58"/></g>
+      <g transform="translate(74,0)"><path d="M0 96 V8 L28 58 H38 L66 8 V96"/></g>
+      <g transform="translate(156,0)"><path d="M46 10 H20 Q2 10 2 28 Q2 44 20 46 L28 48 Q46 50 46 68 Q46 94 28 94 H2"/></g>
+      <g transform="translate(218,0)"><path d="M0 96 V8 L48 96 V8"/></g>
+    </g>
+  </symbol>
+  <symbol id="a1-v" viewBox="0 0 82 420">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(12,10)"><path d="M58 8 H28 Q6 8 6 30 V74 Q6 96 28 96 H58"/></g>
+      <g transform="translate(8,114)"><path d="M0 96 V8 L28 58 H38 L66 8 V96"/></g>
+      <g transform="translate(18,218)"><path d="M46 10 H20 Q2 10 2 28 Q2 44 20 46 L28 48 Q46 50 46 68 Q46 94 28 94 H2"/></g>
+      <g transform="translate(17,322)"><path d="M0 96 V8 L48 96 V8"/></g>
+    </g>
+  </symbol>
+
+  <symbol id="a2-h" viewBox="0 0 358 104">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M54 8 H24 Q6 8 6 26 V78 Q6 96 24 96 H54"/></g>
+      <g transform="translate(68,0)"><path d="M0 96 V8 L27 52 H35 L64 8 V96"/></g>
+      <g transform="translate(146,0)"><path d="M44 10 H18 Q1 10 1 27 Q1 42 18 44 L25 47 Q44 49 44 66 Q44 94 26 94 H2"/></g>
+      <g transform="translate(204,0)"><path d="M0 96 V8 L52 96 V8"/></g>
+    </g>
+    <g transform="translate(280,0)" stroke="currentColor" stroke-width="13" stroke-linecap="butt" fill="none">
+      <path d="M8 96 L32 8"/><path d="M42 96 L66 8"/>
+    </g>
+  </symbol>
+  <symbol id="a2-w" viewBox="0 0 256 104">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M54 8 H24 Q6 8 6 26 V78 Q6 96 24 96 H54"/></g>
+      <g transform="translate(68,0)"><path d="M0 96 V8 L27 52 H35 L64 8 V96"/></g>
+      <g transform="translate(146,0)"><path d="M44 10 H18 Q1 10 1 27 Q1 42 18 44 L25 47 Q44 49 44 66 Q44 94 26 94 H2"/></g>
+      <g transform="translate(204,0)"><path d="M0 96 V8 L52 96 V8"/></g>
+    </g>
+  </symbol>
+  <symbol id="a2-v" viewBox="0 0 80 414">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(13,10)"><path d="M54 8 H24 Q6 8 6 26 V78 Q6 96 24 96 H54"/></g>
+      <g transform="translate(8,112)"><path d="M0 96 V8 L27 52 H35 L64 8 V96"/></g>
+      <g transform="translate(18,214)"><path d="M44 10 H18 Q1 10 1 27 Q1 42 18 44 L25 47 Q44 49 44 66 Q44 94 26 94 H2"/></g>
+      <g transform="translate(14,316)"><path d="M0 96 V8 L52 96 V8"/></g>
+    </g>
+  </symbol>
+
+  <symbol id="a3-h" viewBox="0 0 380 104">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M62 8 H32 Q6 8 6 34 V70 Q6 96 32 96 H62"/></g>
+      <g transform="translate(80,0)"><path d="M0 96 V8 L30 64 H46 L70 8 V96"/></g>
+      <g transform="translate(168,0)"><path d="M48 12 H22 Q2 12 2 30 Q2 46 22 48 L30 49 Q48 51 48 70 Q48 94 24 94 H4"/></g>
+      <g transform="translate(234,0)"><path d="M0 96 V8 L44 96 V8"/></g>
+    </g>
+    <g transform="translate(302,0)" stroke="currentColor" stroke-width="13" stroke-linecap="butt" fill="none">
+      <path d="M8 96 L32 8"/><path d="M42 96 L66 8"/>
+    </g>
+  </symbol>
+  <symbol id="a3-w" viewBox="0 0 278 104">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M62 8 H32 Q6 8 6 34 V70 Q6 96 32 96 H62"/></g>
+      <g transform="translate(80,0)"><path d="M0 96 V8 L30 64 H46 L70 8 V96"/></g>
+      <g transform="translate(168,0)"><path d="M48 12 H22 Q2 12 2 30 Q2 46 22 48 L30 49 Q48 51 48 70 Q48 94 24 94 H4"/></g>
+      <g transform="translate(234,0)"><path d="M0 96 V8 L44 96 V8"/></g>
+    </g>
+  </symbol>
+  <symbol id="a3-v" viewBox="0 0 86 426">
+    <g stroke="currentColor" stroke-width="11" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(12,10)"><path d="M62 8 H32 Q6 8 6 34 V70 Q6 96 32 96 H62"/></g>
+      <g transform="translate(8,116)"><path d="M0 96 V8 L30 64 H46 L70 8 V96"/></g>
+      <g transform="translate(19,222)"><path d="M48 12 H22 Q2 12 2 30 Q2 46 22 48 L30 49 Q48 51 48 70 Q48 94 24 94 H4"/></g>
+      <g transform="translate(21,328)"><path d="M0 96 V8 L44 96 V8"/></g>
+    </g>
+  </symbol>
+
+  <symbol id="d1-h" viewBox="0 0 348 104">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M52 16 L44 8 H24 Q4 8 4 28 V76 Q4 96 24 96 H44 L52 88"/></g>
+      <g transform="translate(70,0)"><path d="M0 96 V8 L22 66 H32 L58 8 V96"/></g>
+      <g transform="translate(146,0)"><path d="M44 8 H18 Q0 8 0 24 Q0 38 18 40 L34 54 Q44 56 44 70 Q44 94 26 94 H4"/></g>
+      <g transform="translate(208,0)"><path d="M0 96 V8 L44 96 V8"/></g>
+    </g>
+    <g transform="translate(270,0)" stroke="currentColor" stroke-width="13" stroke-linecap="butt" fill="none">
+      <path d="M8 96 L32 8"/><path d="M42 96 L66 8"/>
+    </g>
+  </symbol>
+  <symbol id="d1-w" viewBox="0 0 252 104">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M52 16 L44 8 H24 Q4 8 4 28 V76 Q4 96 24 96 H44 L52 88"/></g>
+      <g transform="translate(70,0)"><path d="M0 96 V8 L22 66 H32 L58 8 V96"/></g>
+      <g transform="translate(146,0)"><path d="M44 8 H18 Q0 8 0 24 Q0 38 18 40 L34 54 Q44 56 44 70 Q44 94 26 94 H4"/></g>
+      <g transform="translate(208,0)"><path d="M0 96 V8 L44 96 V8"/></g>
+    </g>
+  </symbol>
+  <symbol id="d1-v" viewBox="0 0 74 402">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(11,10)"><path d="M52 16 L44 8 H24 Q4 8 4 28 V76 Q4 96 24 96 H44 L52 88"/></g>
+      <g transform="translate(8,108)"><path d="M0 96 V8 L22 66 H32 L58 8 V96"/></g>
+      <g transform="translate(15,206)"><path d="M44 8 H18 Q0 8 0 24 Q0 38 18 40 L34 54 Q44 56 44 70 Q44 94 26 94 H4"/></g>
+      <g transform="translate(15,304)"><path d="M0 96 V8 L44 96 V8"/></g>
+    </g>
+  </symbol>
+
+  <symbol id="d2-h" viewBox="0 0 332 104">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M50 18 L40 8 H21 Q3 8 3 26 V78 Q3 96 21 96 H40 L50 86"/></g>
+      <g transform="translate(66,0)"><path d="M0 96 V8 L18 70 H28 L54 8 V96"/></g>
+      <g transform="translate(136,0)"><path d="M44 8 H18 Q0 8 0 22 Q0 36 18 38 L38 56 Q44 58 44 72 Q44 94 30 94 H10"/></g>
+      <g transform="translate(196,0)"><path d="M0 96 V8 L40 96 V8"/></g>
+    </g>
+    <g transform="translate(254,0)" stroke="currentColor" stroke-width="13" stroke-linecap="butt" fill="none">
+      <path d="M8 96 L32 8"/><path d="M42 96 L66 8"/>
+    </g>
+  </symbol>
+  <symbol id="d2-w" viewBox="0 0 236 104">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M50 18 L40 8 H21 Q3 8 3 26 V78 Q3 96 21 96 H40 L50 86"/></g>
+      <g transform="translate(66,0)"><path d="M0 96 V8 L18 70 H28 L54 8 V96"/></g>
+      <g transform="translate(136,0)"><path d="M44 8 H18 Q0 8 0 22 Q0 36 18 38 L38 56 Q44 58 44 72 Q44 94 30 94 H10"/></g>
+      <g transform="translate(196,0)"><path d="M0 96 V8 L40 96 V8"/></g>
+    </g>
+  </symbol>
+  <symbol id="d2-v" viewBox="0 0 70 396">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(10,10)"><path d="M50 18 L40 8 H21 Q3 8 3 26 V78 Q3 96 21 96 H40 L50 86"/></g>
+      <g transform="translate(8,106)"><path d="M0 96 V8 L18 70 H28 L54 8 V96"/></g>
+      <g transform="translate(13,202)"><path d="M44 8 H18 Q0 8 0 22 Q0 36 18 38 L38 56 Q44 58 44 72 Q44 94 30 94 H10"/></g>
+      <g transform="translate(15,298)"><path d="M0 96 V8 L40 96 V8"/></g>
+    </g>
+  </symbol>
+
+  <symbol id="d3-h" viewBox="0 0 339 104">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M54 14 L48 8 H26 Q4 8 4 30 V74 Q4 96 26 96 H48 L54 90"/></g>
+      <g transform="translate(71,0)"><path d="M0 96 V8 L20 62 H30 L52 8 V96"/></g>
+      <g transform="translate(140,0)"><path d="M44 10 H18 Q1 10 1 26 Q1 40 20 42 L40 58 V64 Q44 66 44 78 Q44 94 24 94 H4"/></g>
+      <g transform="translate(201,0)"><path d="M0 96 V8 L42 96 V8"/></g>
+    </g>
+    <g transform="translate(261,0)" stroke="currentColor" stroke-width="13" stroke-linecap="butt" fill="none">
+      <path d="M8 96 L32 8"/><path d="M42 96 L66 8"/>
+    </g>
+  </symbol>
+  <symbol id="d3-w" viewBox="0 0 243 104">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(0,0)"><path d="M54 14 L48 8 H26 Q4 8 4 30 V74 Q4 96 26 96 H48 L54 90"/></g>
+      <g transform="translate(71,0)"><path d="M0 96 V8 L20 62 H30 L52 8 V96"/></g>
+      <g transform="translate(140,0)"><path d="M44 10 H18 Q1 10 1 26 Q1 40 20 42 L40 58 V64 Q44 66 44 78 Q44 94 24 94 H4"/></g>
+      <g transform="translate(201,0)"><path d="M0 96 V8 L42 96 V8"/></g>
+    </g>
+  </symbol>
+  <symbol id="d3-v" viewBox="0 0 70 399">
+    <g stroke="currentColor" stroke-width="12" stroke-linecap="butt" stroke-linejoin="round" fill="none">
+      <g transform="translate(8,10)"><path d="M54 14 L48 8 H26 Q4 8 4 30 V74 Q4 96 26 96 H48 L54 90"/></g>
+      <g transform="translate(9,107)"><path d="M0 96 V8 L20 62 H30 L52 8 V96"/></g>
+      <g transform="translate(13,204)"><path d="M44 10 H18 Q1 10 1 26 Q1 40 20 42 L40 58 V64 Q44 66 44 78 Q44 94 24 94 H4"/></g>
+      <g transform="translate(14,301)"><path d="M0 96 V8 L42 96 V8"/></g>
+    </g>
+  </symbol>
+
+</defs>
+</svg>
+
+<header class="doc">
+  <h1>CMSN — Wordmark Exploration Proof · Direction A (Architectural) vs Direction D (Performance)</h1>
+  <p><strong>Status: exploration only, not production masters.</strong> All geometry below is original vector path work built for this round — no typed/traced fonts, no raster text. The <code>//</code> in every horizontal lockup uses the exact locked canonical geometry (<code>M8 96 L32 8</code> / <code>M42 96 L66 8</code>, viewBox 0 0 78 104) — untouched, only repositioned. No winner has been chosen; this file is for your review.</p>
+  <p>Each candidate shows: large horizontal lockup, wordmark-only, tight vertical (no slashes), four progressively smaller legibility checks, two vertical-at-garment-scale checks, then five application simulations (evaluation only — not final apparel assets).</p>
+</header>
+
+<!-- ============ A1 ============ -->
+<section class="candidate">
+  <h2>A1 — Architectural, baseline</h2>
+  <span class="family-tag">Direction A</span>
+  <p class="desc">The most restrained cut in the family: wide, generous C aperture (radius 20), moderate flat-apex M trough, the established connected-S jog at its original proportions, standard-width N. Reference point the other two A variants refine against.</p>
+
+  <h3 class="section-label">Core lockups &amp; legibility scale</h3>
+  <div class="views">
+    <div class="view"><svg viewBox="0 0 368 104" style="width:340px;height:auto"><use href="#a1-h"/></svg><span>Large horizontal CMSN //</span></div>
+    <div class="view"><svg viewBox="0 0 266 104" style="width:220px;height:auto"><use href="#a1-w"/></svg><span>CMSN wordmark, no //</span></div>
+    <div class="view"><svg viewBox="0 0 82 420" style="height:220px;width:auto"><use href="#a1-v"/></svg><span>Tight vertical, no slashes</span></div>
+    <div class="view"><svg viewBox="0 0 368 104" style="width:160px;height:auto"><use href="#a1-h"/></svg><span>Website header scale</span></div>
+    <div class="view"><svg viewBox="0 0 368 104" style="width:90px;height:auto"><use href="#a1-h"/></svg><span>~32px visual scale</span></div>
+    <div class="view"><svg viewBox="0 0 368 104" style="width:46px;height:auto"><use href="#a1-h"/></svg><span>Tiny symbol/wordmark relationship</span></div>
+    <div class="view"><svg viewBox="0 0 82 420" style="height:90px;width:auto"><use href="#a1-v"/></svg><span>Vertical, narrow garment scale</span></div>
+    <div class="view"><svg viewBox="0 0 82 420" style="height:42px;width:auto"><use href="#a1-v"/></svg><span>Vertical, zipper-pull scale</span></div>
+  </div>
+
+  <h3 class="section-label">Application simulations (evaluation only)</h3>
+  <div class="apps">
+    <div class="app black-garment"><svg viewBox="0 0 368 104" style="width:130px;height:auto"><use href="#a1-h"/></svg><span>Black garment / white mark</span></div>
+    <div class="app white-garment"><svg viewBox="0 0 368 104" style="width:130px;height:auto"><use href="#a1-h"/></svg><span>White garment / black mark</span></div>
+    <div class="app tonal"><svg viewBox="0 0 368 104" style="width:130px;height:auto"><use href="#a1-h"/></svg><span>Black-on-black tonal</span></div>
+    <div class="app embroidery"><svg viewBox="0 0 368 104" style="width:80px;height:auto"><use href="#a1-h"/></svg><span>Embroidery-size approx.</span></div>
+    <div class="app zipper"><svg viewBox="0 0 82 420" style="height:70px;width:auto"><use href="#a1-v"/></svg><span>Zipper-metal engraving approx.</span></div>
+  </div>
+</section>
+
+<!-- ============ A2 ============ -->
+<section class="candidate">
+  <h2>A2 — Architectural, lighter aperture</h2>
+  <span class="family-tag">Direction A</span>
+  <p class="desc">Tighter C corner radius (18 vs 20) and shorter reach for a slightly more open counter; shallower, narrower M trough; a tightened S jog; wider N for a marginally shallower diagonal. Letter spacing pulled in 2 units tighter than A1.</p>
+
+  <h3 class="section-label">Core lockups &amp; legibility scale</h3>
+  <div class="views">
+    <div class="view"><svg viewBox="0 0 358 104" style="width:340px;height:auto"><use href="#a2-h"/></svg><span>Large horizontal CMSN //</span></div>
+    <div class="view"><svg viewBox="0 0 256 104" style="width:220px;height:auto"><use href="#a2-w"/></svg><span>CMSN wordmark, no //</span></div>
+    <div class="view"><svg viewBox="0 0 80 414" style="height:220px;width:auto"><use href="#a2-v"/></svg><span>Tight vertical, no slashes</span></div>
+    <div class="view"><svg viewBox="0 0 358 104" style="width:160px;height:auto"><use href="#a2-h"/></svg><span>Website header scale</span></div>
+    <div class="view"><svg viewBox="0 0 358 104" style="width:90px;height:auto"><use href="#a2-h"/></svg><span>~32px visual scale</span></div>
+    <div class="view"><svg viewBox="0 0 358 104" style="width:46px;height:auto"><use href="#a2-h"/></svg><span>Tiny symbol/wordmark relationship</span></div>
+    <div class="view"><svg viewBox="0 0 80 414" style="height:90px;width:auto"><use href="#a2-v"/></svg><span>Vertical, narrow garment scale</span></div>
+    <div class="view"><svg viewBox="0 0 80 414" style="height:42px;width:auto"><use href="#a2-v"/></svg><span>Vertical, zipper-pull scale</span></div>
+  </div>
+
+  <h3 class="section-label">Application simulations (evaluation only)</h3>
+  <div class="apps">
+    <div class="app black-garment"><svg viewBox="0 0 358 104" style="width:130px;height:auto"><use href="#a2-h"/></svg><span>Black garment / white mark</span></div>
+    <div class="app white-garment"><svg viewBox="0 0 358 104" style="width:130px;height:auto"><use href="#a2-h"/></svg><span>White garment / black mark</span></div>
+    <div class="app tonal"><svg viewBox="0 0 358 104" style="width:130px;height:auto"><use href="#a2-h"/></svg><span>Black-on-black tonal</span></div>
+    <div class="app embroidery"><svg viewBox="0 0 358 104" style="width:80px;height:auto"><use href="#a2-h"/></svg><span>Embroidery-size approx.</span></div>
+    <div class="app zipper"><svg viewBox="0 0 80 414" style="height:70px;width:auto"><use href="#a2-v"/></svg><span>Zipper-metal engraving approx.</span></div>
+  </div>
+</section>
+
+<!-- ============ A3 ============ -->
+<section class="candidate">
+  <h2>A3 — Architectural, heavier aperture</h2>
+  <span class="family-tag">Direction A</span>
+  <p class="desc">Largest, softest C radius (26) for the most restrained/closed mouth of the three; deepest and widest M trough notch (most pronounced "engineered" flat apex); a squared-off S jog; narrowest N for a steeper diagonal. Loosest spacing of the family.</p>
+
+  <h3 class="section-label">Core lockups &amp; legibility scale</h3>
+  <div class="views">
+    <div class="view"><svg viewBox="0 0 380 104" style="width:340px;height:auto"><use href="#a3-h"/></svg><span>Large horizontal CMSN //</span></div>
+    <div class="view"><svg viewBox="0 0 278 104" style="width:220px;height:auto"><use href="#a3-w"/></svg><span>CMSN wordmark, no //</span></div>
+    <div class="view"><svg viewBox="0 0 86 426" style="height:220px;width:auto"><use href="#a3-v"/></svg><span>Tight vertical, no slashes</span></div>
+    <div class="view"><svg viewBox="0 0 380 104" style="width:160px;height:auto"><use href="#a3-h"/></svg><span>Website header scale</span></div>
+    <div class="view"><svg viewBox="0 0 380 104" style="width:90px;height:auto"><use href="#a3-h"/></svg><span>~32px visual scale</span></div>
+    <div class="view"><svg viewBox="0 0 380 104" style="width:46px;height:auto"><use href="#a3-h"/></svg><span>Tiny symbol/wordmark relationship</span></div>
+    <div class="view"><svg viewBox="0 0 86 426" style="height:90px;width:auto"><use href="#a3-v"/></svg><span>Vertical, narrow garment scale</span></div>
+    <div class="view"><svg viewBox="0 0 86 426" style="height:42px;width:auto"><use href="#a3-v"/></svg><span>Vertical, zipper-pull scale</span></div>
+  </div>
+
+  <h3 class="section-label">Application simulations (evaluation only)</h3>
+  <div class="apps">
+    <div class="app black-garment"><svg viewBox="0 0 380 104" style="width:130px;height:auto"><use href="#a3-h"/></svg><span>Black garment / white mark</span></div>
+    <div class="app white-garment"><svg viewBox="0 0 380 104" style="width:130px;height:auto"><use href="#a3-h"/></svg><span>White garment / black mark</span></div>
+    <div class="app tonal"><svg viewBox="0 0 380 104" style="width:130px;height:auto"><use href="#a3-h"/></svg><span>Black-on-black tonal</span></div>
+    <div class="app embroidery"><svg viewBox="0 0 380 104" style="width:80px;height:auto"><use href="#a3-h"/></svg><span>Embroidery-size approx.</span></div>
+    <div class="app zipper"><svg viewBox="0 0 86 426" style="height:70px;width:auto"><use href="#a3-v"/></svg><span>Zipper-metal engraving approx.</span></div>
+  </div>
+</section>
+
+<!-- ============ D1 ============ -->
+<section class="candidate">
+  <h2>D1 — Performance, baseline</h2>
+  <span class="family-tag">Direction D</span>
+  <p class="desc">Introduces the family's defining device: a short angled "cut" nub at the C's terminals (forward-motion detail, not decorative), an asymmetric M trough (steeper left leg) and a longer diagonal S jog than any A variant. Bolder stroke (12 vs A's 11). Spacing tightened to 18 units — the widest gap in the D family, since D1 is the introduction of the more aggressive language.</p>
+
+  <h3 class="section-label">Core lockups &amp; legibility scale</h3>
+  <div class="views">
+    <div class="view"><svg viewBox="0 0 348 104" style="width:340px;height:auto"><use href="#d1-h"/></svg><span>Large horizontal CMSN //</span></div>
+    <div class="view"><svg viewBox="0 0 252 104" style="width:220px;height:auto"><use href="#d1-w"/></svg><span>CMSN wordmark, no //</span></div>
+    <div class="view"><svg viewBox="0 0 74 402" style="height:220px;width:auto"><use href="#d1-v"/></svg><span>Tight vertical, no slashes</span></div>
+    <div class="view"><svg viewBox="0 0 348 104" style="width:160px;height:auto"><use href="#d1-h"/></svg><span>Website header scale</span></div>
+    <div class="view"><svg viewBox="0 0 348 104" style="width:90px;height:auto"><use href="#d1-h"/></svg><span>~32px visual scale</span></div>
+    <div class="view"><svg viewBox="0 0 348 104" style="width:46px;height:auto"><use href="#d1-h"/></svg><span>Tiny symbol/wordmark relationship</span></div>
+    <div class="view"><svg viewBox="0 0 74 402" style="height:90px;width:auto"><use href="#d1-v"/></svg><span>Vertical, narrow garment scale</span></div>
+    <div class="view"><svg viewBox="0 0 74 402" style="height:42px;width:auto"><use href="#d1-v"/></svg><span>Vertical, zipper-pull scale</span></div>
+  </div>
+
+  <h3 class="section-label">Application simulations (evaluation only)</h3>
+  <div class="apps">
+    <div class="app black-garment"><svg viewBox="0 0 348 104" style="width:130px;height:auto"><use href="#d1-h"/></svg><span>Black garment / white mark</span></div>
+    <div class="app white-garment"><svg viewBox="0 0 348 104" style="width:130px;height:auto"><use href="#d1-h"/></svg><span>White garment / black mark</span></div>
+    <div class="app tonal"><svg viewBox="0 0 348 104" style="width:130px;height:auto"><use href="#d1-h"/></svg><span>Black-on-black tonal</span></div>
+    <div class="app embroidery"><svg viewBox="0 0 348 104" style="width:80px;height:auto"><use href="#d1-h"/></svg><span>Embroidery-size approx.</span></div>
+    <div class="app zipper"><svg viewBox="0 0 74 402" style="height:70px;width:auto"><use href="#d1-v"/></svg><span>Zipper-metal engraving approx.</span></div>
+  </div>
+</section>
+
+<!-- ============ D2 ============ -->
+<section class="candidate">
+  <h2>D2 — Performance, S reaches toward N</h2>
+  <span class="family-tag">Direction D</span>
+  <p class="desc">Sharper, tighter C nub; deeper/tighter M trough (18–28 unit flat, deepest of the three); the S's diagonal extends further and its bottom terminal is pulled right toward the N — the closest the terminal comes to "transitioning toward" the next letter while both stay independently legible. Tightest spacing in the family (16 units).</p>
+
+  <h3 class="section-label">Core lockups &amp; legibility scale</h3>
+  <div class="views">
+    <div class="view"><svg viewBox="0 0 332 104" style="width:340px;height:auto"><use href="#d2-h"/></svg><span>Large horizontal CMSN //</span></div>
+    <div class="view"><svg viewBox="0 0 236 104" style="width:220px;height:auto"><use href="#d2-w"/></svg><span>CMSN wordmark, no //</span></div>
+    <div class="view"><svg viewBox="0 0 70 396" style="height:220px;width:auto"><use href="#d2-v"/></svg><span>Tight vertical, no slashes</span></div>
+    <div class="view"><svg viewBox="0 0 332 104" style="width:160px;height:auto"><use href="#d2-h"/></svg><span>Website header scale</span></div>
+    <div class="view"><svg viewBox="0 0 332 104" style="width:90px;height:auto"><use href="#d2-h"/></svg><span>~32px visual scale</span></div>
+    <div class="view"><svg viewBox="0 0 332 104" style="width:46px;height:auto"><use href="#d2-h"/></svg><span>Tiny symbol/wordmark relationship</span></div>
+    <div class="view"><svg viewBox="0 0 70 396" style="height:90px;width:auto"><use href="#d2-v"/></svg><span>Vertical, narrow garment scale</span></div>
+    <div class="view"><svg viewBox="0 0 70 396" style="height:42px;width:auto"><use href="#d2-v"/></svg><span>Vertical, zipper-pull scale</span></div>
+  </div>
+
+  <h3 class="section-label">Application simulations (evaluation only)</h3>
+  <div class="apps">
+    <div class="app black-garment"><svg viewBox="0 0 332 104" style="width:130px;height:auto"><use href="#d2-h"/></svg><span>Black garment / white mark</span></div>
+    <div class="app white-garment"><svg viewBox="0 0 332 104" style="width:130px;height:auto"><use href="#d2-h"/></svg><span>White garment / black mark</span></div>
+    <div class="app tonal"><svg viewBox="0 0 332 104" style="width:130px;height:auto"><use href="#d2-h"/></svg><span>Black-on-black tonal</span></div>
+    <div class="app embroidery"><svg viewBox="0 0 332 104" style="width:80px;height:auto"><use href="#d2-h"/></svg><span>Embroidery-size approx.</span></div>
+    <div class="app zipper"><svg viewBox="0 0 70 396" style="height:70px;width:auto"><use href="#d2-v"/></svg><span>Zipper-metal engraving approx.</span></div>
+  </div>
+</section>
+
+<!-- ============ D3 ============ -->
+<section class="candidate">
+  <h2>D3 — Performance, steep S with held tail</h2>
+  <span class="family-tag">Direction D</span>
+  <p class="desc">Subtlest C nub of the three (blends toward architectural); narrower, more symmetric M; the S's diagonal is steepest and holds a short vertical beat before curving into the bottom bowl — a different rhythm than D1/D2's continuous sweep. Narrowest N in the family for the tightest overall silhouette.</p>
+
+  <h3 class="section-label">Core lockups &amp; legibility scale</h3>
+  <div class="views">
+    <div class="view"><svg viewBox="0 0 339 104" style="width:340px;height:auto"><use href="#d3-h"/></svg><span>Large horizontal CMSN //</span></div>
+    <div class="view"><svg viewBox="0 0 243 104" style="width:220px;height:auto"><use href="#d3-w"/></svg><span>CMSN wordmark, no //</span></div>
+    <div class="view"><svg viewBox="0 0 70 399" style="height:220px;width:auto"><use href="#d3-v"/></svg><span>Tight vertical, no slashes</span></div>
+    <div class="view"><svg viewBox="0 0 339 104" style="width:160px;height:auto"><use href="#d3-h"/></svg><span>Website header scale</span></div>
+    <div class="view"><svg viewBox="0 0 339 104" style="width:90px;height:auto"><use href="#d3-h"/></svg><span>~32px visual scale</span></div>
+    <div class="view"><svg viewBox="0 0 339 104" style="width:46px;height:auto"><use href="#d3-h"/></svg><span>Tiny symbol/wordmark relationship</span></div>
+    <div class="view"><svg viewBox="0 0 70 399" style="height:90px;width:auto"><use href="#d3-v"/></svg><span>Vertical, narrow garment scale</span></div>
+    <div class="view"><svg viewBox="0 0 70 399" style="height:42px;width:auto"><use href="#d3-v"/></svg><span>Vertical, zipper-pull scale</span></div>
+  </div>
+
+  <h3 class="section-label">Application simulations (evaluation only)</h3>
+  <div class="apps">
+    <div class="app black-garment"><svg viewBox="0 0 339 104" style="width:130px;height:auto"><use href="#d3-h"/></svg><span>Black garment / white mark</span></div>
+    <div class="app white-garment"><svg viewBox="0 0 339 104" style="width:130px;height:auto"><use href="#d3-h"/></svg><span>White garment / black mark</span></div>
+    <div class="app tonal"><svg viewBox="0 0 339 104" style="width:130px;height:auto"><use href="#d3-h"/></svg><span>Black-on-black tonal</span></div>
+    <div class="app embroidery"><svg viewBox="0 0 339 104" style="width:80px;height:auto"><use href="#d3-h"/></svg><span>Embroidery-size approx.</span></div>
+    <div class="app zipper"><svg viewBox="0 0 70 399" style="height:70px;width:auto"><use href="#d3-v"/></svg><span>Zipper-metal engraving approx.</span></div>
+  </div>
+</section>
+
+</body>
+</html>

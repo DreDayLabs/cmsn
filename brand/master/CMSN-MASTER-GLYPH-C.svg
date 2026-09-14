@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1614.68 1000.00" fill="none" role="img" aria-label="C">
+  <!-- CMSN Phase 3B reconstruction: glyph C. Coordinate system: y=0 cap line, y=1000.00 baseline (SVG-native y-down; inverse of typographic Y in CMSN-GEOMETRY-SPEC.json). Units: 1 unit = 1/1000.00 cap height (cap height=1000u definition; this box height=1000.00u by construction). -->
+  <!-- CMSN CANONICAL MASTER — Phase 3C. Geometry frozen; identical (by geometry fingerprint, see CMSN-MASTER-INTEGRITY.json) to the Phase 3B evidence-validated source in brand/vector-masters/. Do not redraw, re-fit, optically correct, simplify, round, or re-export through software that may rewrite path data. Any modification must go through a new, explicitly authorized phase, not silent edit. -->
+  <path d="M1614.68 87.16 H293.58 Q87.16 87.16 87.16 256.88 V733.94 Q87.16 912.84 266.06 912.84 H1614.68" stroke="currentColor" stroke-width="174.31" stroke-linecap="butt" stroke-linejoin="round" fill="none"/>
+</svg>
