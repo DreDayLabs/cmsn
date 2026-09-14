@@ -31,8 +31,7 @@ const CMSN = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState<ProductTab>("women");
-  const [hoveredPillar, setHoveredPillar] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<ProductTab>("men");
 
   useEffect(() => {
     setTimeout(() => setLoaded(true), 150);
@@ -124,6 +123,7 @@ const CMSN = () => {
           letter-spacing: 0.25em; text-transform: uppercase;
           background: #FAFAF8; color: #0A0A0A; border: none;
           padding: 16px 44px; cursor: pointer; transition: opacity 0.2s;
+          border-radius: 0;
         }
         .btn-white:hover { opacity: 0.82; }
 
@@ -133,6 +133,7 @@ const CMSN = () => {
           background: transparent; color: #FAFAF8;
           border: 1px solid rgba(250,250,248,0.25);
           padding: 16px 44px; cursor: pointer; transition: border-color 0.2s;
+          border-radius: 0;
         }
         .btn-ghost-white:hover { border-color: rgba(250,250,248,0.7); }
 
@@ -142,6 +143,7 @@ const CMSN = () => {
           background: transparent; color: #0A0A0A;
           border: 1px solid rgba(10,10,10,0.25);
           padding: 16px 44px; cursor: pointer; transition: border-color 0.2s;
+          border-radius: 0;
         }
         .btn-ghost-black:hover { border-color: #0A0A0A; }
 
@@ -222,7 +224,7 @@ const CMSN = () => {
         <div style={{ position: "absolute", top: 28, right: 52 }}>
           <span className="nav-link" style={{ color: "#FAFAF8" }} onClick={() => setMenuOpen(false)}>CLOSE ✕</span>
         </div>
-        {["Shop Women", "Shop Men", "Training", "Recovery", "About", "Moris Hill"].map((item, i) => (
+        {["Shop Men", "Shop Women", "Training", "Recovery", "About", "Moris Hill"].map((item) => (
           <a key={item} className="menu-item">{item}</a>
         ))}
         <div style={{ marginTop: 40, display: "flex", gap: 40 }}>
@@ -251,7 +253,7 @@ const CMSN = () => {
         </div>
       </nav>
 
-      {/* HERO — Full bleed dark gym */}
+        {/* HERO — Full bleed dark gym */}
       <section style={{ height: "100vh", position: "relative", overflow: "hidden" }}>
         <img
           src={heroImages[0]}
@@ -264,54 +266,43 @@ const CMSN = () => {
             transition: "transform 1.8s cubic-bezier(0.22,1,0.36,1)",
           }}
         />
-        {/* Gradient overlay */}
         <div style={{
           position: "absolute", inset: 0,
           background: "linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.4) 50%, rgba(10,10,10,0.2) 100%)",
         }} />
-
-        {/* Vertical right label */}
-        <div style={{
-          position: "absolute", right: 52, top: "50%",
-          transform: "translateY(-50%) rotate(90deg)",
-          fontSize: 8, letterSpacing: "0.35em",
-          color: "rgba(250,250,248,0.2)", textTransform: "uppercase", whiteSpace: "nowrap",
-        }}>CMSN — EARN YOUR CMSN — SS 2026</div>
 
         <div className="hero-in" style={{
           position: "absolute", bottom: 0, left: 0, right: 0,
           padding: "0 64px 80px",
           animationDelay: "0.4s",
         }}>
-          <div style={{
-            fontFamily: "'Helvetica Neue', sans-serif", fontSize: 9,
-            letterSpacing: "0.3em", textTransform: "uppercase",
-            color: "rgba(250,250,248,0.4)", marginBottom: 24,
-          }}>Spring / Summer 2026</div>
+          <div style={{ color: "#FAFAF8", marginBottom: 28 }}>
+            <Wordmark height={28} />
+          </div>
 
           <h1 style={{
             fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: "clamp(88px, 17vw, 220px)",
-            fontWeight: 400, lineHeight: 0.86,
+            fontSize: "clamp(72px, 14vw, 180px)",
+            fontWeight: 400, lineHeight: 0.88,
             color: "#FAFAF8", letterSpacing: "0.01em",
-            marginBottom: 48,
+            marginBottom: 28,
           }}>
-            THE BODY<br />
+            THE WALK<br />
             IS THE<br />
-            CMSN.
+            RUNWAY.
           </h1>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-            <button className="btn-white">Shop Women</button>
-            <button className="btn-ghost-white">Shop Men</button>
-            <div style={{ marginLeft: 16, display: "flex", gap: 40 }}>
-              {[["24", "Collections"], ["SS26", "Season"], ["NYC", "Origin"]].map(([val, label]) => (
-                <div key={label}>
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: "#FAFAF8", lineHeight: 1 }}>{val}</div>
-                  <div style={{ fontSize: 8, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(250,250,248,0.3)", marginTop: 4 }}>{label}</div>
-                </div>
-              ))}
-            </div>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 300,
+            color: "rgba(250,250,248,0.45)", lineHeight: 1.7,
+            maxWidth: 420, marginBottom: 40,
+          }}>
+            Fashion-grade training wear. Built big-man-first. Earned, not given.
+          </p>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <button className="btn-white">Shop Men</button>
+            <button className="btn-ghost-white">Shop Women</button>
           </div>
         </div>
       </section>
@@ -322,7 +313,7 @@ const CMSN = () => {
         borderTop: "none", borderBottom: "none",
       }}>
         <div className="marquee-track">
-          {Array(2).fill(["EARN YOUR CMSN", "//", "BUILT FOR THE WORK", "//", "SPRING SUMMER 2026", "//", "CMSN", "//", "NEW YORK CITY", "//", "PERFORMANCE WEAR", "//", "EARN IT", "//"]).flat().map((t, i) => (
+          {Array(2).fill(["EARN YOUR CMSN", "//", "THE WALK IS THE RUNWAY", "//", "BUILT BIG-MAN-FIRST", "//", "CMSN", "//", "NEW YORK CITY", "//", "EARNED NOT GIVEN", "//", "EARN IT", "//"]).flat().map((t, i) => (
             <span key={i} style={{
               fontFamily: "'Helvetica Neue', sans-serif",
               fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
@@ -354,7 +345,7 @@ const CMSN = () => {
             fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 200,
             fontStyle: "italic", color: "rgba(250,250,248,0.4)", lineHeight: 1.8, maxWidth: 480,
           }}>
-            This is not about how you look leaving the gym. It's about what you're willing to do inside it. CMSN is built for that moment.
+            The commute is the runway. The work is the proof. CMSN is fashion-grade training wear — covered up, muted, built big-man-first.
           </p>
           <span className="nav-link" style={{ color: "rgba(250,250,248,0.5)" }}>VIEW THE COLLECTION →</span>
         </div>
@@ -369,7 +360,7 @@ const CMSN = () => {
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(44px, 5vw, 68px)", letterSpacing: "0.02em", color: "#0A0A0A", lineHeight: 0.95 }}>NEW ARRIVALS</h2>
             </div>
             <div style={{ display: "flex", gap: 40, borderBottom: "1px solid rgba(10,10,10,0.1)" }}>
-              {(["women", "men"] as const).map(tab => (
+              {(["men", "women"] as const).map(tab => (
                 <button key={tab} className={`tab-btn ${activeTab === tab ? "active" : ""}`}
                   style={{ color: activeTab === tab ? "#0A0A0A" : "rgba(10,10,10,0.3)", borderBottomColor: activeTab === tab ? "#0A0A0A" : "transparent" }}
                   onClick={() => setActiveTab(tab)}>
@@ -460,21 +451,21 @@ const CMSN = () => {
               fontSize: "clamp(48px, 6vw, 80px)",
               color: "#FAFAF8", lineHeight: 0.95, letterSpacing: "0.01em",
               maxWidth: 400,
-            }}>ENGINEERED.<br />NOT JUST<br />DESIGNED.</h2>
+            }}>ENGINEERED<br />FOR THE<br />WALK.</h2>
             <p style={{
               fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 200,
               fontStyle: "italic", color: "rgba(250,250,248,0.4)", lineHeight: 1.9,
               maxWidth: 360, paddingTop: 8,
             }}>
-              Every CMSN piece goes through 14 wear tests before production. Sweat. Stretch. Sprint. Repeat. If it doesn't perform, it doesn't ship.
+              Quiet product, loud statement. Black, white, navy — covered up, muted, cut for bodies the category ignores. If it does not earn its place on The Walk, it does not ship.
             </p>
           </div>
           {[
-            { num: "01", label: "FOUR-WAY STRETCH", detail: "Full range of motion in every direction. No restriction. No compromise." },
-            { num: "02", label: "MOISTURE CONTROL", detail: "Proprietary wicking technology. Sweat moves. You stay dry. You stay focused." },
-            { num: "03", label: "TEMPERATURE REGULATION", detail: "Adaptive fabric responds to body heat. Cools when you push. Warms when you rest." },
-            { num: "04", label: "ANTI-ODOR TREATMENT", detail: "72-hour freshness. Because the CMSN doesn't end at the gym door." },
-          ].map((spec, i) => (
+            { num: "01", label: "EXTENDED ATHLETIC FIT", detail: "Graded from a 6'4\"/250 body first — length, coverage, and structure as a choice, not an afterthought." },
+            { num: "02", label: "MUTED PALETTE", detail: "True black, white, navy, a hint of gray. No pastels. Logos in black or white only." },
+            { num: "03", label: "COVERED IS CONFIDENT", detail: "Muscle implied, not displayed. Track jackets, pullovers, compression under shorts — the anti-string-tank." },
+            { num: "04", label: "THE WALK IS THE RUNWAY", detail: "Designed for the elevator, the lobby, the street between buildings — not just under gym lights." },
+          ].map((spec) => (
             <div key={spec.num} className="stat-line">
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 13, letterSpacing: "0.1em", color: "rgba(250,250,248,0.2)" }}>{spec.num}</div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -506,7 +497,7 @@ const CMSN = () => {
             color: "#FAFAF8", lineHeight: 0.9, letterSpacing: "0.01em",
             maxWidth: 900,
           }}>
-            THE CMSN<br />IS EARNED IN<br />THE DARK.
+            THE CMSN<br />IS EARNED.<br />NOT GIVEN.
           </h2>
         </div>
       </section>
@@ -552,7 +543,7 @@ const CMSN = () => {
           <div>
             <div style={{ color: "#FAFAF8", marginBottom: 16 }}><Wordmark height={20} /></div>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 200, fontStyle: "italic", lineHeight: 1.9, color: "rgba(250,250,248,0.25)" }}>
-              Performance wear.<br />New York City.<br />Earn it.
+              The walk is the runway.<br />New York City.<br />Earn it.
             </p>
           </div>
           {[

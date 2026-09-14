@@ -58,8 +58,8 @@ struct ScoreIntroView: View {
                         .font(CMSNTypography.numeric(52))
                         .foregroundStyle(CMSNColor.Semantic.textPrimary)
                     Text("EARN IT.")
-                        .font(.system(size: 11, weight: .semibold))
-                        .kerning(1.4)
+                        .font(CMSNTypography.eyebrow())
+                        .kerning(1.8)
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 }
             }
@@ -93,12 +93,12 @@ struct ScoreIntroView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(title.uppercased())
-                    .font(.system(size: 11, weight: .semibold))
-                    .kerning(1)
+                    .font(CMSNTypography.eyebrow())
+                    .kerning(1.6)
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
                 Spacer()
                 Text("\(Int(weight * 100))%")
-                    .font(.system(size: 11))
+                    .font(CMSNTypography.caption())
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
             }
             Rectangle().fill(CMSNColor.Semantic.divider).frame(height: 3)

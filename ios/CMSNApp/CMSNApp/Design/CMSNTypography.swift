@@ -5,6 +5,10 @@ import SwiftUI
 ///
 /// `Resources/Fonts/BebasNeue-Regular.ttf` is bundled (OFL license alongside
 /// it) and registered via `UIAppFonts` in `project.yml`.
+///
+/// Discipline: screens should reach for these helpers instead of raw
+/// `.font(.system(...))` so weight, size, and "machined not friendly" stay
+/// consistent with `brand/02-identity-and-logo.md`.
 enum CMSNTypography {
     private static let displayFontName = "BebasNeue-Regular"
 
@@ -19,8 +23,10 @@ enum CMSNTypography {
     }
 
     /// All-caps letter-spaced labels ("SHOP MEN", "TODAY'S FOCUS").
+    /// Medium weight — matching the site's quiet Helvetica Neue eyebrows,
+    /// not a fitness-app bold.
     static func eyebrow() -> Font {
-        .system(size: 10, weight: .semibold, design: .default)
+        .system(size: 10, weight: .medium, design: .default)
     }
 
     /// Standard body copy.
@@ -34,10 +40,22 @@ enum CMSNTypography {
         .system(size: 14, weight: .light, design: .default).italic()
     }
 
+    /// Small supporting metadata (timestamps, secondary row labels).
+    static func caption() -> Font {
+        .system(size: 11, weight: .regular, design: .default)
+    }
+
+    /// Micro labels for badges and dense chrome (evidence levels, tags).
+    static func micro() -> Font {
+        .system(size: 8, weight: .medium, design: .default)
+    }
+
     /// Numeric-heavy displays (weight, reps, score) that need tabular figures
     /// so digits don't jitter as they update mid-set.
+    /// Default (not rounded) design — rounded digits read as friendly fitness
+    /// chrome; CMSN's type brief is machined, not bubbly.
     static func numeric(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
-        .system(size: size, weight: weight, design: .rounded).monospacedDigit()
+        .system(size: size, weight: weight, design: .default).monospacedDigit()
     }
 }
 
@@ -51,7 +69,7 @@ struct EyebrowLabel: View {
     var body: some View {
         Text(text.uppercased())
             .font(CMSNTypography.eyebrow())
-            .kerning(1.8)
+            .kerning(2.2)
             .foregroundStyle(color)
     }
 }

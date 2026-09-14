@@ -208,8 +208,8 @@ struct SettingsView: View {
                     .lineLimit(1)
             }
             if showsChevron {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12))
+                Text("›")
+                    .font(CMSNTypography.body())
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
             }
         }

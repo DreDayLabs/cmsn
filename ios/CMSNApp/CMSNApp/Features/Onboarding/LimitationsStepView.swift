@@ -79,7 +79,7 @@ struct LimitationsStepView: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(InjurySafetyLanguage.all, id: \.self) { line in
-                        Text(line).font(.system(size: 11)).foregroundStyle(CMSNColor.Semantic.textSecondary)
+                        Text(line).font(CMSNTypography.caption()).foregroundStyle(CMSNColor.Semantic.textSecondary)
                     }
                 }
 

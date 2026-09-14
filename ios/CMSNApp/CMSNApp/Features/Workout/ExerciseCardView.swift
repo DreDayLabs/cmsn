@@ -95,7 +95,7 @@ struct ExerciseCardView: View {
                 .foregroundStyle(CMSNColor.gray)
             if exercise.demonstrationVideoAssetName == nil {
                 Text("Video demo coming in a future update — for now, follow the setup notes above.")
-                    .font(.system(size: 11))
+                    .font(CMSNTypography.caption())
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
             }
         }
@@ -162,7 +162,7 @@ private struct SetRowView: View {
                         Image(systemName: discomfort ? "checkmark.square" : "square")
                         Text("Felt discomfort on this set")
                     }
-                    .font(.system(size: 11))
+                    .font(CMSNTypography.caption())
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(discomfort ? CMSNColor.gray : CMSNColor.Semantic.textSecondary)

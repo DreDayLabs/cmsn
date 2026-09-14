@@ -70,15 +70,18 @@ struct TodayView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                CMSNWordmark(height: 16)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center) {
+                CMSNWordmark(height: 18)
                 Spacer()
                 EyebrowLabel(text: Date().formatted(.dateTime.weekday(.wide)))
             }
-            Text(resolvedDay?.focus.displayName ?? "Today")
-                .font(CMSNTypography.displaySmall(40))
+            Text(resolvedDay?.focus.displayName.uppercased() ?? "TODAY")
+                .font(CMSNTypography.displaySmall(44))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            Text("Prepare · Perform · Prove")
+                .font(CMSNTypography.bodyQuiet())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
         }
     }
 
