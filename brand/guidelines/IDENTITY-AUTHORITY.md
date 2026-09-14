@@ -14,3 +14,5 @@
 10. A locked release requires Dre's visual approval, Illustrator outline/export inspection, and physical process proofs. Current new variants remain candidates until those gates are met. Do not silently replace live app/site marks with new candidates.
 
 Historical naming ban in `brand/00`, `brand/02` and legal planning references is superseded. Historical legal text is not updated legal advice.
+
+Native Illustrator outline conversion is a derivative representation with its own SHA-256 manifest, not a byte-identical source fingerprint. Original masters still pass all 25 integrity checks. Visual inspection confirmed paired black/white marks and preserved N miter extensions. Physical manufacture remains unverified.
