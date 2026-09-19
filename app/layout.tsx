@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "CMSN — Earn Your CMSN",
   description:
-    "Fashion-grade training wear for the walk to the gym — built big-man-first. Black, white, navy. Earned, not given. New York City.",
+    "A training app that keeps score. Four weighted dimensions, with discipline and recovery carrying the most. Earned, not given. Request an invite.",
   metadataBase: new URL("https://earnyourcmsn.com"),
 };
 
