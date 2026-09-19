@@ -9,6 +9,8 @@ Historical brief below is retained for context; conflicting naming and explorati
 **Brand:** CMSN · **Tagline:** Earn Your CMSN · **Site:** [earnyourcmsn.com](https://earnyourcmsn.com) · **Founder identity:** Dre — The CMSNer
 
 > Naming authority: CMSN and COMMISSION are approved names; // is the standalone symbol. See guidelines/IDENTITY-AUTHORITY.md.
+>
+> Decision authority: `DECISIONS.md` is the register and wins over any other document in this directory. Go-to-market is pre-order, not inventory (C-001), and activations are CMSN's lane starting with a run club (C-002).
 
 A fashion brand for the gym. Not performance-first, not luxury-first — *the walk to the gym is the runway.* Built for the covered-up flyness of bigger guys (6'2"+/230+) first, and the "oh, she's going to class" energy next. Black, white, navy, a hint of gray. No pastels. Bronx fresh, corporate comfortable.
 
