@@ -1,19 +1,19 @@
-"use client";
+import { CMSN_LOCKUP, CMSN_SYMBOL } from "@/lib/brand-mark";
+import SignupForm from "@/app/components/SignupForm";
 
-import { useState, useEffect } from "react";
-import { CMSN_LOCKUP } from "@/lib/brand-mark";
+/**
+ * CMSN — app landing page.
+ *
+ * Deliberately carries no product grid and no photography. The app exists;
+ * the apparel does not yet, and there are no CMSN photographs. Borrowing
+ * stock imagery to stand in for either would make a claim the house cannot
+ * currently support, so the page is mark-led and typographic instead.
+ *
+ * Type is the Helvetica stack already declared in globals.css. CMSN has not
+ * chosen a brand typeface; that decision stays open rather than being made
+ * here by accident.
+ */
 
-type ProductTab = "women" | "men";
-
-type Product = {
-  name: string;
-  category: string;
-  price: string;
-  tag: string | null;
-};
-
-// The horizontal CMSN// lockup, Revision 02. Geometry is owned by
-// lib/brand-mark.ts — never inline path data here again.
 const Wordmark = ({ height = 18 }: { height?: number }) => (
   <svg
     height={height}
@@ -27,545 +27,170 @@ const Wordmark = ({ height = 18 }: { height?: number }) => (
   </svg>
 );
 
-const CMSN = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState<ProductTab>("men");
+const Symbol = ({ height = 24 }: { height?: number }) => (
+  <svg
+    height={height}
+    viewBox={CMSN_SYMBOL.viewBox}
+    fill="currentColor"
+    role="presentation"
+    aria-hidden="true"
+    style={{ display: "block" }}
+  >
+    <path d={CMSN_SYMBOL.path} />
+  </svg>
+);
 
-  useEffect(() => {
-    setTimeout(() => setLoaded(true), 150);
-    const handleScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+/** Weights are the real ones, from ios/…/Features/Score/ScoreCalculator.swift. */
+const SCORE = [
+  {
+    name: "Discipline & Recovery",
+    weight: "30%",
+    note: "Rest and recovery weigh more than raw output. That is the argument, not a concession.",
+  },
+  { name: "Work", weight: "25%", note: "Sets attempted, sessions finished." },
+  { name: "Consistency", weight: "25%", note: "Showing up on schedule. Returning after time away." },
+  { name: "Progress", weight: "20%", note: "Estimated one-rep-max movement over time." },
+];
 
-  const products: Record<ProductTab, Product[]> = {
-    women: [
-      { name: "CMSN Bra", category: "Training", price: "$68", tag: "BESTSELLER" },
-      { name: "Earn Legging", category: "Performance", price: "$98", tag: "NEW" },
-      { name: "Studio Hoodie", category: "Recovery", price: "$128", tag: null },
-      { name: "// Seamless Set", category: "Training", price: "$148", tag: "LOW STOCK" },
-    ],
-    men: [
-      { name: "CMSN Short", category: "Training", price: "$78", tag: "BESTSELLER" },
-      { name: "Earn Jogger", category: "Performance", price: "$108", tag: "NEW" },
-      { name: "Studio Quarter Zip", category: "Recovery", price: "$118", tag: null },
-      { name: "// Compression Set", category: "Training", price: "$138", tag: "COMING SOON" },
-    ],
-  };
+const FEATURES = [
+  { name: "Today", note: "One session, built for the day you are actually having." },
+  { name: "Train", note: "Programmes that resolve around your equipment, injuries and limitations." },
+  { name: "Fuel", note: "Barcode scan, food search, meal builder, saved meals, macro targets." },
+  { name: "Recover", note: "Readiness checks that change the session instead of judging it." },
+  { name: "Prove", note: "Your Score, and a card worth sending." },
+];
 
-  // Unsplash gym/fitness images — no brands, luxury editorial feel
-  const heroImages = [
-    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=1600&q=80&auto=format&fit=crop",
-  ];
-
-  const editorialImages = [
-    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=800&q=80&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1583500178450-e59e4309b57d?w=800&q=80&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1507398941214-572c25f4b1dc?w=800&q=80&auto=format&fit=crop",
-  ];
-
-  const productImages: Record<ProductTab, string[]> = {
-    women: [
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&q=80&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=600&q=80&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1544216717-3bbf52512659?w=600&q=80&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=600&q=80&auto=format&fit=crop",
-    ],
-    men: [
-      "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&q=80&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&q=80&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=600&q=80&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1533681904393-9ab6eee7e408?w=600&q=80&auto=format&fit=crop",
-    ],
-  };
-
+export default function Page() {
   return (
-    <div style={{ background: "#0A0A0A", color: "#FAFAF8", minHeight: "100vh", fontFamily: "'Helvetica Neue', Arial, sans-serif", overflowX: "hidden" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;1,9..40,200;1,9..40,300&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    <div className="flex min-h-full flex-col bg-[var(--cmsn-off-black)] text-[var(--cmsn-off-white)]">
+      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-7">
+        <Wordmark height={16} />
+        <span className="text-[10px] uppercase tracking-[0.28em] text-white/40">
+          Earned, not given
+        </span>
+      </header>
 
-        .menu-overlay {
-          position: fixed; inset: 0; background: #000; z-index: 300;
-          display: flex; flex-direction: column; justify-content: center;
-          padding: 80px 100px;
-          clip-path: inset(0 100% 0 0);
-          transition: clip-path 0.7s cubic-bezier(0.76,0,0.24,1);
-        }
-        .menu-overlay.open { clip-path: inset(0 0% 0 0); }
-
-        .menu-item {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(48px, 9vw, 100px);
-          color: #FAFAF8; line-height: 1.0; cursor: pointer;
-          display: block; text-decoration: none;
-          letter-spacing: 0.02em;
-          border-bottom: 1px solid rgba(250,250,248,0.08);
-          padding: 12px 0;
-          transition: color 0.2s, padding-left 0.3s;
-        }
-        .menu-item:hover { color: rgba(250,250,248,0.3); padding-left: 20px; }
-
-        .nav-link {
-          font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
-          cursor: pointer; transition: opacity 0.2s; text-decoration: none;
-          font-family: 'Helvetica Neue', sans-serif;
-        }
-        .nav-link:hover { opacity: 0.4; }
-
-        .btn-white {
-          font-family: 'Helvetica Neue', sans-serif; font-size: 9px;
-          letter-spacing: 0.25em; text-transform: uppercase;
-          background: #FAFAF8; color: #0A0A0A; border: none;
-          padding: 16px 44px; cursor: pointer; transition: opacity 0.2s;
-          border-radius: 0;
-        }
-        .btn-white:hover { opacity: 0.82; }
-
-        .btn-ghost-white {
-          font-family: 'Helvetica Neue', sans-serif; font-size: 9px;
-          letter-spacing: 0.25em; text-transform: uppercase;
-          background: transparent; color: #FAFAF8;
-          border: 1px solid rgba(250,250,248,0.25);
-          padding: 16px 44px; cursor: pointer; transition: border-color 0.2s;
-          border-radius: 0;
-        }
-        .btn-ghost-white:hover { border-color: rgba(250,250,248,0.7); }
-
-        .btn-ghost-black {
-          font-family: 'Helvetica Neue', sans-serif; font-size: 9px;
-          letter-spacing: 0.25em; text-transform: uppercase;
-          background: transparent; color: #0A0A0A;
-          border: 1px solid rgba(10,10,10,0.25);
-          padding: 16px 44px; cursor: pointer; transition: border-color 0.2s;
-          border-radius: 0;
-        }
-        .btn-ghost-black:hover { border-color: #0A0A0A; }
-
-        .product-card { cursor: pointer; }
-        .product-img-wrap {
-          position: relative; overflow: hidden;
-          aspect-ratio: 3/4; margin-bottom: 18px;
-          background: #1A1A1A;
-        }
-        .product-img-wrap img {
-          width: 100%; height: 100%; object-fit: cover;
-          transition: transform 0.8s cubic-bezier(0.22,1,0.36,1), filter 0.4s;
-          filter: grayscale(20%);
-        }
-        .product-card:hover .product-img-wrap img { transform: scale(1.04); filter: grayscale(0%); }
-
-        .tab-btn {
-          font-family: 'Helvetica Neue', sans-serif; font-size: 9px;
-          letter-spacing: 0.22em; text-transform: uppercase;
-          background: transparent; border: none; cursor: pointer;
-          padding: 12px 0; color: rgba(250,250,248,0.3);
-          border-bottom: 1px solid transparent;
-          transition: all 0.2s;
-        }
-        .tab-btn.active { color: #FAFAF8; border-bottom-color: #FAFAF8; }
-
-        .editorial-img {
-          width: 100%; height: 100%; object-fit: cover;
-          filter: grayscale(100%) contrast(1.05);
-          transition: filter 0.6s, transform 0.8s cubic-bezier(0.22,1,0.36,1);
-        }
-        .editorial-block:hover .editorial-img { filter: grayscale(60%) contrast(1.05); transform: scale(1.03); }
-
-        .marquee-track {
-          display: flex; gap: 80px;
-          animation: marqueeL 28s linear infinite; white-space: nowrap;
-        }
-        @keyframes marqueeL {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .hero-in { animation: fadeUp 1.1s cubic-bezier(0.22,1,0.36,1) both; }
-
-        .stat-line {
-          border-top: 1px solid rgba(250,250,248,0.1);
-          padding: 32px 0;
-          display: grid; grid-template-columns: 120px 1fr;
-          gap: 40px; align-items: center;
-        }
-
-        input[type=email] {
-          background: transparent; border: none;
-          border-bottom: 1px solid rgba(250,250,248,0.2);
-          outline: none; font-family: 'DM Sans', sans-serif;
-          font-size: 14px; color: #FAFAF8; padding: 12px 0;
-          width: 280px; letter-spacing: 0.03em;
-          transition: border-color 0.2s;
-        }
-        input[type=email]:focus { border-bottom-color: rgba(250,250,248,0.7); }
-        input[type=email]::placeholder { color: rgba(250,250,248,0.2); font-style: italic; }
-
-        .tag-pill {
-          font-family: 'Helvetica Neue', sans-serif; font-size: 7px;
-          letter-spacing: 0.2em; text-transform: uppercase;
-          padding: 4px 10px; border: 1px solid rgba(250,250,248,0.3);
-          color: rgba(250,250,248,0.6);
-        }
-        .tag-pill.new { border-color: #FAFAF8; color: #FAFAF8; }
-      `}</style>
-
-      {/* MENU */}
-      <div className={`menu-overlay ${menuOpen ? "open" : ""}`}>
-        <div style={{ position: "absolute", top: 28, right: 52 }}>
-          <span className="nav-link" style={{ color: "#FAFAF8" }} onClick={() => setMenuOpen(false)}>CLOSE ✕</span>
-        </div>
-        {["Shop Men", "Shop Women", "Training", "Recovery", "About", "Moris Hill"].map((item) => (
-          <a key={item} className="menu-item">{item}</a>
-        ))}
-        <div style={{ marginTop: 40, display: "flex", gap: 40 }}>
-          {["Instagram", "TikTok", "Newsletter"].map(s => (
-            <span key={s} className="nav-link" style={{ color: "rgba(250,250,248,0.3)", fontSize: 9 }}>{s}</span>
-          ))}
-        </div>
-      </div>
-
-      {/* NAV */}
-      <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
-        padding: "24px 52px", display: "flex", justifyContent: "space-between", alignItems: "center",
-        background: scrolled ? "rgba(10,10,10,0.92)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(250,250,248,0.07)" : "none",
-        transition: "all 0.5s",
-      }}>
-        <span className="nav-link" style={{ color: "#FAFAF8" }} onClick={() => setMenuOpen(true)}>MENU</span>
-        <div style={{ color: "#FAFAF8" }}>
-          <Wordmark height={18} />
-        </div>
-        <div style={{ display: "flex", gap: 32 }}>
-          <span className="nav-link" style={{ color: "#FAFAF8" }}>SEARCH</span>
-          <span className="nav-link" style={{ color: "#FAFAF8" }}>BAG (0)</span>
-        </div>
-      </nav>
-
-        {/* HERO — Full bleed dark gym */}
-      <section style={{ height: "100vh", position: "relative", overflow: "hidden" }}>
-        <img
-          src={heroImages[0]}
-          alt="Training"
-          style={{
-            position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", objectPosition: "center",
-            filter: "grayscale(100%) brightness(0.35) contrast(1.1)",
-            transform: loaded ? "scale(1.0)" : "scale(1.06)",
-            transition: "transform 1.8s cubic-bezier(0.22,1,0.36,1)",
-          }}
-        />
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.4) 50%, rgba(10,10,10,0.2) 100%)",
-        }} />
-
-        <div className="hero-in" style={{
-          position: "absolute", bottom: 0, left: 0, right: 0,
-          padding: "0 64px 80px",
-          animationDelay: "0.4s",
-        }}>
-          <div style={{ color: "#FAFAF8", marginBottom: 28 }}>
-            <Wordmark height={28} />
-          </div>
-
-          <h1 style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: "clamp(72px, 14vw, 180px)",
-            fontWeight: 400, lineHeight: 0.88,
-            color: "#FAFAF8", letterSpacing: "0.01em",
-            marginBottom: 28,
-          }}>
-            THE WALK<br />
-            IS THE<br />
-            RUNWAY.
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="mx-auto w-full max-w-5xl px-6 pt-16 pb-24 sm:pt-28 sm:pb-32">
+          <h1 className="max-w-[14ch] text-[clamp(2.75rem,9vw,6.5rem)] font-medium uppercase leading-[0.92] tracking-[-0.01em]">
+            Earn your
+            <br />
+            CMSN.
           </h1>
 
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 300,
-            color: "rgba(250,250,248,0.45)", lineHeight: 1.7,
-            maxWidth: 420, marginBottom: 40,
-          }}>
-            Fashion-grade training wear. Built big-man-first. Earned, not given.
+          <p className="mt-8 max-w-[44ch] text-lg leading-relaxed text-white/70">
+            Nobody hands this out. You put in the work — the app just keeps score.
           </p>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <button className="btn-white">Shop Men</button>
-            <button className="btn-ghost-white">Shop Women</button>
+          <div className="mt-12">
+            <p className="mb-4 text-[11px] uppercase tracking-[0.24em] text-white/40">
+              The app is in private build. Invites go out first to this list.
+            </p>
+            <SignupForm source="web-hero" />
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* MARQUEE */}
-      <div style={{
-        background: "#FAFAF8", padding: "12px 0", overflow: "hidden",
-        borderTop: "none", borderBottom: "none",
-      }}>
-        <div className="marquee-track">
-          {Array(2).fill(["EARN YOUR CMSN", "//", "THE WALK IS THE RUNWAY", "//", "BUILT BIG-MAN-FIRST", "//", "CMSN", "//", "NEW YORK CITY", "//", "EARNED NOT GIVEN", "//", "EARN IT", "//"]).flat().map((t, i) => (
-            <span key={i} style={{
-              fontFamily: "'Helvetica Neue', sans-serif",
-              fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
-              color: t === "·" ? "rgba(10,10,10,0.2)" : "#0A0A0A",
-            }}>{t}</span>
-          ))}
-        </div>
-      </div>
+        <hr className="mx-auto w-full max-w-5xl border-white/10" />
 
-      {/* EDITORIAL GRID — 4 gym images */}
-      <section style={{ background: "#0A0A0A", padding: "80px 52px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 4, height: 520 }}>
-          {editorialImages.map((img, i) => (
-            <div key={i} className="editorial-block" style={{ position: "relative", overflow: "hidden", cursor: "pointer" }}>
-              <img src={img} alt="Training" className="editorial-img" />
-              {i === 0 && (
-                <div style={{
-                  position: "absolute", bottom: 24, left: 24,
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: 32, color: "#FAFAF8", letterSpacing: "0.04em",
-                  lineHeight: 1, textShadow: "0 2px 20px rgba(0,0,0,0.8)",
-                }}>THE<br />WORK</div>
-              )}
-            </div>
-          ))}
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 40 }}>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 200,
-            fontStyle: "italic", color: "rgba(250,250,248,0.4)", lineHeight: 1.8, maxWidth: 480,
-          }}>
-            The commute is the runway. The work is the proof. CMSN is fashion-grade training wear — covered up, muted, built big-man-first.
+        {/* The Score */}
+        <section className="mx-auto w-full max-w-5xl px-6 py-24 sm:py-32">
+          <div className="flex items-baseline gap-4">
+            <Symbol height={20} />
+            <h2 className="text-[11px] uppercase tracking-[0.24em] text-white/40">
+              The CMSN Score
+            </h2>
+          </div>
+
+          <p className="mt-8 max-w-[52ch] text-2xl leading-snug sm:text-3xl">
+            Real work keeps score. Four dimensions, weighted — and recovery
+            carries the most.
           </p>
-          <span className="nav-link" style={{ color: "rgba(250,250,248,0.5)" }}>VIEW THE COLLECTION →</span>
-        </div>
-      </section>
 
-      {/* SHOP SECTION — Clean white with real imagery */}
-      <section style={{ background: "#F5F3F0", padding: "100px 52px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 56 }}>
-            <div>
-              <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 9, letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(10,10,10,0.35)", marginBottom: 14 }}>SS26 Collection</div>
-              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(44px, 5vw, 68px)", letterSpacing: "0.02em", color: "#0A0A0A", lineHeight: 0.95 }}>NEW ARRIVALS</h2>
-            </div>
-            <div style={{ display: "flex", gap: 40, borderBottom: "1px solid rgba(10,10,10,0.1)" }}>
-              {(["men", "women"] as const).map(tab => (
-                <button key={tab} className={`tab-btn ${activeTab === tab ? "active" : ""}`}
-                  style={{ color: activeTab === tab ? "#0A0A0A" : "rgba(10,10,10,0.3)", borderBottomColor: activeTab === tab ? "#0A0A0A" : "transparent" }}
-                  onClick={() => setActiveTab(tab)}>
-                  {tab.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 28 }}>
-            {products[activeTab].map((p, i) => (
-              <div key={p.name} className="product-card">
-                <div className="product-img-wrap">
-                  <img src={productImages[activeTab][i]} alt={p.name} />
-                  {p.tag && (
-                    <div style={{
-                      position: "absolute", top: 16, left: 16,
-                      fontFamily: "'Helvetica Neue', sans-serif", fontSize: 7,
-                      letterSpacing: "0.2em", textTransform: "uppercase",
-                      background: p.tag === "NEW" ? "#0A0A0A" : "rgba(250,250,248,0.9)",
-                      color: p.tag === "NEW" ? "#FAFAF8" : "#0A0A0A",
-                      padding: "5px 10px",
-                    }}>{p.tag}</div>
-                  )}
+          <dl className="mt-16 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2">
+            {SCORE.map((dimension) => (
+              <div
+                key={dimension.name}
+                className="bg-[var(--cmsn-off-black)] p-7 sm:p-9"
+              >
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-sm uppercase tracking-[0.14em]">
+                    {dimension.name}
+                  </dt>
+                  <span className="text-2xl tabular-nums text-white/50">
+                    {dimension.weight}
+                  </span>
                 </div>
-                <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(10,10,10,0.35)", marginBottom: 6 }}>{p.category}</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 400, color: "#0A0A0A", marginBottom: 6 }}>{p.name}</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, color: "#0A0A0A" }}>{p.price}</div>
+                <dd className="mt-4 text-[15px] leading-relaxed text-white/55">
+                  {dimension.note}
+                </dd>
               </div>
             ))}
-          </div>
-          <div style={{ textAlign: "center", marginTop: 72 }}>
-            <button className="btn-ghost-black">View All Products</button>
-          </div>
-        </div>
-      </section>
+          </dl>
 
-      {/* SPLIT EDITORIAL — Dark luxury */}
-      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "90vh" }}>
-        <div style={{ position: "relative", overflow: "hidden" }}>
-          <img
-            src={heroImages[1]}
-            alt="Performance"
-            style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%) brightness(0.4) contrast(1.1)" }}
-          />
-          <div style={{
-            position: "absolute", inset: 0,
-            background: "linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%)",
-          }} />
-          <div style={{ position: "absolute", bottom: 56, left: 56, right: 56 }}>
-            <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.3em", color: "rgba(250,250,248,0.4)", textTransform: "uppercase", marginBottom: 20 }}>Performance Edit</div>
-            <h3 style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(44px, 5vw, 68px)",
-              color: "#FAFAF8", lineHeight: 0.95, letterSpacing: "0.01em", marginBottom: 28,
-            }}>BUILT FOR<br />THE WORK.</h3>
-            <button className="btn-white">Shop Training</button>
-          </div>
-        </div>
-        <div style={{ position: "relative", overflow: "hidden" }}>
-          <img
-            src={heroImages[2]}
-            alt="Recovery"
-            style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%) brightness(0.45) contrast(1.05)" }}
-          />
-          <div style={{
-            position: "absolute", inset: 0,
-            background: "linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%)",
-          }} />
-          <div style={{ position: "absolute", bottom: 56, left: 56, right: 56 }}>
-            <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.3em", color: "rgba(250,250,248,0.4)", textTransform: "uppercase", marginBottom: 20 }}>Recovery Edit</div>
-            <h3 style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(44px, 5vw, 68px)",
-              color: "#FAFAF8", lineHeight: 0.95, letterSpacing: "0.01em", marginBottom: 28,
-            }}>REST IS<br />EARNED TOO.</h3>
-            <button className="btn-ghost-white">Shop Recovery</button>
-          </div>
-        </div>
-      </section>
+          <p className="mt-8 max-w-[56ch] text-sm leading-relaxed text-white/40">
+            Points are whole numbers you can reason about. A partial session is
+            never zero and is never penalised. The weights are a stated
+            hypothesis, and they get tuned once there is real training data
+            behind them.
+          </p>
+        </section>
 
-      {/* SPECS / FABRIC DETAILS */}
-      <section style={{ background: "#0A0A0A", padding: "100px 52px" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 80 }}>
-            <h2 style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(48px, 6vw, 80px)",
-              color: "#FAFAF8", lineHeight: 0.95, letterSpacing: "0.01em",
-              maxWidth: 400,
-            }}>ENGINEERED<br />FOR THE<br />WALK.</h2>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 200,
-              fontStyle: "italic", color: "rgba(250,250,248,0.4)", lineHeight: 1.9,
-              maxWidth: 360, paddingTop: 8,
-            }}>
-              Quiet product, loud statement. Black, white, navy — covered up, muted, cut for bodies the category ignores. If it does not earn its place on The Walk, it does not ship.
-            </p>
-          </div>
-          {[
-            { num: "01", label: "EXTENDED ATHLETIC FIT", detail: "Graded from a 6'4\"/250 body first — length, coverage, and structure as a choice, not an afterthought." },
-            { num: "02", label: "MUTED PALETTE", detail: "True black, white, navy, a hint of gray. No pastels. Logos in black or white only." },
-            { num: "03", label: "COVERED IS CONFIDENT", detail: "Muscle implied, not displayed. Track jackets, pullovers, compression under shorts — the anti-string-tank." },
-            { num: "04", label: "THE WALK IS THE RUNWAY", detail: "Designed for the elevator, the lobby, the street between buildings — not just under gym lights." },
-          ].map((spec) => (
-            <div key={spec.num} className="stat-line">
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 13, letterSpacing: "0.1em", color: "rgba(250,250,248,0.2)" }}>{spec.num}</div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "#FAFAF8" }}>{spec.label}</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 200, fontStyle: "italic", color: "rgba(250,250,248,0.35)", maxWidth: 420, textAlign: "right", lineHeight: 1.7 }}>{spec.detail}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+        <hr className="mx-auto w-full max-w-5xl border-white/10" />
 
-      {/* FULL BLEED STATEMENT */}
-      <section style={{ position: "relative", height: "70vh", overflow: "hidden" }}>
-        <img
-          src="https://images.unsplash.com/photo-1576678927484-cc907957088c?w=1600&q=80&auto=format&fit=crop"
-          alt="Commitment"
-          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%) brightness(0.25) contrast(1.15)" }}
-        />
-        <div style={{
-          position: "absolute", inset: 0,
-          display: "flex", flexDirection: "column",
-          justifyContent: "center", alignItems: "center", textAlign: "center",
-          padding: "0 48px",
-        }}>
-          <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.35em", textTransform: "uppercase", color: "rgba(250,250,248,0.35)", marginBottom: 28 }}>The CMSN Standard</div>
-          <h2 style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: "clamp(64px, 11vw, 140px)",
-            color: "#FAFAF8", lineHeight: 0.9, letterSpacing: "0.01em",
-            maxWidth: 900,
-          }}>
-            THE CMSN<br />IS EARNED.<br />NOT GIVEN.
+        {/* What is in it */}
+        <section className="mx-auto w-full max-w-5xl px-6 py-24 sm:py-32">
+          <h2 className="text-[11px] uppercase tracking-[0.24em] text-white/40">
+            In the app
           </h2>
-        </div>
-      </section>
 
-      {/* MORIS HILL HOUSE */}
-      <section style={{
-        background: "#FAFAF8", padding: "60px 52px",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-      }}>
-        <div>
-          <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(10,10,10,0.3)", marginBottom: 10 }}>Part of</div>
-          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 36, letterSpacing: "0.15em", color: "rgba(10,10,10,0.35)" }}>MORIS HILL HOUSE</div>
-        </div>
-        <a style={{
-          fontFamily: "'Helvetica Neue', sans-serif", fontSize: 9,
-          letterSpacing: "0.22em", textTransform: "uppercase",
-          color: "#0A0A0A", textDecoration: "none", cursor: "pointer",
-          borderBottom: "1px solid #0A0A0A", paddingBottom: 2,
-        }}>Visit morishill.com →</a>
-      </section>
+          <ul className="mt-12 divide-y divide-white/10 border-y border-white/10">
+            {FEATURES.map((feature) => (
+              <li
+                key={feature.name}
+                className="grid gap-2 py-7 sm:grid-cols-[10rem_1fr] sm:gap-8"
+              >
+                <h3 className="text-sm uppercase tracking-[0.14em]">
+                  {feature.name}
+                </h3>
+                <p className="text-[15px] leading-relaxed text-white/55">
+                  {feature.note}
+                </p>
+              </li>
+            ))}
+          </ul>
 
-      {/* NEWSLETTER */}
-      <section style={{ background: "#0A0A0A", padding: "100px 52px", textAlign: "center" }}>
-        <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(250,250,248,0.2)", marginBottom: 28 }}>Early Access</div>
-        <h2 style={{
-          fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: "clamp(52px, 8vw, 96px)",
-          color: "#FAFAF8", lineHeight: 0.9, marginBottom: 20, letterSpacing: "0.01em",
-        }}>FIRST TO EARN IT.</h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 200,
-          fontStyle: "italic", color: "rgba(250,250,248,0.3)", marginBottom: 52, lineHeight: 1.8,
-        }}>New drops. Training content. Zero noise.</p>
-        <div style={{ display: "flex", justifyContent: "center", gap: 0 }}>
-          <input type="email" placeholder="your@email.com" />
-          <button className="btn-white" style={{ marginLeft: 2, padding: "12px 28px" }}>Join</button>
-        </div>
-      </section>
+          <p className="mt-10 text-sm text-white/40">
+            iPhone and Apple Watch.
+          </p>
+        </section>
 
-      {/* FOOTER */}
-      <footer style={{ background: "#050505", padding: "52px", borderTop: "1px solid rgba(250,250,248,0.05)" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr 1fr", gap: 40, marginBottom: 52 }}>
-          <div>
-            <div style={{ color: "#FAFAF8", marginBottom: 16 }}><Wordmark height={20} /></div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 200, fontStyle: "italic", lineHeight: 1.9, color: "rgba(250,250,248,0.25)" }}>
-              The walk is the runway.<br />New York City.<br />Earn it.
-            </p>
-          </div>
-          {[
-            { title: "SHOP", links: ["Women", "Men", "Training", "Recovery", "New Arrivals"] },
-            { title: "BRAND", links: ["About", "Moris Hill", "Community", "Journal", "Press"] },
-            { title: "HELP", links: ["Size Guide", "Shipping", "Returns", "Contact", "FAQ"] },
-          ].map(col => (
-            <div key={col.title}>
-              <div style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(250,250,248,0.18)", marginBottom: 24 }}>{col.title}</div>
-              {col.links.map(l => (
-                <div key={l} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 300, lineHeight: 2.6, color: "rgba(250,250,248,0.35)", cursor: "pointer", transition: "color 0.2s" }}>{l}</div>
-              ))}
-            </div>
-          ))}
-        </div>
-        <div style={{ borderTop: "1px solid rgba(250,250,248,0.05)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.15em", color: "rgba(250,250,248,0.15)" }}>© 2026 CMSN. PART OF MORIS HILL HOUSE.</span>
-          <span style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: 8, letterSpacing: "0.15em", color: "rgba(250,250,248,0.15)" }}>EARNYOURCMSN.COM</span>
+        <hr className="mx-auto w-full max-w-5xl border-white/10" />
+
+        {/* Apparel — stated plainly, not sold */}
+        <section className="mx-auto w-full max-w-5xl px-6 py-24 sm:py-32">
+          <h2 className="text-[11px] uppercase tracking-[0.24em] text-white/40">
+            Apparel
+          </h2>
+          <p className="mt-8 max-w-[48ch] text-2xl leading-snug sm:text-3xl">
+            Collection 01 is in development. Black and white, symbol-led.
+          </p>
+          <p className="mt-6 max-w-[52ch] text-[15px] leading-relaxed text-white/55">
+            Nothing is for sale yet, and there are no product photographs to
+            show. When there are, they will be of real garments. The list above
+            hears about it first.
+          </p>
+        </section>
+      </main>
+
+      <footer className="mx-auto w-full max-w-5xl px-6 pb-16">
+        <div className="flex flex-col gap-6 border-t border-white/10 pt-10 sm:flex-row sm:items-center sm:justify-between">
+          <Wordmark height={14} />
+          <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">
+            © {new Date().getFullYear()} CMSN
+          </p>
         </div>
       </footer>
     </div>
   );
-};
-
-export default CMSN;
+}
