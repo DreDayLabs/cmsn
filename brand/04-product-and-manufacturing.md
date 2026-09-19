@@ -1,5 +1,13 @@
 # CMSN — Product & Manufacturing
 
+> ⚠️ **The purchasing model below is superseded by C-001 in `DECISIONS.md`.**
+> Collection 01 is sold by **pre-order**: orders first, production against
+> confirmed demand, no stock bought ahead of it. The launch timeline in this
+> document is worked back from "inventory lands; self-fulfil run 1" and quotes
+> tier-2 minimums of 300+ per style. **Do not place an inventory order against
+> it.** The sourcing research, size-run work, tech-pack sequencing and line
+> planning here all remain useful — only the buy-into-stock model is dead.
+
 ## Capsule 1 line plan (men's, 4–5 SKUs)
 
 You listed ~15 product ideas. All of them belong on the roadmap; five belong in drop 1. The cut rule: one hero, two everyday, one statement, one content engine — all black/white/navy, all photographable on The Walk.
