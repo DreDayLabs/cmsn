@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<!-- CMSN identity Revision 02 - founder-approved 2026-09-14.
+     Generated from brand/identity/revision-02/; geometry verified against
+     revision-02/revision-spec.json. Do not retype, retrace or adjust. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CMSN">
   <rect width="64" height="64" fill="#0A0A0A"/>
-  <g stroke="#FAFAF8" stroke-width="6" stroke-linecap="butt">
-    <path d="M21 49 L33 15"/>
-    <path d="M37 49 L49 15"/>
-  </g>
+  <path d="M15.023 52.3535L26.5774 10.0017L32.6125 11.6481L21.0581 54ZM31.3875 52.3519L42.9419 10L48.977 11.6465L37.4226 53.9983Z" fill="#FAFAF8"/>
 </svg>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { CMSN_LOCKUP } from "@/lib/brand-mark";
 
 type ProductTab = "women" | "men";
 
@@ -11,19 +12,18 @@ type Product = {
   tag: string | null;
 };
 
-// Official CMSN wordmark — rounded monoline, splayed M, // at fixed angle.
+// The horizontal CMSN// lockup, Revision 02. Geometry is owned by
+// lib/brand-mark.ts — never inline path data here again.
 const Wordmark = ({ height = 18 }: { height?: number }) => (
-  <svg height={height} viewBox="0 0 344 100" fill="none" role="img" aria-label="CMSN" style={{ display: "block" }}>
-    <g stroke="currentColor" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M58 10 H32 Q10 10 10 32 V68 Q10 90 32 90 H58" />
-      <path d="M82 90 L93 10 L108 62 L123 10 L134 90" />
-      <path d="M204 12 H178 Q160 12 160 30 Q160 47 178 49 L186 50 Q204 52 204 69 Q204 88 186 88 H160" />
-      <path d="M232 90 V10 L280 90 V10" />
-    </g>
-    <g stroke="currentColor" strokeWidth={10} strokeLinecap="butt">
-      <path d="M290 90 L310 10" />
-      <path d="M314 90 L334 10" />
-    </g>
+  <svg
+    height={height}
+    viewBox={CMSN_LOCKUP.viewBox}
+    fill="currentColor"
+    role="img"
+    aria-label="CMSN"
+    style={{ display: "block" }}
+  >
+    <path d={CMSN_LOCKUP.path} />
   </svg>
 );
 
