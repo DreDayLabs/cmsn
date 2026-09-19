@@ -10,8 +10,10 @@ One brand umbrella: native training app, website, identity, apparel and campaign
 
 - `ios/CMSNApp/`: SwiftUI Training Kernel, native Xcode project and tests.
 - `app/`, `public/`, root package files: working Next.js 16 website; kept in place to preserve deployment paths. `web/README.md` maps this surface.
-- `brand/master/`: previously approved CMSN glyph geometry and validator.
-- `brand/identity/`, `brand/guidelines/`, `brand/exports/`: production candidates, governance, export references.
+- `brand/identity/revision-02/`: **the approved identity.** Six active vector assets — symbol, CMSN, horizontal CMSN// — each black and white, with `revision-spec.json` recording every measurement. Nothing else is production artwork.
+- `lib/brand-mark.ts`: the web app's single source of mark geometry, generated from `revision-02/`. `app/page.tsx`, `app/opengraph-image.tsx` and `app/icon.svg` all derive from it; `ios/…/Design/CMSNWordmark.swift` carries the same geometry for SwiftUI. Never inline or retype path data anywhere else.
+- `brand/guidelines/IDENTITY-AUTHORITY.md`: what is approved, what is rejected, and why.
+- `brand/identity/production-candidate/`, `brand/exports/`, `brand/explorations/`, `brand/vector-masters/`, `brand/source/`: **superseded reference only.** Revision 01 exports and the Phase 3B/3C exploration lineage. Do not supply any of it to vendors.
 - `apparel/`: Collection 01 preparation, placements, flats and references.
 - `content/`: campaign, social and AI production planning.
 - `strategy/`: product and business source links.
