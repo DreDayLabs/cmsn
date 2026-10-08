@@ -71,6 +71,7 @@
 		B0E756F1DE006EB9AF2B75D3 /* WorkoutSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB0EEEF385BC789087099B0 /* WorkoutSessionView.swift */; };
 		B1F00499242937C9EA3BCC82 /* SuggestionEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CE22497C9F737533084442 /* SuggestionEngineTests.swift */; };
 		B251A69F38A1B953547C7513 /* CMSNWordmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC24E05D9A413AD71598F5F8 /* CMSNWordmark.swift */; };
+		B8D4F02C5E3A9172B6CAD1E4 /* RemainingMacros.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C3E91B4D2F8061A5B9C0D3 /* RemainingMacros.swift */; };
 		BCA2DB71203EDFD511CD0002 /* TrainingProfileStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E33DCA6CB853F9D5BC84988 /* TrainingProfileStepView.swift */; };
 		BE8BDE3F7659F5AD3D804413 /* Athlete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83066BD0841F9A56750C8555 /* Athlete.swift */; };
 		C20B7C68F595D009D308AE44 /* SubstitutionPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281308B5D77AAF3156C08473 /* SubstitutionPicker.swift */; };
@@ -79,6 +80,7 @@
 		C666996768609946D79A4DA0 /* StoreKitManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54A217F272968FB9C1E6547 /* StoreKitManagerTests.swift */; };
 		C97E216B03BCE4F4C927F6BF /* AccountDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EF6A771363706614002F085 /* AccountDataService.swift */; };
 		CA61EFCB2B737E937AC8704D /* EquipmentProfileStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28B0B5178F96DD8193B98D9 /* EquipmentProfileStepView.swift */; };
+		D0F6124E705C1394D8E2F306 /* RemainingMacrosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E5013D6F4B0283C7D1E2F5 /* RemainingMacrosTests.swift */; };
 		D3FB8C6EA4B05577FA6E890A /* SupplementBankData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35F5E8F491CEF950DD1E8CC /* SupplementBankData.swift */; };
 		D531674DD4371FE551B7CA91 /* ScoreIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F43DE4B2E330A9900FD99E /* ScoreIntroView.swift */; };
 		F098823B8098B94E1B5FB8FA /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = DB4B9CB65508B1D29B1CF2C2 /* OFL.txt */; };
@@ -157,6 +159,7 @@
 		A2B5AE6E8E66FB17C8BB39B3 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		A35F5E8F491CEF950DD1E8CC /* SupplementBankData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupplementBankData.swift; sourceTree = "<group>"; };
 		A651A83231C0973F48DB0895 /* ScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCalculator.swift; sourceTree = "<group>"; };
+		A7C3E91B4D2F8061A5B9C0D3 /* RemainingMacros.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemainingMacros.swift; sourceTree = "<group>"; };
 		ABE93AF47504A6B201711C5F /* CMSNSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMSNSurface.swift; sourceTree = "<group>"; };
 		B2CE22497C9F737533084442 /* SuggestionEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionEngineTests.swift; sourceTree = "<group>"; };
 		BB86857504E0343A2F2D4F9D /* QuickPathActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickPathActions.swift; sourceTree = "<group>"; };
@@ -164,6 +167,7 @@
 		BFAA8DD9984FB29DE890BFD3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C17FCBF7031945815C115FB1 /* PhotoBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoBackground.swift; sourceTree = "<group>"; };
 		C7782FF43C5E872466294CED /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		C9E5013D6F4B0283C7D1E2F5 /* RemainingMacrosTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemainingMacrosTests.swift; sourceTree = "<group>"; };
 		CB8D9786F59D75EEEACC7E5B /* MacroTargetCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacroTargetCalculatorTests.swift; sourceTree = "<group>"; };
 		CC24E05D9A413AD71598F5F8 /* CMSNWordmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMSNWordmark.swift; sourceTree = "<group>"; };
 		CDD2B46EE7CE064673E438F8 /* CMSNSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMSNSchema.swift; sourceTree = "<group>"; };
@@ -235,6 +239,7 @@
 				1032855761941E22B6FFDDAA /* MealSuggestionEngine.swift */,
 				DB7B7601CBFA202EEE1454D8 /* NutritionLogView.swift */,
 				675355CB2F162D1491797CA2 /* OpenFoodFactsService.swift */,
+				A7C3E91B4D2F8061A5B9C0D3 /* RemainingMacros.swift */,
 			);
 			path = Nutrition;
 			sourceTree = "<group>";
@@ -268,6 +273,7 @@
 				35573510AE76EFB0D047CA31 /* OneRepMaxEstimatorTests.swift */,
 				FE0789D4A258F51440292B0E /* ProgramResolverTests.swift */,
 				EF1E77DE2F9DD32FDB5E6C52 /* ReadinessCheckTests.swift */,
+				C9E5013D6F4B0283C7D1E2F5 /* RemainingMacrosTests.swift */,
 				5CD0457FC7A0A5289BDDC253 /* ScoreCalculatorTests.swift */,
 				F54A217F272968FB9C1E6547 /* StoreKitManagerTests.swift */,
 				B2CE22497C9F737533084442 /* SuggestionEngineTests.swift */,
@@ -630,6 +636,7 @@
 				AE8A69032FFFC4F91AABBAA1 /* ReadinessCheck.swift in Sources */,
 				5EE105769232A79332770365 /* ReadinessCheckView.swift in Sources */,
 				2DD8122898450EF5E0C358B1 /* RecoveryLogView.swift in Sources */,
+				B8D4F02C5E3A9172B6CAD1E4 /* RemainingMacros.swift in Sources */,
 				F551E80B040DF57A66B22D96 /* Repositories.swift in Sources */,
 				30CCCFE4F93741211BC0FA24 /* RestTimerView.swift in Sources */,
 				F980308A10B4CF45E0FF9E63 /* ReturnStateView.swift in Sources */,
@@ -668,6 +675,7 @@
 				5C7A0422E73BCFA7A2387B6B /* OneRepMaxEstimatorTests.swift in Sources */,
 				F54EB67008D1E601E5C51181 /* ProgramResolverTests.swift in Sources */,
 				4D10302CDF756D61B9E22065 /* ReadinessCheckTests.swift in Sources */,
+				D0F6124E705C1394D8E2F306 /* RemainingMacrosTests.swift in Sources */,
 				A8BE500D4779122587167EF7 /* ScoreCalculatorTests.swift in Sources */,
 				C666996768609946D79A4DA0 /* StoreKitManagerTests.swift in Sources */,
 				B1F00499242937C9EA3BCC82 /* SuggestionEngineTests.swift in Sources */,

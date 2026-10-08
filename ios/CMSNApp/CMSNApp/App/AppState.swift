@@ -2,6 +2,16 @@ import Foundation
 import SwiftData
 import Observation
 
+/// Tabs in `MainTabView`. The session summary sets `.nutrition` so finishing
+/// a workout can open the existing food diary instead of a second logger.
+enum AppTab: Hashable {
+    case today
+    case nutrition
+    case score
+    case library
+    case settings
+}
+
 /// App-wide, cross-screen state: the one active program, the calendar
 /// service, the suggestion engine, and the StoreKit manager. Screens read
 /// this via `@Environment` rather than each constructing their own copy of
@@ -20,6 +30,10 @@ final class AppState {
     /// athlete pick one in onboarding; there's no custom program builder yet
     /// (that's V1 — see plan).
     var activeProgram: TrainingProgram
+
+    /// The visible tab. Defaults to Today; the post-session nutrition card
+    /// writes `.nutrition` when the athlete follows the path into logging.
+    var selectedTab: AppTab = .today
 
     init(modelContainer: ModelContainer, activeProgram: TrainingProgram = SeedData.pushPullLegs) {
         self.modelContainer = modelContainer
