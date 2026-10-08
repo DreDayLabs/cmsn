@@ -61,13 +61,20 @@ struct OnboardingFlowView: View {
 
     private func finish() {
         let repository = appState.athleteRepository
+        let athlete: Athlete
         if let existing = existingAthlete {
             apply(draft, to: existing)
             existing.onboardingCompletedAt = Date()
             repository.save()
+            athlete = existing
         } else {
-            repository.createAthlete(draft.makeAthlete())
+            let created = draft.makeAthlete()
+            repository.createAthlete(created)
+            athlete = created
         }
+        // The profile weight is the first sample, unless migration (or a
+        // previous pass through this wizard) already wrote one.
+        appState.weightLogRepository.recordInitialWeightIfNeeded(for: athlete)
         onFinish()
     }
 

@@ -44,7 +44,7 @@ struct TrainingProfileStepView: View {
                             .foregroundStyle(CMSNColor.Semantic.textPrimary)
                         Text("lb").foregroundStyle(CMSNColor.Semantic.textSecondary)
                     }
-                    .onChange(of: weightLbs) { draft.weightKG = weightLbs / 2.2046226 }
+                    .onChange(of: weightLbs) { draft.weightKG = UnitPreference.imperial.kilograms(fromDisplay: weightLbs) }
 
                     Picker("Used only for the calorie estimate", selection: $draft.biologicalSexForCalculation) {
                         Text("Prefer not to say").tag(BiologicalSexForCalculation.preferNotToSay)
@@ -76,7 +76,7 @@ struct TrainingProfileStepView: View {
             }
             .padding(24)
         }
-        .onAppear { updateHeight(); draft.weightKG = weightLbs / 2.2046226 }
+        .onAppear { updateHeight(); draft.weightKG = UnitPreference.imperial.kilograms(fromDisplay: weightLbs) }
         .background(CMSNColor.offBlack.ignoresSafeArea())
     }
 

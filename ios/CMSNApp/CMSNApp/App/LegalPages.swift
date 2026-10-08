@@ -14,7 +14,7 @@ struct PrivacyPolicyView: View {
             )
             LegalSection(
                 heading: "What's Stored, And Where",
-                text: "Your training profile, workouts, nutrition logs, saved meals, supplements, and score history are stored in the app's private database on this device only. Deleting the app deletes them. You can also erase everything from Settings at any time."
+                text: "Your training profile, body-weight history, workouts, nutrition logs, saved meals, supplements, and score history are stored in the app's private database on this device only. Deleting the app deletes them. You can also erase everything from Settings at any time."
             )
             LegalSection(
                 heading: "Food Lookups",

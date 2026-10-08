@@ -178,6 +178,38 @@ enum TrainingStyle: String, Codable, CaseIterable, Identifiable {
 enum UnitPreference: String, Codable, CaseIterable, Identifiable {
     case imperial, metric
     var id: String { rawValue }
+
+    /// Pounds per kilogram. The same factor onboarding and the set logger
+    /// already used (`2.2046226`), so a body-weight entry and a logged
+    /// plate convert identically.
+    static let poundsPerKilogram: Double = 2.2046226
+
+    var weightUnitLabel: String {
+        switch self {
+        case .imperial: return "lb"
+        case .metric: return "kg"
+        }
+    }
+
+    func displayWeight(fromKilograms kg: Double) -> Double {
+        switch self {
+        case .imperial: return kg * Self.poundsPerKilogram
+        case .metric: return kg
+        }
+    }
+
+    func kilograms(fromDisplay value: Double) -> Double {
+        switch self {
+        case .imperial: return value / Self.poundsPerKilogram
+        case .metric: return value
+        }
+    }
+
+    /// One decimal — body weight moves in tenths, unlike a plate that
+    /// rounds to a whole increment.
+    func formattedWeight(kilograms kg: Double) -> String {
+        String(format: "%.1f %@", displayWeight(fromKilograms: kg), weightUnitLabel)
+    }
 }
 
 enum CoachingTone: String, Codable, CaseIterable, Identifiable {

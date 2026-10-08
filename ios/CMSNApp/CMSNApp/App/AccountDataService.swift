@@ -96,6 +96,14 @@ enum AccountDataService {
         let supplements = (try? context.fetch(FetchDescriptor<CustomSupplement>())) ?? []
         root["customSupplements"] = supplements.map { ["name": $0.name, "note": $0.note] }
 
+        let weights = (try? context.fetch(FetchDescriptor<WeightEntry>(sortBy: [SortDescriptor(\.recordedAt)]))) ?? []
+        root["weightEntries"] = weights.map { entry -> [String: Any] in
+            [
+                "date": iso.string(from: entry.recordedAt),
+                "weightKG": entry.weightKG,
+            ]
+        }
+
         let scoreEvents = (try? context.fetch(FetchDescriptor<ScoreEvent>(sortBy: [SortDescriptor(\.date)]))) ?? []
         root["scoreEvents"] = scoreEvents.map { event -> [String: Any] in
             [
@@ -133,6 +141,8 @@ enum AccountDataService {
         try? context.delete(model: SavedMeal.self)
         try? context.delete(model: CustomSupplement.self)
         try? context.delete(model: CustomExercise.self)
+        try? context.delete(model: WeightEntry.self)
+        try? context.delete(model: WeightHistorySeedMarker.self)
         try? context.delete(model: Athlete.self)
         try? context.save()
     }
