@@ -13,12 +13,10 @@ settings:
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
-    # Signed device builds and TestFlight archives read the team from here.
-    # Leave this empty until Dre sets the Thought Garden Labs LLC team ID
-    # (developer.apple.com → Membership → Team ID, 10 characters).
-    # Do not invent a value. Unsigned simulator CI passes
-    # CODE_SIGNING_ALLOWED=NO and does not need a team.
-    DEVELOPMENT_TEAM: ""
+    # Thought Garden Labs LLC. This is the only place the team id is set;
+    # targets inherit it. Unsigned simulator CI still passes
+    # CODE_SIGNING_ALLOWED=NO and does not sign.
+    DEVELOPMENT_TEAM: G2MXBX48PD
     ENABLE_PREVIEWS: YES
     # Standard-practice settings, kept even though none of them turned out
     # to be the actual fix for the CMSNWatchApp "Multiple commands
@@ -94,6 +92,9 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         DEVELOPMENT_ASSET_PATHS: ""
+        # Automatic signing for device and TestFlight archives. The team id
+        # lives once, in settings.base above.
+        CODE_SIGN_STYLE: Automatic
 
   CMSNWatchApp:
     type: application.watchapp2

@@ -26,10 +26,10 @@ open CMSNApp.xcodeproj
 In Xcode:
 
 1. Select the `CMSNApp` scheme and an iOS 17+ simulator.
-2. **Signing:** set `DEVELOPMENT_TEAM` in `project.yml` under `settings.base`
-   to the Thought Garden Labs LLC team ID before a signed device or
-   TestFlight archive. Leave it empty for unsigned simulator CI. The bundle
-   id stays `com.earnyourcmsn.app`.
+2. **Signing:** `DEVELOPMENT_TEAM` in `project.yml` under `settings.base` is
+   `G2MXBX48PD` (Thought Garden Labs LLC). The `CMSNApp` target uses
+   automatic signing. The bundle id stays `com.earnyourcmsn.app`. Unsigned
+   simulator CI passes `CODE_SIGNING_ALLOWED=NO` and does not sign.
 3. Camera and calendar usage strings are in the generated Info.plist.
    HealthKit is not declared — no source file imports HealthKit. StoreKit 2
    needs no entitlement key. EventKit needs no capability, only the calendar

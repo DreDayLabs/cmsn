@@ -546,6 +546,16 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					2CC5015CCE12F66356546E77 = {
+						DevelopmentTeam = G2MXBX48PD;
+					};
+					301153D3FEAE3F00D1A6E724 = {
+						DevelopmentTeam = G2MXBX48PD;
+						ProvisioningStyle = Automatic;
+					};
+					5F614ECB6A7A7D3E8C2F341C = {
+						DevelopmentTeam = G2MXBX48PD;
+					};
 				};
 			};
 			buildConfigurationList = F919B0C227D0B2EDE6B34380 /* Build configuration list for PBXProject "CMSNApp" */;
@@ -703,6 +713,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
 				INFOPLIST_FILE = CMSNApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -754,6 +765,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
 				INFOPLIST_FILE = CMSNApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -802,7 +814,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = G2MXBX48PD;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -886,7 +898,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = G2MXBX48PD;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
