@@ -13,6 +13,12 @@ settings:
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
+    # Signed device builds and TestFlight archives read the team from here.
+    # Leave this empty until Dre sets the Thought Garden Labs LLC team ID
+    # (developer.apple.com → Membership → Team ID, 10 characters).
+    # Do not invent a value. Unsigned simulator CI passes
+    # CODE_SIGNING_ALLOWED=NO and does not need a team.
+    DEVELOPMENT_TEAM: ""
     ENABLE_PREVIEWS: YES
     # Standard-practice settings, kept even though none of them turned out
     # to be the actual fix for the CMSNWatchApp "Multiple commands
@@ -36,11 +42,14 @@ targets:
     info:
       path: CMSNApp/Info.plist
       properties:
+        # XcodeGen's default plist hard-codes 1.0 / 1, which disagrees with
+        # MARKETING_VERSION / CURRENT_PROJECT_VERSION above. Derive both so
+        # the archived app and Settings show the same version.
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         UILaunchScreen: {}
         NSCalendarsUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
         NSCalendarsFullAccessUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
-        NSHealthShareUsageDescription: "CMSN can read basic health data (like body weight) to keep your training profile current. This is optional and off by default in v0."
-        NSHealthUpdateUsageDescription: "CMSN can write completed workouts to Apple Health so they show up alongside your other activity."
         NSCameraUsageDescription: "CMSN uses the camera only to scan food barcodes so you can log meals without typing. Nothing is photographed or stored."
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -53,8 +62,12 @@ targets:
         # wiring needed.
         UIAppFonts:
           - BebasNeue-Regular.ttf
+    # No HealthKit capability. Nothing in this target imports HealthKit, and
+    # an unused Health entitlement or usage string is an App Review risk.
+    # StoreKit 2 (com.apple.InAppPurchase) needs no entitlement key; the
+    # entry stays so the intent is visible. XcodeGen 2.46 does not emit an
+    # entitlements file from `capabilities`.
     capabilities:
-      com.apple.developer.healthkit: {}
       com.apple.InAppPurchase: {}
     # No `dependencies: - target: CMSNWatchApp` here. It was there
     # earlier, in every combination (implicit embed, embed: true,
@@ -90,22 +103,17 @@ targets:
     info:
       path: CMSNWatchApp/Info.plist
       properties:
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.earnyourcmsn.app
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        NSHealthShareUsageDescription: "CMSN uses Health data to run and record your workout from your wrist."
-        NSHealthUpdateUsageDescription: "CMSN saves your workout to Apple Health when you finish."
         ITSAppUsesNonExemptEncryption: false
-    # Entitlements are per-target, not inherited from the host app. This
-    # target's Info.plist already declares HealthKit usage descriptions
-    # (for V1's real Watch companion), so it needs its own entitlement
-    # here too, matching CMSNApp - otherwise a future signed device build
-    # would fail once real HealthKit calls are added, even though CI's
-    # unsigned build (CODE_SIGNING_ALLOWED=NO skips entitlement
-    # processing) would never catch the gap.
-    capabilities:
-      com.apple.developer.healthkit: {}
+    # No HealthKit entitlement or usage strings. This target is a V0 stub
+    # (see CMSNWatchApp.swift) and does not import HealthKit. Add the
+    # capability and the Health usage strings back in the same change that
+    # actually calls HealthKit.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
