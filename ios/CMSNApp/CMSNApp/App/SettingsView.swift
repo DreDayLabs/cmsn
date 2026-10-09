@@ -44,7 +44,7 @@ struct SettingsView: View {
                 Button("Delete All My Data", role: .destructive) { eraseEverything() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This permanently erases your profile, workouts, nutrition, meals, and score from this device. There is no undo. Consider Export My Data first.")
+                Text("This permanently erases your profile, weight history, workouts, nutrition, meals, and score from this device. There is no undo. Consider Export My Data first.")
             }
         }
     }
@@ -83,6 +83,17 @@ struct SettingsView: View {
                         editingName = true
                     }
                 }
+                divider
+                NavigationLink {
+                    WeightLogView(athlete: athlete)
+                } label: {
+                    rowLabel(
+                        "Body Weight",
+                        value: athlete.unitPreference.formattedWeight(kilograms: athlete.weightKG),
+                        showsChevron: true
+                    )
+                }
+                .buttonStyle(.plain)
                 divider
                 settingsRow("Equipment", value: athlete.equipmentProfile.displayName)
                 divider

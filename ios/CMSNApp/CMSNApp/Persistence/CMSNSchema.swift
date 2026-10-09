@@ -39,10 +39,38 @@ enum CMSNSchemaV2: VersionedSchema {
     }
 }
 
+/// V3: body-weight history. Adds `WeightEntry` (and a one-time seed
+/// marker) without changing `Athlete`. The stage is custom, not
+/// lightweight, because a lightweight migration would create the empty
+/// table and leave existing profiles with a `weightKG` but no history.
+/// `didMigrate` copies that current weight into the first sample.
+enum CMSNSchemaV3: VersionedSchema {
+    static var versionIdentifier: Schema.Version = Schema.Version(3, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        CMSNSchemaV2.models + [
+            WeightEntry.self,
+            WeightHistorySeedMarker.self,
+        ]
+    }
+}
+
 enum CMSNMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] { [CMSNSchemaV1.self, CMSNSchemaV2.self] }
+    static var schemas: [any VersionedSchema.Type] {
+        [CMSNSchemaV1.self, CMSNSchemaV2.self, CMSNSchemaV3.self]
+    }
     static var stages: [MigrationStage] {
-        [.lightweight(fromVersion: CMSNSchemaV1.self, toVersion: CMSNSchemaV2.self)]
+        [
+            .lightweight(fromVersion: CMSNSchemaV1.self, toVersion: CMSNSchemaV2.self),
+            .custom(
+                fromVersion: CMSNSchemaV2.self,
+                toVersion: CMSNSchemaV3.self,
+                willMigrate: { _ in },
+                didMigrate: { context in
+                    try WeightHistorySeeder.seedIfUnmarked(in: context)
+                }
+            ),
+        ]
     }
 }
 
@@ -74,13 +102,29 @@ enum CMSNModelContainerFactory {
     /// Throws `StoreOpenFailure` instead of crashing. The catch path does
     /// not delete, replace, or move the store — a failed open must not look
     /// like an empty account.
+    ///
+    /// Opens schema V3 with `CMSNMigrationPlan`, so an existing V2 store runs
+    /// the custom stage that seeds weight history. A store created at V3 (or
+    /// a migration whose callback did not run) still gets one seed pass here.
+    /// The marker makes that pass a no-op forever after, so deleting every
+    /// entry does not resurrect the original weight.
     static func makeDefault() throws -> ModelContainer {
-        try open(defaultPersistentConfiguration())
+        let container = try open(defaultPersistentConfiguration())
+        do {
+            try WeightHistorySeeder.seedIfUnmarked(in: ModelContext(container))
+        } catch {
+            throw StoreOpenFailure(
+                message: "CMSN couldn't prepare weight history. Nothing was deleted. \(error.localizedDescription)"
+            )
+        }
+        return container
     }
 
     /// In-memory container for previews and unit tests — never touches the
     /// real on-disk store. A failure here means the schema itself is invalid,
     /// not that an athlete's data is at risk, so it stays a hard failure.
+    /// Does not seed: tests insert athletes after the container exists, and
+    /// an early marker would hide the V2→V3 seed.
     static func makeInMemory() -> ModelContainer {
         let schema = currentSchema()
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
@@ -188,6 +232,6 @@ enum CMSNModelContainerFactory {
     }
 
     private static func currentSchema() -> Schema {
-        Schema(versionedSchema: CMSNSchemaV2.self)
+        Schema(versionedSchema: CMSNSchemaV3.self)
     }
 }

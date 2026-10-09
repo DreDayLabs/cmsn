@@ -178,7 +178,7 @@ private struct SetRowView: View {
     private func logSet() {
         set.isAttempted = true
         set.completedReps = repsInput
-        set.completedWeightKG = unitPreference == .imperial ? weightInput / 2.2046226 : weightInput
+        set.completedWeightKG = unitPreference.kilograms(fromDisplay: weightInput)
         set.rpe = rpeInput
         set.discomfortReported = discomfort
         set.loggedAt = Date()
@@ -188,6 +188,6 @@ private struct SetRowView: View {
     private func currentPlannedRestSeconds() -> Int { 90 }
 
     private func displayWeight(_ kg: Double) -> Double {
-        unitPreference == .imperial ? (kg * 2.2046226).rounded() : kg.rounded()
+        unitPreference.displayWeight(fromKilograms: kg).rounded()
     }
 }

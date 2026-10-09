@@ -44,6 +44,7 @@ final class AppState {
     }
 
     var athleteRepository: AthleteRepository { AthleteRepository(context: modelContainer.mainContext) }
+    var weightLogRepository: WeightLogRepository { WeightLogRepository(context: modelContainer.mainContext) }
     var workoutRepository: WorkoutRepository { WorkoutRepository(context: modelContainer.mainContext) }
     var nutritionRepository: NutritionRepository { NutritionRepository(context: modelContainer.mainContext) }
     var scoreRepository: ScoreRepository { ScoreRepository(context: modelContainer.mainContext) }

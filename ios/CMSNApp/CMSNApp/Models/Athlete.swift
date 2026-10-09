@@ -20,6 +20,10 @@ final class Athlete {
     // overload only, never surfaced as content-gating fields.
     var age: Int
     var heightCM: Double
+    /// Current body weight in kilograms. Kept equal to the chronologically
+    /// latest `WeightEntry` so `MacroTargetCalculator` and the rest of the
+    /// app can keep reading one number. The history itself lives on
+    /// `WeightEntry`; this field is the latest sample, not the whole record.
     var weightKG: Double
     var biologicalSexForCalculation: BiologicalSexForCalculation
 
