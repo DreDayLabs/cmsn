@@ -53,3 +53,16 @@ next-env.d.ts
 **/*.xcuserstate
 **/DerivedData/
 *.xcresult/
+
+# Purchased third-party vector masters stay out of this public repo.
+# Dre's licensed copies live only in his private local library or Creative Cloud.
+# Opus activewear flats, including any nested copy under brand/:
+brand/**/Opus*.ai
+# Licensed vendor vector packages (Illustrator and EPS). CMSN's own approved
+# identity assets in brand/identity/revision-02/ are SVG and PDF, so they are
+# not matched here. The exceptions below also keep a future native master in
+# that directory from being ignored.
+*.ai
+*.eps
+!brand/identity/revision-02/**/*.ai
+!brand/identity/revision-02/**/*.eps

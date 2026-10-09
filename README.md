@@ -26,4 +26,4 @@ Website: `npm ci`, `npm run dev`. Checks: `npm run lint`, `npm run build`.
 
 App: open `ios/CMSNApp/CMSNApp.xcodeproj`. Configuration changes belong in `project.yml`; regenerate with XcodeGen 2.46.0 and commit the synchronized project/plists. Xcode 26.6 is the tested toolchain; iOS deployment target remains 17.
 
-Creative masters live in the CMSN Creative Cloud workspace. Existing purchased Opus files remain at their original paths until a verified cloud copy exists; no destructive migration or separate clothing repo.
+Creative masters live in the CMSN Creative Cloud workspace. Purchased Opus vector masters (`Opus Flat Mens Activewear File.ai` and `Opus Flat Womens Activewear File.ai`) are kept off this public repo and stored only in Dre's private local library or Creative Cloud. No separate clothing repo.
