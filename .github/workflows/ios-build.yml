@@ -120,25 +120,81 @@ jobs:
       # an ad-hoc signature to install in the simulator; the app itself is
       # still not signed with a development team. CMSNScreenshots is not
       # part of the CMSNApp scheme, so a failure here is this step alone.
+      #
+      # The harness used to time out launching the app ("Timed out while
+      # launching application via Xcode", sometimes after "could not tap").
+      # A cold or half-booted simulator is the usual cause, so this boots
+      # iPhone 17 until bootstatus succeeds, targets that booted UDID, and
+      # reboots once and reruns the harness if the first pass fails.
       - name: Capture main-screen screenshots
         working-directory: ios/CMSNApp
         run: |
           set -o pipefail
-          rm -rf ScreenshotResults.xcresult screenshots /tmp/cmsn-screenshots
+          rm -rf ScreenshotResults.xcresult screenshots /tmp/cmsn-screenshots screenshot.log
           mkdir -p screenshots /tmp/cmsn-screenshots
-          xcrun simctl boot "iPhone 17" || true
-          xcrun simctl bootstatus "iPhone 17" -b
-          xcrun simctl ui "iPhone 17" appearance dark || true
-          xcodebuild test \
-            -project CMSNApp.xcodeproj \
-            -scheme CMSNScreenshots \
-            -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
-            -skipMacroValidation \
-            -resultBundlePath "$PWD/ScreenshotResults.xcresult" \
-            CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGN_IDENTITY=- \
-            CODE_SIGNING_REQUIRED=NO \
-            | tee screenshot.log
+
+          boot_iphone17() {
+            local attempt
+            for attempt in 1 2 3; do
+              echo "Booting iPhone 17 (attempt ${attempt}/3)"
+              xcrun simctl shutdown "iPhone 17" >/dev/null 2>&1 || true
+              if xcrun simctl boot "iPhone 17" && xcrun simctl bootstatus "iPhone 17" -b; then
+                xcrun simctl ui "iPhone 17" appearance dark || true
+                return 0
+              fi
+              echo "iPhone 17 was not ready after boot attempt ${attempt}"
+              sleep $((attempt * 5))
+            done
+            echo "iPhone 17 did not finish booting after 3 attempts"
+            xcrun simctl list devices available
+            return 1
+          }
+
+          booted_udid() {
+            xcrun simctl list devices \
+              | awk '/iPhone 17 / && /Booted/ { print }' \
+              | head -1 \
+              | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/'
+          }
+
+          capture_once() {
+            local udid="$1"
+            rm -rf ScreenshotResults.xcresult
+            xcodebuild test \
+              -project CMSNApp.xcodeproj \
+              -scheme CMSNScreenshots \
+              -destination "platform=iOS Simulator,id=${udid}" \
+              -skipMacroValidation \
+              -parallel-testing-enabled NO \
+              -collect-test-diagnostics never \
+              -resultBundlePath "$PWD/ScreenshotResults.xcresult" \
+              CODE_SIGNING_ALLOWED=YES \
+              CODE_SIGN_IDENTITY=- \
+              CODE_SIGNING_REQUIRED=NO \
+              | tee -a screenshot.log
+          }
+
+          boot_iphone17
+          UDID="$(booted_udid)"
+          if [ -z "$UDID" ]; then
+            echo "No booted iPhone 17 UDID after bootstatus"
+            xcrun simctl list devices
+            exit 1
+          fi
+          echo "Screenshot destination: ${UDID}"
+
+          capture_status=0
+          if ! capture_once "$UDID"; then
+            echo "Screenshot harness failed. Rebooting iPhone 17 and retrying once."
+            boot_iphone17
+            UDID="$(booted_udid)"
+            if [ -z "$UDID" ]; then
+              echo "No booted iPhone 17 UDID after the retry boot"
+              exit 1
+            fi
+            capture_once "$UDID" || capture_status=$?
+          fi
+
           # xcresulttool's export verb moved in newer Xcodes; try the
           # current form, then collect any PNGs the test wrote directly.
           xcrun xcresulttool export attachments \
@@ -147,6 +203,7 @@ jobs:
             || true
           cp -f /tmp/cmsn-screenshots/*.png "$PWD/screenshots/" 2>/dev/null || true
           find "$PWD/screenshots" /tmp/cmsn-screenshots "$PWD/ScreenshotResults.xcresult" -name '*.png' -print
+          exit "$capture_status"
 
       - name: Upload screenshots
         if: always()
