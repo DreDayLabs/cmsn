@@ -82,6 +82,7 @@ final class CMSNScreenSmokeTests: XCTestCase {
         let session = app.staticTexts["Let's Work"]
         XCTAssertTrue(session.waitForExistence(timeout: 20), "Workout session never appeared")
         capture("workout-session")
+        assertWorkoutSessionIsLegible()
 
         openTab("Nutrition")
         XCTAssertTrue(app.staticTexts["Protein"].waitForExistence(timeout: 15))
@@ -189,6 +190,59 @@ final class CMSNScreenSmokeTests: XCTestCase {
             if timeout == 0 { return }
             RunLoop.current.run(until: Date().addingTimeInterval(0.3))
         } while Date() < deadline
+    }
+
+    /// The pushed session used to draw under the leading safe area, and the
+    /// rep target used to wrap one character per line. Both are visible in
+    /// element frames, so this locks them without comparing bitmaps.
+    private func assertWorkoutSessionIsLegible() {
+        let headline = app.staticTexts["Let's Work"]
+        XCTAssertGreaterThan(
+            headline.frame.minX,
+            8,
+            "Workout headline is clipped at the leading edge: \(headline.frame)"
+        )
+        let focus = app.staticTexts["PUSH"]
+        if focus.exists {
+            XCTAssertGreaterThan(
+                focus.frame.minX,
+                8,
+                "Focus label is clipped at the leading edge: \(focus.frame)"
+            )
+        }
+
+        let targets = app.staticTexts.matching(identifier: "workout.repTarget")
+        XCTAssertGreaterThan(targets.count, 0, "Rep target never appeared. \(app.debugDescription)")
+        for index in 0..<targets.count {
+            let target = targets.element(boundBy: index)
+            guard target.exists, target.frame.width > 1 else { continue }
+            XCTAssertLessThan(
+                target.frame.height,
+                44,
+                "Rep target wrapped vertically: \(target.label) \(target.frame)"
+            )
+            XCTAssertGreaterThan(
+                target.frame.width,
+                target.frame.height,
+                "Rep target is a vertical column: \(target.label) \(target.frame)"
+            )
+        }
+
+        XCTAssertTrue(app.staticTexts["Reps"].waitForExistence(timeout: 5), "Reps label missing")
+        XCTAssertTrue(app.staticTexts["Weight"].exists, "Weight label missing")
+        XCTAssertTrue(app.staticTexts["lb"].exists, "Weight unit missing")
+        XCTAssertTrue(app.buttons["Log"].exists, "Log button missing")
+
+        let setLabel = app.staticTexts["Set 1"].firstMatch
+        let discomfort = app.buttons["Felt discomfort on this set"].firstMatch
+        XCTAssertTrue(setLabel.waitForExistence(timeout: 5))
+        XCTAssertTrue(discomfort.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            discomfort.frame.minX,
+            setLabel.frame.minX,
+            accuracy: 4,
+            "Discomfort checkbox should align under its set"
+        )
     }
 
     private func capture(_ name: String) {

@@ -18,9 +18,9 @@ struct JoinCrewView: View {
             // separation from the photo than a headline block does.
             LinearGradient(
                 colors: [
-                    CMSNColor.offBlack.opacity(0.55),
-                    CMSNColor.offBlack.opacity(0.68),
-                    CMSNColor.offBlack.opacity(0.9),
+                    CMSNColor.scrim.opacity(0.55),
+                    CMSNColor.scrim.opacity(0.68),
+                    CMSNColor.scrim.opacity(0.9),
                 ],
                 startPoint: .top,
                 endPoint: .bottom

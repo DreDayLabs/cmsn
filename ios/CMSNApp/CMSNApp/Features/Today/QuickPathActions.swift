@@ -55,7 +55,7 @@ struct QuickPathActionBar: View {
                         } label: {
                             Text(action.title.uppercased())
                                 .font(CMSNTypography.eyebrow())
-                                .kerning(1.6)
+                                .lineLimit(1)
                                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
                                 .padding(.vertical, 14)
                                 .padding(.horizontal, 16)

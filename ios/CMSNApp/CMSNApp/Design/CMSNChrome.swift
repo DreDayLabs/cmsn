@@ -17,13 +17,11 @@ enum CMSNChrome {
         item.normal.titleTextAttributes = [
             .foregroundColor: secondary,
             .font: tabFont,
-            .kern: 0.6,
         ]
         item.selected.iconColor = primary
         item.selected.titleTextAttributes = [
             .foregroundColor: primary,
             .font: tabFont,
-            .kern: 0.6,
         ]
 
         let tab = UITabBarAppearance()

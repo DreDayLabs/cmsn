@@ -79,7 +79,7 @@ private struct CategoryRow: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(category.rawValue.uppercased())
                 .font(CMSNTypography.eyebrow())
-                .kerning(1.8)
+                .lineLimit(1)
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text(category.rawValue)
                 .font(CMSNTypography.body())
