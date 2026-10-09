@@ -176,10 +176,15 @@ schemes:
       targets:
         CMSNApp: all
         CMSNAppUITests: [test]
+    # Launch the app under test without LLDB. Xcode 26 on the hosted
+    # runner intermittently fails DebuggerVersionStore ("no debugger
+    # version") and the UI test then times out spawning the app.
     run:
       config: Debug
+      debugEnabled: false
     test:
       config: Debug
+      debugEnabled: false
       targets:
         - CMSNAppUITests
       environmentVariables:
