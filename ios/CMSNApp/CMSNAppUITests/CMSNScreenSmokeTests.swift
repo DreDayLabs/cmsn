@@ -81,8 +81,8 @@ final class CMSNScreenSmokeTests: XCTestCase {
         tap("Start Workout")
         let session = app.staticTexts["Let's Work"]
         XCTAssertTrue(session.waitForExistence(timeout: 20), "Workout session never appeared")
-        assertWorkoutSessionIsLegible()
         capture("workout-session")
+        assertWorkoutSessionIsLegible()
 
         openTab("Nutrition")
         XCTAssertTrue(app.staticTexts["Protein"].waitForExistence(timeout: 15))
@@ -233,10 +233,10 @@ final class CMSNScreenSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["lb"].exists, "Weight unit missing")
         XCTAssertTrue(app.buttons["Log"].exists, "Log button missing")
 
-        let setLabel = app.staticTexts["Set 1"]
-        let discomfort = app.buttons["Felt discomfort on this set"]
-        XCTAssertTrue(setLabel.exists)
-        XCTAssertTrue(discomfort.exists)
+        let setLabel = app.staticTexts["Set 1"].firstMatch
+        let discomfort = app.buttons["Felt discomfort on this set"].firstMatch
+        XCTAssertTrue(setLabel.waitForExistence(timeout: 5))
+        XCTAssertTrue(discomfort.waitForExistence(timeout: 5))
         XCTAssertEqual(
             discomfort.frame.minX,
             setLabel.frame.minX,
