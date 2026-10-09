@@ -45,6 +45,9 @@ targets:
         # the archived app and Settings show the same version.
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        # Home screen label. Without this key SpringBoard uses the target
+        # name, so the icon reads CMSNApp.
+        CFBundleDisplayName: CMSN
         UILaunchScreen: {}
         NSCalendarsUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
         NSCalendarsFullAccessUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
