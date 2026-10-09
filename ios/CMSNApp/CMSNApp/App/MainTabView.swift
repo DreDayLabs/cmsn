@@ -3,8 +3,8 @@ import SwiftUI
 /// The five-loop system, expressed as tabs: Today is Prepare/Perform/Prove
 /// (it owns the whole in-session flow via navigation), Nutrition and Score
 /// are their own tabs because they're checked independently of a workout,
-/// Supplements is the static library, Settings holds the subscription
-/// entry point and profile.
+/// Library is the education shelf (supplement notes stay inside Supplements),
+/// Settings holds the subscription entry point and profile.
 ///
 /// Icons are chosen for brand register, not generic fitness-app chrome:
 /// The Walk for Today, a book for the education library (never a pill),
@@ -28,7 +28,7 @@ struct MainTabView: View {
                 .tabItem { Label("Score", systemImage: "diamond") }
                 .tag(AppTab.score)
 
-            SupplementLibraryView()
+            EducationLibraryView()
                 .tabItem { Label("Library", systemImage: "book") }
                 .tag(AppTab.library)
 
