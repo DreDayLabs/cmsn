@@ -20,7 +20,8 @@ struct RootView: View {
                 OnboardingNarrativeView(existingAthlete: athletes.first)
             }
         }
-        .tint(CMSNColor.offWhite)
+        .tint(CMSNColor.Semantic.textPrimary)
+        .onAppear(perform: CMSNChrome.apply)
     }
 }
 
