@@ -11,23 +11,30 @@ import SwiftUI
 /// a quiet mark for Score instead of a filled chart.
 struct MainTabView: View {
     let athlete: Athlete
+    @Environment(AppState.self) private var appState
 
     var body: some View {
-        TabView {
+        @Bindable var appState = appState
+        TabView(selection: $appState.selectedTab) {
             TodayView(athlete: athlete)
                 .tabItem { Label("Today", systemImage: "figure.walk") }
+                .tag(AppTab.today)
 
             NutritionLogView(athlete: athlete)
                 .tabItem { Label("Nutrition", systemImage: "circle.grid.2x2") }
+                .tag(AppTab.nutrition)
 
             ScoreView(athlete: athlete)
                 .tabItem { Label("Score", systemImage: "diamond") }
+                .tag(AppTab.score)
 
             SupplementLibraryView()
                 .tabItem { Label("Library", systemImage: "book") }
+                .tag(AppTab.library)
 
             SettingsView(athlete: athlete)
                 .tabItem { Label("Settings", systemImage: "line.3.horizontal") }
+                .tag(AppTab.settings)
         }
         .tint(CMSNColor.offWhite)
     }
