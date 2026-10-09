@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 /// The Nutrition tab. Protein is the headline metric — the calorie estimate
@@ -7,13 +8,23 @@ struct NutritionLogView: View {
     let athlete: Athlete
     @Environment(AppState.self) private var appState
 
+    @Query(sort: \WorkoutSession.date, order: .reverse) private var workoutSessions: [WorkoutSession]
+
     @State private var log: NutritionLog?
     @State private var showingMealSuggestions = false
     @State private var mealResults: [MealSuggestion] = []
     @State private var showingMealBuilder = false
     @State private var savedMeals: [SavedMeal] = []
 
-    private var targets: MacroTargets { MacroTargetCalculator.targets(for: athlete) }
+    private var adjustment: TrainingDayAdjustment {
+        TrainingDayAdjustment.adjust(athlete: athlete, sessions: workoutSessions)
+    }
+
+    private var targets: MacroTargets { adjustment.adjusted }
+
+    private var targetSyncID: String {
+        "\(targets.proteinGrams)-\(targets.carbGrams)-\(targets.fatGrams)-\(targets.calorieEstimate)"
+    }
 
     var body: some View {
         NavigationStack {
@@ -23,6 +34,7 @@ struct NutritionLogView: View {
                     VStack(alignment: .leading, spacing: 28) {
                         header
                         proteinRing
+                        TrainingDayWhyCard(adjustment: adjustment)
                         logFoodSection
                         quickAddRow
                         if !savedMeals.isEmpty { myMealsSection }
@@ -37,7 +49,7 @@ struct NutritionLogView: View {
                     .padding(24)
                 }
             }
-            .task { loadLog() }
+            .task(id: targetSyncID) { loadLog() }
             .sheet(isPresented: $showingMealBuilder) {
                 MealBuilderView { name, totals, ingredients, saveAsMeal in
                     logBuiltMeal(name: name, totals: totals, ingredients: ingredients, saveAsMeal: saveAsMeal)
@@ -58,7 +70,7 @@ struct NutritionLogView: View {
     private var proteinRing: some View {
         VStack(alignment: .leading, spacing: 10) {
             let logged = log?.proteinGramsLogged ?? 0
-            let target = log?.proteinGramsTarget ?? targets.proteinGrams
+            let target = targets.proteinGrams
             Text("\(Int(logged))g / \(Int(target))g")
                 .font(CMSNTypography.numeric(28))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
@@ -87,7 +99,7 @@ struct NutritionLogView: View {
     private var macroContext: some View {
         VStack(alignment: .leading, spacing: 8) {
             EyebrowLabel(text: "Today's Estimate")
-            Text("~\(Int(log?.calorieEstimate ?? targets.calorieEstimate)) kcal · \(Int(log?.carbGramsTarget ?? targets.carbGrams))g carb · \(Int(log?.fatGramsTarget ?? targets.fatGrams))g fat")
+            Text("~\(Int(targets.calorieEstimate.rounded())) kcal · \(Int(targets.carbGrams.rounded()))g carb · \(Int(targets.fatGrams.rounded()))g fat")
                 .font(CMSNTypography.bodyQuiet())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
         }

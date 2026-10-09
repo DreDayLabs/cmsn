@@ -13,6 +13,7 @@ struct SessionSummaryView: View {
     let athlete: Athlete
 
     @Query(sort: \NutritionLog.date, order: .reverse) private var nutritionLogs: [NutritionLog]
+    @Query(sort: \WorkoutSession.date, order: .reverse) private var workoutSessions: [WorkoutSession]
     @Environment(AppState.self) private var appState
     @State private var showingApparelFeedback = false
     @State private var shareImage: UIImage?
@@ -33,6 +34,7 @@ struct SessionSummaryView: View {
                     header
                     completionSummary
                     nutritionRemainder
+                    TrainingDayWhyCard(adjustment: adjustment)
                     scoreSection
                     recoveryRecommendation
                     shareSection
@@ -47,6 +49,15 @@ struct SessionSummaryView: View {
         }
         .sheet(isPresented: $showingApparelFeedback) {
             ApparelFeedbackView(session: session)
+        }
+        .task(id: targetSyncID) {
+            let targets = adjustment.adjusted
+            appState.nutritionRepository.createOrFetchToday(
+                proteinTarget: targets.proteinGrams,
+                carbTarget: targets.carbGrams,
+                fatTarget: targets.fatGrams,
+                calorieEstimate: targets.calorieEstimate
+            )
         }
     }
 
@@ -81,8 +92,8 @@ struct SessionSummaryView: View {
         .cmsnCard()
     }
 
-    /// Today's calculator targets minus today's diary. The session that
-    /// just ended does not raise either number — see `RemainingMacros`.
+    /// Today's training-day targets minus today's diary. The targets include
+    /// this session when it has a finish time and a cited activity.
     private var nutritionRemainder: some View {
         let remainder = remainingMacros
         return VStack(alignment: .leading, spacing: 12) {
@@ -115,8 +126,17 @@ struct SessionSummaryView: View {
         .cmsnCard()
     }
 
+    private var adjustment: TrainingDayAdjustment {
+        TrainingDayAdjustment.adjust(athlete: athlete, sessions: workoutSessions, alsoIncluding: session)
+    }
+
     private var remainingMacros: RemainingMacros {
-        RemainingMacros.calculate(targets: MacroTargetCalculator.targets(for: athlete), entries: todaysEntries)
+        RemainingMacros.calculate(targets: adjustment.adjusted, entries: todaysEntries)
+    }
+
+    private var targetSyncID: String {
+        let targets = adjustment.adjusted
+        return "\(targets.proteinGrams)-\(targets.carbGrams)-\(targets.fatGrams)-\(targets.calorieEstimate)"
     }
 
     private var todaysEntries: [NutritionEntry] {
