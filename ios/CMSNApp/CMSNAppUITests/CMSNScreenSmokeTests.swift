@@ -76,7 +76,9 @@ final class CMSNScreenSmokeTests: XCTestCase {
         nudgeForInterruptionMonitor()
         capture("today")
 
-        tap("Ready — Let's Go")
+        // Today keeps the readiness card and puts the next step on one
+        // primary button. A fresh profile's action is Start Workout.
+        tap("Start Workout")
         let session = app.staticTexts["Let's Work"]
         XCTAssertTrue(session.waitForExistence(timeout: 20), "Workout session never appeared")
         capture("workout-session")
