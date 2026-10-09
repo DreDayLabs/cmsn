@@ -136,7 +136,22 @@ struct NutritionRepository {
 
     @discardableResult
     func createOrFetchToday(proteinTarget: Double, carbTarget: Double?, fatTarget: Double?, calorieEstimate: Double?) -> NutritionLog {
-        if let existing = log(for: Date()) { return existing }
+        if let existing = log(for: Date()) {
+            // A session finished later in the day can raise the targets.
+            // Refresh the stored row so the diary matches `TrainingDayAdjustment`.
+            let changed = existing.proteinGramsTarget != proteinTarget
+                || existing.carbGramsTarget != carbTarget
+                || existing.fatGramsTarget != fatTarget
+                || existing.calorieEstimate != calorieEstimate
+            if changed {
+                existing.proteinGramsTarget = proteinTarget
+                existing.carbGramsTarget = carbTarget
+                existing.fatGramsTarget = fatTarget
+                existing.calorieEstimate = calorieEstimate
+                try? context.save()
+            }
+            return existing
+        }
         let newLog = NutritionLog(
             proteinGramsTarget: proteinTarget,
             carbGramsTarget: carbTarget,

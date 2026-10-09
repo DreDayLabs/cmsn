@@ -9,23 +9,19 @@ struct LoggedFoodContribution: Equatable {
     var calories: Double?
 }
 
-/// Protein and calories still open today: `MacroTargetCalculator` targets
-/// minus what's in today's food diary.
+/// Protein and calories still open today: the day's targets minus what's
+/// in today's food diary.
 ///
 /// Remaining values are signed. Negative means the diary is already past
 /// that target. Zero means the diary landed on it. An empty diary leaves
 /// the full targets in place.
 ///
-/// A finished training session does not change these numbers. The
-/// calculator's calorie estimate is Mifflin–St Jeor times one activity
-/// multiplier derived from `trainingFrequencyPerWeek` — a weekly average,
-/// not a training-day versus rest-day split. `WorkoutSession` stores no
-/// energy expenditure. Adding a post-session calorie or protein bump
-/// would be a new burn formula, so this type does not do it.
-///
-/// Follow-up: if a training-day adjustment is ever added to
-/// `MacroTargetCalculator` from a cited source, pass those targets in
-/// here. This subtraction should stay the only step.
+/// This type only subtracts. It does not estimate a workout. On a training
+/// day, pass targets from `TrainingDayAdjustment` (non-exercise baseline
+/// plus 2024 Compendium net session energy). On a rest day, pass that
+/// same baseline. The weekly activity bands in `MacroTargetCalculator`
+/// already spread training across every day, so they are not added again
+/// here.
 struct RemainingMacros: Equatable {
     var proteinTargetGrams: Double
     var calorieTarget: Double

@@ -146,8 +146,10 @@ final class RemainingMacrosTests: XCTestCase {
     }
 
     func testFinishedSessionDoesNotChangeTheSuppliedTargets() {
-        // Weekly activity is already inside `calorieEstimate`. This step
-        // must not add a per-session burn on top of the calculator.
+        // Weekly activity is already inside the supplied `calorieEstimate`
+        // only when the caller put it there. This step must not add a
+        // per-session burn of its own. Pass `TrainingDayAdjustment` targets
+        // in when the day should reflect the session.
         let remaining = RemainingMacros.calculate(targets: targets, entries: [
             LoggedFoodContribution(proteinGrams: 30, calories: 200),
         ])

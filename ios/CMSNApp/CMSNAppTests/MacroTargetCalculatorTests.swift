@@ -18,6 +18,37 @@ final class MacroTargetCalculatorTests: XCTestCase {
         let general = MacroTargetCalculator.proteinGramsPerKG(for: [.generalFitness])
         XCTAssertGreaterThanOrEqual(fatLoss, muscleGain)
         XCTAssertGreaterThan(fatLoss, general)
+        XCTAssertEqual(fatLoss, 2.0)
+        XCTAssertEqual(muscleGain, 2.0)
+    }
+
+    func testProteinCoefficientsStayInsideACSMAndISSNRanges() {
+        for goal in GoalType.allCases {
+            let grams = MacroTargetCalculator.proteinGramsPerKG(for: [goal])
+            XCTAssertGreaterThanOrEqual(grams, 1.2, "\(goal) is below the ACSM 2016 floor")
+            XCTAssertLessThanOrEqual(grams, 2.0, "\(goal) is above the ACSM 2016 and ISSN 2017 ceiling")
+        }
+    }
+
+    func testWeeklyActivityBandsStayTheUncitedPlaceholders() {
+        XCTAssertEqual(MacroTargetCalculator.activityMultiplier(trainingFrequencyPerWeek: 0), 1.2)
+        XCTAssertEqual(MacroTargetCalculator.activityMultiplier(trainingFrequencyPerWeek: 3), 1.375)
+        XCTAssertEqual(MacroTargetCalculator.activityMultiplier(trainingFrequencyPerWeek: 5), 1.55)
+        XCTAssertEqual(MacroTargetCalculator.activityMultiplier(trainingFrequencyPerWeek: 6), 1.725)
+        XCTAssertEqual(MacroTargetCalculator.nonExerciseActivityMultiplierPlaceholder, 1.2)
+    }
+
+    func testNonExerciseBaselineIgnoresTrainingFrequency() {
+        let rare = Athlete(age: 30, heightCM: 180, weightKG: 80, biologicalSexForCalculation: .male, trainingFrequencyPerWeek: 1, goalTypes: [.generalFitness])
+        let often = Athlete(age: 30, heightCM: 180, weightKG: 80, biologicalSexForCalculation: .male, trainingFrequencyPerWeek: 6, goalTypes: [.generalFitness])
+        XCTAssertEqual(
+            MacroTargetCalculator.nonExerciseBaseline(for: rare).calorieEstimate,
+            MacroTargetCalculator.nonExerciseBaseline(for: often).calorieEstimate
+        )
+        XCTAssertGreaterThan(
+            MacroTargetCalculator.targets(for: often).calorieEstimate,
+            MacroTargetCalculator.nonExerciseBaseline(for: often).calorieEstimate
+        )
     }
 
     func testProteinScalesWithBodyweight() {
