@@ -88,7 +88,7 @@ struct PaywallView: View {
             .buttonStyle(.cmsnGhost)
 
             if let error = appState.storeKitManager.lastError {
-                Text(error).font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.gray)
+                Text(error).font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.destructive)
             }
         }
     }

@@ -108,9 +108,9 @@ struct WorkoutPlanConfirmView: View {
                         .font(CMSNTypography.body())
                         .padding(.vertical, 11)
                         .padding(.horizontal, 16)
-                        .foregroundStyle(value == selected ? CMSNColor.offBlack : CMSNColor.Semantic.textPrimary)
-                        .background(value == selected ? CMSNColor.offWhite : Color.clear)
-                        .overlay(Rectangle().strokeBorder(value == selected ? CMSNColor.offWhite : CMSNColor.offWhite.opacity(0.25), lineWidth: 1))
+                        .foregroundStyle(value == selected ? CMSNColor.Semantic.buttonLabel : CMSNColor.Semantic.textPrimary)
+                        .background(value == selected ? CMSNColor.Semantic.buttonFill : Color.clear)
+                        .overlay(Rectangle().strokeBorder(value == selected ? CMSNColor.Semantic.buttonFill : CMSNColor.Semantic.borderStrong, lineWidth: CMSNSpacing.hairline))
                 }
                 .buttonStyle(.plain)
             }

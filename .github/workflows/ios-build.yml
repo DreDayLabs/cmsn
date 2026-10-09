@@ -115,3 +115,45 @@ jobs:
         with:
           name: test-log
           path: ios/CMSNApp/test.log
+
+      # Separate from the unsigned unit-test step. The UI-test runner needs
+      # an ad-hoc signature to install in the simulator; the app itself is
+      # still not signed with a development team. CMSNScreenshots is not
+      # part of the CMSNApp scheme, so a failure here is this step alone.
+      - name: Capture main-screen screenshots
+        working-directory: ios/CMSNApp
+        run: |
+          set -o pipefail
+          rm -rf ScreenshotResults.xcresult screenshots /tmp/cmsn-screenshots
+          mkdir -p screenshots /tmp/cmsn-screenshots
+          xcrun simctl boot "iPhone 17" || true
+          xcrun simctl bootstatus "iPhone 17" -b
+          xcrun simctl ui "iPhone 17" appearance dark || true
+          xcodebuild test \
+            -project CMSNApp.xcodeproj \
+            -scheme CMSNScreenshots \
+            -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
+            -skipMacroValidation \
+            -resultBundlePath "$PWD/ScreenshotResults.xcresult" \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_REQUIRED=NO \
+            | tee screenshot.log
+          # xcresulttool's export verb moved in newer Xcodes; try the
+          # current form, then collect any PNGs the test wrote directly.
+          xcrun xcresulttool export attachments \
+            --path "$PWD/ScreenshotResults.xcresult" \
+            --output-path "$PWD/screenshots/attachments" \
+            || true
+          cp -f /tmp/cmsn-screenshots/*.png "$PWD/screenshots/" 2>/dev/null || true
+          find "$PWD/screenshots" /tmp/cmsn-screenshots "$PWD/ScreenshotResults.xcresult" -name '*.png' -print
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: |
+            ios/CMSNApp/screenshots
+            ios/CMSNApp/screenshot.log
+            ios/CMSNApp/ScreenshotResults.xcresult
