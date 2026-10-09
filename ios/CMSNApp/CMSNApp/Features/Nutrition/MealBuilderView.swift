@@ -157,7 +157,7 @@ struct MealBuilderView: View {
                     .font(CMSNTypography.body())
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
             }
-            .tint(CMSNColor.offWhite.opacity(0.6))
+            .tint(CMSNColor.Semantic.control)
             if saveAsMeal {
                 TextField("Meal name (e.g. Morning Shake)", text: $mealName)
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)

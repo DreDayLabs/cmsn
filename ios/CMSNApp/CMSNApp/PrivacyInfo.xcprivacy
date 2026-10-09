@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Declares only what CMSNApp code actually does.
+
+	  Not collected (stays on device, Apple's "collect" = sent off device
+	  and retained past the request): SwiftData profile, workouts,
+	  nutrition, supplements, and score; EventKit titles read locally to
+	  match a scheduled workout; VisionKit barcode frames (no photo is
+	  written); StoreKit entitlement state read on device. Purchases are
+	  processed by Apple.
+
+	  Open Food Facts receives a barcode or search string to answer that
+	  lookup. The request does not include a name, account, or device
+	  identifier, and CMSN does not retain it on a server. Data used only
+	  to service the request is not collected.
+
+	  NSPrivacyAccessedAPITypes is empty: app code does not call
+	  UserDefaults, file-timestamp, system-boot-time, disk-space, or
+	  active-keyboard APIs. System frameworks ship their own manifests.
+	-->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array/>
+</dict>
+</plist>
