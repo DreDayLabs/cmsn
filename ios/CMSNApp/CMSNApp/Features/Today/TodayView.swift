@@ -1,18 +1,20 @@
+import SwiftData
 import SwiftUI
 
-/// The "walks in the gym, opens the app" screen — Prepare. Resolves today's
-/// session (rotation, calendar override, equipment, injuries), surfaces the
-/// Return-state framing when relevant, and hosts both the full readiness
-/// check and the minimum-user quick-path row before handing off to
-/// `WorkoutSessionView`.
+/// Home. Training and fuel in one glance: today's planned or finished
+/// session, the adjusted targets and what's left, the reason those targets
+/// moved, and one next action. The readiness check, the quick paths, and
+/// the handoff into `WorkoutSessionView` stay in place.
 struct TodayView: View {
     let athlete: Athlete
     @Environment(AppState.self) private var appState
 
+    @Query(sort: \WorkoutSession.date, order: .reverse) private var workoutSessions: [WorkoutSession]
+    @Query(sort: \NutritionLog.date, order: .reverse) private var nutritionLogs: [NutritionLog]
+
     @State private var resolvedDay: ResolvedProgramDay?
     @State private var readinessDraft = ReadinessDraft()
     @State private var daysInactive: Int?
-    @State private var showingReadinessCheck = false
     @State private var pendingDay: ResolvedProgramDay?
     @State private var pendingReadiness: ReadinessCheck?
     @State private var navigateToSession = false
@@ -23,33 +25,10 @@ struct TodayView: View {
         NavigationStack {
             ZStack {
                 CMSNColor.offBlack.ignoresSafeArea()
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        header
-
-                        if let daysInactive, daysInactive >= 7 {
-                            ReturnStateView(daysInactive: daysInactive)
-                        }
-
-                        QuickPathActionBar { action in
-                            startQuickPath(action)
-                        }
-
-                        if let resolvedDay {
-                            focusCard(for: resolvedDay)
-                            if resolvedDay.focus == .restDay || resolvedDay.focus == .recovery {
-                                Button("Log Recovery Day") { showingRecoveryLog = true }
-                                    .buttonStyle(.cmsnGhost)
-                            }
-                        }
-
-                        if showingReadinessCheck {
-                            ReadinessCheckView(draft: $readinessDraft) {
-                                beginSession()
-                            }
-                        }
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        screen(proxy: proxy)
                     }
-                    .padding(24)
                 }
             }
             .navigationDestination(isPresented: $navigateToSession) {
@@ -60,13 +39,53 @@ struct TodayView: View {
             .sheet(isPresented: $showingRecoveryLog) {
                 RecoveryLogView()
             }
-            .task {
+            .onAppear { resolveToday() }
+            .task(id: targetSyncID) {
                 await primeCalendarIfNeeded()
                 resolveToday()
                 daysInactive = appState.workoutRepository.daysSinceLastLoggedWork()
-                showingReadinessCheck = true
+                syncTargets()
             }
         }
+    }
+
+    private func screen(proxy: ScrollViewProxy) -> some View {
+        VStack(alignment: .leading, spacing: 24) {
+            header
+
+            if let daysInactive, daysInactive >= 7 {
+                ReturnStateView(daysInactive: daysInactive)
+            }
+
+            QuickPathActionBar { action in
+                startQuickPath(action)
+            }
+
+            if let state = homeState {
+                sessionCard(state)
+                fuelCard(state)
+                TrainingDayWhyCard(adjustment: state.adjustment)
+                    .id(state.articleID)
+
+                if state.showsReadinessCheck {
+                    ReadinessCheckView(draft: $readinessDraft, showsSubmitButton: false) {
+                        beginSession()
+                    }
+                }
+
+                Button(state.primaryAction.title) {
+                    perform(state.primaryAction, proxy: proxy, articleID: state.articleID)
+                }
+                .buttonStyle(.cmsnPrimary)
+                .accessibilityIdentifier("today.primaryAction")
+
+                if state.showsRecoveryLog {
+                    Button("Log Recovery Day") { showingRecoveryLog = true }
+                        .buttonStyle(.cmsnGhost)
+                }
+            }
+        }
+        .padding(24)
     }
 
     private var header: some View {
@@ -76,7 +95,7 @@ struct TodayView: View {
                 Spacer()
                 EyebrowLabel(text: Date().formatted(.dateTime.weekday(.wide)))
             }
-            Text(resolvedDay?.focus.displayName.uppercased() ?? "TODAY")
+            Text(homeState?.headline ?? "TODAY")
                 .font(CMSNTypography.displaySmall(44))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
             Text("Prepare · Perform · Prove")
@@ -85,29 +104,89 @@ struct TodayView: View {
         }
     }
 
-    private func focusCard(for day: ResolvedProgramDay) -> some View {
+    private func sessionCard(_ state: TodayHomeState) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            if day.isCalendarOverride {
-                EyebrowLabel(text: "From Your Calendar")
-            }
-            Text("\(day.resolvedExercises.count) exercises · about \(day.estimatedMinutes) min")
+            EyebrowLabel(text: state.sessionEyebrow)
+            Text(state.sessionTitle)
+                .font(CMSNTypography.displaySmall(28))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            Text(state.sessionDetail)
                 .font(CMSNTypography.body())
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
-
-            ForEach(day.adjustmentNotes, id: \.self) { note in
-                Text(note)
-                    .font(CMSNTypography.bodyQuiet())
-                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
-            }
-
-            ForEach(day.resolvedExercises) { resolved in
-                Text("· \(resolved.exercise.name)")
+                .fixedSize(horizontal: false, vertical: true)
+            ForEach(Array(state.sessionLines.enumerated()), id: \.offset) { _, line in
+                Text(line)
                     .font(CMSNTypography.body())
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
             }
+            ForEach(Array(state.sessionNotes.enumerated()), id: \.offset) { _, note in
+                Text(note)
+                    .font(CMSNTypography.bodyQuiet())
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .cmsnCard()
+    }
+
+    private func fuelCard(_ state: TodayHomeState) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            EyebrowLabel(text: state.fuelEyebrow)
+            Text(state.fuelFigure)
+                .font(CMSNTypography.displaySmall(32))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            Text(state.fuelCaption)
+                .font(CMSNTypography.body())
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            Text(state.fuelDetail)
+                .font(CMSNTypography.bodyQuiet())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(state.fuelNote)
+                .font(CMSNTypography.bodyQuiet())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cmsnCard()
+    }
+
+    private var homeState: TodayHomeState? {
+        let hasProgram = !appState.activeProgram.days.isEmpty
+        let logged = TodayHomeState.loggedWork(on: Date(), from: workoutSessions)
+        if resolvedDay == nil && hasProgram && logged.isEmpty { return nil }
+        return TodayHomeState.resolve(
+            hasProgram: hasProgram,
+            plan: resolvedDay.map { TodayPlannedSession($0) },
+            logged: logged,
+            adjustment: adjustment,
+            remaining: remaining
+        )
+    }
+
+    private var adjustment: TrainingDayAdjustment {
+        TrainingDayAdjustment.adjust(athlete: athlete, sessions: workoutSessions)
+    }
+
+    private var remaining: RemainingMacros {
+        RemainingMacros.calculate(targets: adjustment.adjusted, entries: todaysFood)
+    }
+
+    private var todaysFood: [LoggedFoodContribution] {
+        let start = Calendar.current.startOfDay(for: Date())
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: start) ?? start
+        return nutritionLogs
+            .filter { $0.date >= start && $0.date < end }
+            .flatMap(\.entries)
+            .map { LoggedFoodContribution(proteinGrams: $0.proteinGrams, calories: $0.calories) }
+    }
+
+    private var targetSyncID: String {
+        let targets = adjustment.adjusted
+        return "\(targets.proteinGrams)-\(targets.carbGrams)-\(targets.fatGrams)-\(targets.calorieEstimate)"
     }
 
     private func primeCalendarIfNeeded() async {
@@ -143,5 +222,26 @@ struct TodayView: View {
         pendingDay = action.resolve(currentFocus: focus, resolver: resolver, athlete: athlete)
         pendingReadiness = readinessDraft.makeReadinessCheck()
         navigateToSession = true
+    }
+
+    private func perform(_ action: TodayHomeState.PrimaryAction, proxy: ScrollViewProxy, articleID: String) {
+        switch action {
+        case .startWorkout:
+            beginSession()
+        case .logFood:
+            appState.selectedTab = .nutrition
+        case .readWhy:
+            proxy.scrollTo(articleID, anchor: .top)
+        }
+    }
+
+    private func syncTargets() {
+        let targets = adjustment.adjusted
+        _ = appState.nutritionRepository.createOrFetchToday(
+            proteinTarget: targets.proteinGrams,
+            carbTarget: targets.carbGrams,
+            fatTarget: targets.fatGrams,
+            calorieEstimate: targets.calorieEstimate
+        )
     }
 }

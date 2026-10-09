@@ -28,6 +28,9 @@ struct ReadinessDraft {
 /// produces a reasonable readiness band.
 struct ReadinessCheckView: View {
     @Binding var draft: ReadinessDraft
+    /// Today renders one primary action of its own, so it hides this button
+    /// and submits the same draft from that action. Other callers keep it.
+    var showsSubmitButton: Bool = true
     let onSubmit: () -> Void
 
     var body: some View {
@@ -48,8 +51,10 @@ struct ReadinessCheckView: View {
             }
             .font(CMSNTypography.body())
 
-            Button("Ready — Let's Go") { onSubmit() }
-                .buttonStyle(.cmsnPrimary)
+            if showsSubmitButton {
+                Button("Ready — Let's Go") { onSubmit() }
+                    .buttonStyle(.cmsnPrimary)
+            }
         }
         .padding(20)
         .cmsnCard()
