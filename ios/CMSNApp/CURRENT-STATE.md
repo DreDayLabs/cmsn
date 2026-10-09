@@ -153,13 +153,11 @@ Not code bugs — decisions or business actions this audit can't make unilateral
   jailbreak/tampering-based entitlement spoofing than a server-validated model, and revenue
   will start flowing through it once real products exist. Worth an explicit founder
   go/no-go before scaling on it, not just a fallthrough default.
-- **`CMSNSchema.makeDefault()` crashes the app (`fatalError`) if the persistent store fails
-  to open** (disk full, corrupt store, failed migration). The code's own comment
-  acknowledges this is a deliberate V0 tradeoff ("a production app would surface a recovery
-  path... V0 makes the failure loud"), not an oversight — but it means there is currently no
-  path back for a real user whose store gets corrupted; the app is unusable until it's
-  manually deleted and reinstalled. Founder/eng call on whether a recovery path (export +
-  reset, or fall back to a fresh store) is needed before wider release.
+- **A failed on-disk store open used to crash via `fatalError`.** It now stays on
+  `StoreRecoveryView`: retry leaves the file untouched, and "start fresh" only runs
+  after confirmation, moving the store and its SQLite sidecars into a timestamped
+  backup folder instead of deleting them. The in-memory container used by previews
+  and tests still hard-fails, because that path has no athlete data to protect.
 - **Baseline accessibility gaps concentrated in the Design system**, which means they
   multiply across the whole app rather than being one-off: `CMSNTypography`'s
   `eyebrow()`/`body()`/`bodyQuiet()`/`numeric()` use fixed `.font(.system(size:))` with no
