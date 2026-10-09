@@ -1,17 +1,19 @@
 import SwiftUI
 
-/// Flat, tracked, full-width actions. One filled white button is the
-/// strongest thing on a screen. Ghost is an outline in solid gray, not a
-/// frosted fill. Pressed ghost and text labels drop to `textSecondary`,
-/// which still clears AA on black. They do not fade to 40% white. The
-/// primary button dims as a whole so its black label stays on white.
+/// Flat full-width actions in the system sans. One filled white button is
+/// the strongest thing on a screen. Ghost is a white outline, not a gray
+/// stroke on a gray fill. Pressed ghost and text labels drop to
+/// `textSecondary`, which still clears AA on black. They do not fade to
+/// 40% white. The primary button dims as a whole so its black label stays
+/// on white. Titles stay on one line at every content size.
 
 private struct CMSNButtonLabelStyle: ViewModifier {
     let textColor: Color
     func body(content: Content) -> some View {
         content
-            .font(CMSNTypography.eyebrow())
-            .kerning(2.4)
+            .font(CMSNTypography.button())
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(textColor)
             .padding(.vertical, CMSNSpacing.buttonVertical)
             .padding(.horizontal, CMSNSpacing.buttonHorizontal)
@@ -44,14 +46,35 @@ struct CMSNGhostButtonStyle: ButtonStyle {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .strokeBorder(CMSNColor.Semantic.borderStrong, lineWidth: CMSNSpacing.hairline)
+                    .strokeBorder(CMSNColor.Semantic.borderStrong, lineWidth: 1.5)
             )
+    }
+}
+
+/// Inline primary action, for a control that sits in a row (the set Log
+/// button). Same white face and black label as `cmsnPrimary`, without the
+/// full-width frame that was squeezing neighboring text into a column.
+struct CMSNCompactPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(CMSNTypography.button())
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .foregroundStyle(CMSNColor.Semantic.buttonLabel)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(
+                RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
+                    .fill(CMSNColor.Semantic.buttonFill)
+            )
+            .opacity(configuration.isPressed ? 0.92 : 1)
+            .fixedSize(horizontal: true, vertical: true)
     }
 }
 
 /// Outline for a light surface. Unused by current screens; kept so a light
 /// section can outline in black without inventing a new style later.
-/// Label `#0A0A0A` on white clears AA.
+/// Label is true black on white, which clears AA.
 struct CMSNGhostOnSurfaceButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -70,14 +93,19 @@ struct CMSNGhostOnSurfaceButtonStyle: ButtonStyle {
 struct CMSNTextButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(CMSNTypography.eyebrow())
-            .kerning(2.4)
+            .font(CMSNTypography.button())
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(configuration.isPressed ? CMSNColor.Semantic.textSecondary : CMSNColor.Semantic.textPrimary)
     }
 }
 
 extension ButtonStyle where Self == CMSNPrimaryButtonStyle {
     static var cmsnPrimary: CMSNPrimaryButtonStyle { CMSNPrimaryButtonStyle() }
+}
+
+extension ButtonStyle where Self == CMSNCompactPrimaryButtonStyle {
+    static var cmsnCompactPrimary: CMSNCompactPrimaryButtonStyle { CMSNCompactPrimaryButtonStyle() }
 }
 
 extension ButtonStyle where Self == CMSNGhostButtonStyle {

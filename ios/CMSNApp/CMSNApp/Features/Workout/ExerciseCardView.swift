@@ -69,12 +69,16 @@ struct ExerciseCardView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text(exercise.name)
                     .font(CMSNTypography.displaySmall(24))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                Spacer()
-                Button("Swap") { onRequestSubstitution() }.buttonStyle(.cmsnText)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .layoutPriority(1)
+                Spacer(minLength: 12)
+                Button("Swap") { onRequestSubstitution() }
+                    .buttonStyle(.cmsnText)
+                    .fixedSize()
             }
             Button(showingCues ? "Hide setup & cues" : "Show setup & cues") {
                 showingCues.toggle()
@@ -104,6 +108,11 @@ struct ExerciseCardView: View {
 
 /// One planned/logged set row. Partial completion is native here: reps can
 /// be logged below the planned range and the set still saves as attempted.
+///
+/// The target ("8–12 reps") stays on one line at every Dynamic Type size.
+/// `ViewThatFits` tries a single row, then two rows, then a stack. Candidates
+/// above the fallback are fixed on the horizontal axis so a flexible spacer
+/// cannot pretend to fit by crushing the target into a one-character column.
 private struct SetRowView: View {
     @Bindable var set: LoggedSet
     let suggestedWeightKG: Double?
@@ -116,63 +125,207 @@ private struct SetRowView: View {
     @State private var discomfort = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 12) {
-                Text("Set \(set.setIndex + 1)")
-                    .font(CMSNTypography.numeric(15))
-                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
-                    .frame(width: 56, alignment: .leading)
-
-                if set.isAttempted {
-                    Text("\(Int(displayWeight(set.completedWeightKG ?? 0)))×\(set.completedReps ?? 0)")
-                        .font(CMSNTypography.numeric(16))
-                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                    if let rpe = set.rpe {
-                        Text("RPE \(String(format: "%.0f", rpe))").font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.textSecondary)
-                    }
-                    if set.discomfortReported {
-                        Image(systemName: "bandage").foregroundStyle(CMSNColor.gray)
-                    }
-                    Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(CMSNColor.Semantic.scorePositive)
-                } else {
-                    Text("\(set.plannedRepRangeLow)–\(set.plannedRepRangeHigh) reps")
-                        .font(CMSNTypography.bodyQuiet())
-                        .foregroundStyle(CMSNColor.Semantic.textSecondary)
-                    Spacer()
-                    Stepper("\(repsInput)", value: $repsInput, in: 0...50).fixedSize()
-                    TextField("wt", value: $weightInput, format: .number)
-                        .keyboardType(.decimalPad)
-                        .frame(width: 50)
-                        .multilineTextAlignment(.trailing)
-                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                    Button("Log") {
-                        logSet()
-                    }
-                    .buttonStyle(.cmsnGhost)
-                    .fixedSize()
-                }
-            }
-
-            if !set.isAttempted {
-                Button {
-                    discomfort.toggle()
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: discomfort ? "checkmark.square" : "square")
-                        Text("Felt discomfort on this set")
-                    }
-                    .font(CMSNTypography.caption())
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(discomfort ? CMSNColor.gray : CMSNColor.Semantic.textSecondary)
-                .padding(.leading, 68)
+        VStack(alignment: .leading, spacing: 10) {
+            if set.isAttempted {
+                completedSummary
+            } else {
+                pendingEntry
+                discomfortToggle
             }
         }
         .onAppear {
             if repsInput == 0 { repsInput = set.plannedRepRangeLow }
             if weightInput == 0 { weightInput = displayWeight(suggestedWeightKG ?? set.plannedWeightKG ?? 0) }
         }
+    }
+
+    private var pendingEntry: some View {
+        ViewThatFits(in: .horizontal) {
+            pendingRow.fixedSize(horizontal: true, vertical: false)
+            pendingTwoLines.fixedSize(horizontal: true, vertical: false)
+            pendingStacked
+        }
+    }
+
+    private var pendingRow: some View {
+        HStack(alignment: .bottom, spacing: 10) {
+            setIdentity
+            repsControl
+            weightControl
+            logButton
+        }
+    }
+
+    private var pendingTwoLines: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            setIdentity
+            HStack(alignment: .bottom, spacing: 8) {
+                repsControl
+                weightControl
+                logButton
+            }
+        }
+    }
+
+    /// Last resort for accessibility sizes. The target stays one line, and
+    /// the controls stack under this set's own label.
+    private var pendingStacked: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ViewThatFits(in: .horizontal) {
+                setIdentity.fixedSize(horizontal: true, vertical: false)
+                VStack(alignment: .leading, spacing: 2) {
+                    setLabel
+                    targetLabel
+                }
+            }
+            repsControl
+            HStack(alignment: .bottom, spacing: 8) {
+                weightControl
+                Spacer(minLength: 8)
+                logButton
+            }
+        }
+    }
+
+    private var setIdentity: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            setLabel
+            targetLabel
+        }
+    }
+
+    private var setLabel: some View {
+        Text("Set \(set.setIndex + 1)")
+            .font(CMSNTypography.label())
+            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+    }
+
+    private var targetLabel: some View {
+        Text("\(set.plannedRepRangeLow)–\(set.plannedRepRangeHigh) reps")
+            .font(CMSNTypography.numeric(17))
+            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .accessibilityLabel("\(set.plannedRepRangeLow) to \(set.plannedRepRangeHigh) reps")
+            .accessibilityIdentifier("workout.repTarget")
+    }
+
+    private var repsControl: some View {
+        LabeledValueControl(title: "Reps") {
+            HStack(spacing: 0) {
+                stepButton(systemName: "minus", label: "Decrease reps") {
+                    repsInput = max(0, repsInput - 1)
+                }
+                Text("\(repsInput)")
+                    .font(CMSNTypography.numeric(17))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .frame(minWidth: 28)
+                    .lineLimit(1)
+                    .accessibilityLabel("Reps")
+                    .accessibilityValue("\(repsInput)")
+                stepButton(systemName: "plus", label: "Increase reps") {
+                    repsInput = min(50, repsInput + 1)
+                }
+            }
+        }
+    }
+
+    private var weightControl: some View {
+        LabeledValueControl(title: "Weight") {
+            HStack(spacing: 4) {
+                TextField("0", value: $weightInput, format: .number.precision(.fractionLength(0...1)))
+                    .keyboardType(.decimalPad)
+                    .font(CMSNTypography.numeric(17))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: 64)
+                    .lineLimit(1)
+                    .accessibilityLabel("Weight")
+                Text(unitPreference.weightUnitLabel)
+                    .font(CMSNTypography.label())
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    .lineLimit(1)
+            }
+        }
+    }
+
+    private var logButton: some View {
+        Button("Log", action: logSet)
+            .buttonStyle(.cmsnCompactPrimary)
+    }
+
+    private var discomfortToggle: some View {
+        Button {
+            discomfort.toggle()
+        } label: {
+            HStack(alignment: .center, spacing: 8) {
+                Image(systemName: discomfort ? "checkmark.square" : "square")
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                Text("Felt discomfort on this set")
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    .multilineTextAlignment(.leading)
+            }
+            .font(CMSNTypography.caption())
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(discomfort ? .isSelected : AccessibilityTraits())
+    }
+
+    private var completedSummary: some View {
+        ViewThatFits(in: .horizontal) {
+            completedRow.fixedSize(horizontal: true, vertical: false)
+            VStack(alignment: .leading, spacing: 6) {
+                setLabel
+                completedDetails
+            }
+        }
+    }
+
+    private var completedRow: some View {
+        HStack(alignment: .center, spacing: 10) {
+            setLabel
+            completedDetails
+        }
+    }
+
+    private var completedDetails: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Text("\(Int(displayWeight(set.completedWeightKG ?? 0))) \(unitPreference.weightUnitLabel) × \(set.completedReps ?? 0)")
+                .font(CMSNTypography.numeric(17))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            if let rpe = set.rpe {
+                Text("RPE \(String(format: "%.0f", rpe))")
+                    .font(CMSNTypography.label())
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    .lineLimit(1)
+            }
+            if set.discomfortReported {
+                Image(systemName: "bandage")
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    .accessibilityLabel("Discomfort reported")
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "checkmark")
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                .accessibilityLabel("Logged")
+        }
+    }
+
+    private func stepButton(systemName: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                .frame(minWidth: 36, minHeight: 36)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
     }
 
     private func logSet() {
@@ -189,5 +342,34 @@ private struct SetRowView: View {
 
     private func displayWeight(_ kg: Double) -> Double {
         unitPreference.displayWeight(fromKilograms: kg).rounded()
+    }
+}
+
+/// Caption over a single-line value. The stroke is white so the field
+/// reads on the card instead of disappearing into the surface.
+private struct LabeledValueControl<Content: View>: View {
+    let title: String
+    let content: Content
+
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(CMSNTypography.label())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            content
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .overlay(
+                    RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
+                        .strokeBorder(CMSNColor.Semantic.textPrimary, lineWidth: CMSNSpacing.hairline)
+                )
+        }
     }
 }

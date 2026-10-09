@@ -18,9 +18,9 @@ struct ScoreIntroView: View {
 
             LinearGradient(
                 colors: [
-                    CMSNColor.offBlack.opacity(0.45),
-                    CMSNColor.offBlack.opacity(0.62),
-                    CMSNColor.offBlack.opacity(0.85),
+                    CMSNColor.scrim.opacity(0.45),
+                    CMSNColor.scrim.opacity(0.62),
+                    CMSNColor.scrim.opacity(0.85),
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -59,7 +59,7 @@ struct ScoreIntroView: View {
                         .foregroundStyle(CMSNColor.Semantic.textPrimary)
                     Text("EARN IT.")
                         .font(CMSNTypography.eyebrow())
-                        .kerning(1.8)
+                        .lineLimit(1)
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 }
             }
@@ -94,7 +94,7 @@ struct ScoreIntroView: View {
             HStack {
                 Text(title.uppercased())
                     .font(CMSNTypography.eyebrow())
-                    .kerning(1.6)
+                    .lineLimit(1)
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
                 Spacer()
                 Text("\(Int(weight * 100))%")
