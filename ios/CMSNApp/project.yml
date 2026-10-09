@@ -141,6 +141,22 @@ targets:
         - CMSNAppTests
       gatherCoverageData: true
 
+  # Screenshot harness only. Kept off the CMSNApp scheme so the unsigned
+  # unit-test step (CODE_SIGNING_ALLOWED=NO) does not have to install a
+  # UI-test runner. CI runs it from the CMSNScreenshots scheme.
+  CMSNAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: CMSNAppUITests
+    dependencies:
+      - target: CMSNApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: CMSNApp
+
 schemes:
   CMSNApp:
     build:
@@ -154,3 +170,21 @@ schemes:
       targets:
         - CMSNAppTests
       gatherCoverageData: true
+
+  CMSNScreenshots:
+    build:
+      targets:
+        CMSNApp: all
+        CMSNAppUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - CMSNAppUITests
+      environmentVariables:
+        # Fixed path so the macOS test runner (not the simulator) can drop
+        # PNGs somewhere the workflow can upload.
+        - variable: CMSN_SCREENSHOT_DIR
+          value: /tmp/cmsn-screenshots
+          isEnabled: true
