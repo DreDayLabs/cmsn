@@ -126,9 +126,9 @@ final class CMSNScreenSmokeTests: XCTestCase {
     }
 
     /// Waits until a button with this exact label exists and is hittable.
-    /// Today inserts "Ready — Let's Go" only after an async calendar check,
-    /// and that button sits under the session card, so the wait also
-    /// dismisses permission sheets and scrolls.
+    /// Today's primary action sits under the session and fuel cards, and
+    /// the calendar sheet can cover the screen, so the wait dismisses
+    /// permission prompts and scrolls.
     private func tap(_ label: String) {
         let query = app.buttons.matching(NSPredicate(format: "label == %@", label))
         let deadline = Date().addingTimeInterval(40)
