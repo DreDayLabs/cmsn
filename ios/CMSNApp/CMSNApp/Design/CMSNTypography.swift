@@ -1,18 +1,17 @@
 import SwiftUI
+import UIKit
 
-/// Typography system mirroring the marketing site: a condensed display face
-/// for headlines (Bebas Neue there), quiet system sans for everything else.
+/// Type for the shipped app.
 ///
-/// `Resources/Fonts/BebasNeue-Regular.ttf` is bundled (OFL license alongside
-/// it) and registered via `UIAppFonts` in `project.yml`.
-///
-/// Discipline: screens should reach for these helpers instead of raw
-/// `.font(.system(...))` so weight, size, and "machined not friendly" stay
-/// consistent with `brand/02-identity-and-logo.md`.
+/// Display stays on the bundled Bebas Neue (OFL, already in the target).
+/// Everything else is the system face — no new font files. Sizes use text
+/// styles, or `UIFontMetrics` for the numeric sizes callers pass in, so
+/// Dynamic Type still scales them. At the default content size the metrics
+/// match the designed points.
 enum CMSNTypography {
     private static let displayFontName = "BebasNeue-Regular"
 
-    /// Large campaign-style headline. "THE BODY IS THE CMSN." scale.
+    /// Large campaign-style headline.
     static func display(_ size: CGFloat) -> Font {
         .custom(displayFontName, size: size, relativeTo: .largeTitle)
     }
@@ -22,46 +21,51 @@ enum CMSNTypography {
         .custom(displayFontName, size: size, relativeTo: .title)
     }
 
-    /// All-caps letter-spaced labels ("SHOP MEN", "TODAY'S FOCUS").
-    /// Medium weight — matching the site's quiet Helvetica Neue eyebrows,
-    /// not a fitness-app bold.
+    /// All-caps letter-spaced labels. Caption 2 is 11pt at the default size
+    /// and scales with Dynamic Type.
     static func eyebrow() -> Font {
-        .system(size: 10, weight: .medium, design: .default)
+        .system(.caption2, design: .default, weight: .medium)
     }
 
-    /// Standard body copy.
+    /// Standard body copy. The body text style is 17pt and scales.
     static func body() -> Font {
-        .system(size: 15, weight: .regular, design: .default)
+        .system(.body, design: .default, weight: .regular)
     }
 
-    /// Secondary/italic-register copy (the brand's quiet, hedged voice —
-    /// used for supplement disclaimers, injury-safety language, etc.)
+    /// Quiet register for disclaimers and secondary sentences. Subheadline
+    /// is 15pt light italic and scales.
     static func bodyQuiet() -> Font {
-        .system(size: 14, weight: .light, design: .default).italic()
+        .system(.subheadline, design: .default, weight: .light).italic()
     }
 
-    /// Small supporting metadata (timestamps, secondary row labels).
+    /// Supporting metadata. Caption is 12pt and scales.
     static func caption() -> Font {
-        .system(size: 11, weight: .regular, design: .default)
+        .system(.caption, design: .default, weight: .regular)
     }
 
-    /// Micro labels for badges and dense chrome (evidence levels, tags).
+    /// Badges and dense chrome. Caption 2 (11pt), up from a fixed 8pt that
+    /// could not stay legible under Dynamic Type.
     static func micro() -> Font {
-        .system(size: 8, weight: .medium, design: .default)
+        .system(.caption2, design: .default, weight: .medium)
     }
 
-    /// Numeric-heavy displays (weight, reps, score) that need tabular figures
-    /// so digits don't jitter as they update mid-set.
-    /// Default (not rounded) design — rounded digits read as friendly fitness
-    /// chrome; CMSN's type brief is machined, not bubbly.
+    /// Tabular figures for weights, reps, and scores. Scaled against a text
+    /// style chosen from the designed size, so the default size is unchanged
+    /// and a larger content-size category grows the number.
     static func numeric(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
-        .system(size: size, weight: weight, design: .default).monospacedDigit()
+        let style: UIFont.TextStyle
+        switch size {
+        case 28...: style = .largeTitle
+        case 20..<28: style = .title2
+        default: style = .body
+        }
+        let scaled = UIFontMetrics(forTextStyle: style).scaledValue(for: size)
+        return .system(size: scaled, weight: weight, design: .default).monospacedDigit()
     }
 }
 
-/// The letter-spacing the site leans on constantly for uppercase labels.
-/// SwiftUI has no native tracking modifier pre-iOS 26, so this is applied via
-/// `.kerning`, which is the correct equivalent for fixed-width tracking.
+/// Uppercase, tracked label. Tracking is the editorial move; color stays
+/// a neutral, never an accent.
 struct EyebrowLabel: View {
     let text: String
     var color: Color = CMSNColor.Semantic.textSecondary
@@ -69,7 +73,7 @@ struct EyebrowLabel: View {
     var body: some View {
         Text(text.uppercased())
             .font(CMSNTypography.eyebrow())
-            .kerning(2.2)
+            .kerning(2.6)
             .foregroundStyle(color)
     }
 }

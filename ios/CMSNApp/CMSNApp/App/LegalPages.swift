@@ -22,7 +22,7 @@ struct PrivacyPolicyView: View {
             )
             LegalSection(
                 heading: "Optional Permissions",
-                text: "Calendar access (to auto-detect a scheduled workout) and Apple Health access (to read body weight or write completed workouts) are optional, off by default, and used only for the stated purpose. Purchases and subscriptions are handled entirely by Apple; CMSN never sees your payment details."
+                text: "Calendar access is optional, off by default, and used only to see whether today has a scheduled workout. The camera is used only to read food barcodes. Purchases and subscriptions are handled entirely by Apple; CMSN never sees your payment details. CMSN does not read or write Apple Health."
             )
             LegalSection(
                 heading: "Changes",

@@ -26,12 +26,14 @@ open CMSNApp.xcodeproj
 In Xcode:
 
 1. Select the `CMSNApp` scheme and an iOS 17+ simulator.
-2. **Signing & Capabilities** tab on the `CMSNApp` target: set your own Team
-   (the bundle ID `com.earnyourcmsn.app` is a placeholder — change the
-   prefix in `project.yml`'s `bundleIdPrefix` if you don't own that domain).
-3. Confirm capabilities are present: HealthKit and In-App Purchase are
-   declared in `project.yml`; EventKit needs no capability, just the
-   `NSCalendarsUsageDescription` string already in the generated Info.plist.
+2. **Signing:** `DEVELOPMENT_TEAM` in `project.yml` under `settings.base` is
+   `G2MXBX48PD` (Thought Garden Labs LLC). The `CMSNApp` target uses
+   automatic signing. The bundle id stays `com.earnyourcmsn.app`. Unsigned
+   simulator CI passes `CODE_SIGNING_ALLOWED=NO` and does not sign.
+3. Camera and calendar usage strings are in the generated Info.plist.
+   HealthKit is not declared — no source file imports HealthKit. StoreKit 2
+   needs no entitlement key. EventKit needs no capability, only the calendar
+   usage strings.
 4. Build & run (⌘R).
 
 ## Local subscription testing

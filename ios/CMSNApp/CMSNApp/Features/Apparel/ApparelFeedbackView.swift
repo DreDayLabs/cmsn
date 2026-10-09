@@ -75,10 +75,10 @@ struct ApparelFeedbackView: View {
             Spacer()
             Button("Yes") { selection.wrappedValue = true }
                 .buttonStyle(.cmsnText)
-                .opacity(selection.wrappedValue == true ? 1 : 0.4)
+                .opacity(selection.wrappedValue == true ? 1 : CMSNEmphasis.unselected)
             Button("No") { selection.wrappedValue = false }
                 .buttonStyle(.cmsnText)
-                .opacity(selection.wrappedValue == false ? 1 : 0.4)
+                .opacity(selection.wrappedValue == false ? 1 : CMSNEmphasis.unselected)
         }
     }
 
