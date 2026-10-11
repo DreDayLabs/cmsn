@@ -1,10 +1,11 @@
 import XCTest
 
-/// Drives a fresh install through first-run into the five main surfaces and
-/// attaches a full-screen shot of each. This is a capture harness for the
-/// restyle, not a product behavior test — it does not seed data or change
-/// the app. The welcome shot is taken after the splash so the looping
-/// workout video is on screen.
+/// Drives a fresh install through first-run into the six revamp surfaces
+/// and attaches a full-screen shot of each: Today, the workout session,
+/// the session summary, Nutrition, Score, and Workouts/Library. This is a
+/// capture harness, not a product behavior test — it does not seed data.
+/// The welcome shot is taken after the splash so the looping workout
+/// video is on screen.
 ///
 /// The CMSNScreenshots scheme launches without a debugger. On the hosted
 /// macOS runner, attaching LLDB intermittently reports "no debugger version"

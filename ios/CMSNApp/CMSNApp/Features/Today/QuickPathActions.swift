@@ -21,6 +21,18 @@ enum QuickPathAction: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Sentence-case pill. The enum `title` stays for anything that already
+    /// matches on it; the bar renders this so the row is not tracked caps.
+    var chipTitle: String {
+        switch self {
+        case .fifteenMinutes: return "15 minutes"
+        case .dumbbellsOnly: return "Dumbbells only"
+        case .walk: return "Just walk"
+        case .soreToday: return "I'm sore"
+        case .comingBack: return "Coming back"
+        }
+    }
+
     @MainActor
     func resolve(currentFocus: SplitFocus, resolver: ProgramResolver, athlete: Athlete) -> ResolvedProgramDay {
         switch self {
@@ -38,31 +50,32 @@ enum QuickPathAction: String, CaseIterable, Identifiable {
     }
 }
 
-/// Horizontal quick-path row — text-only uppercase labels, no SF Symbol
-/// icon chips. Icon-in-card rows are a generic fitness-app pattern; CMSN's
-/// chrome is quiet type, matching the site's eyebrow language.
+/// Horizontal quick-path row. Pills wrap onto the next line so a chip is
+/// never clipped at the screen edge.
 struct QuickPathActionBar: View {
     let onSelect: (QuickPathAction) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            EyebrowLabel(text: "Quick Path")
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(QuickPathAction.allCases) { action in
-                        Button {
-                            onSelect(action)
-                        } label: {
-                            Text(action.title.uppercased())
-                                .font(CMSNTypography.eyebrow())
-                                .kerning(1.6)
-                                .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                                .padding(.vertical, 14)
-                                .padding(.horizontal, 16)
-                                .cmsnChip(isSelected: false)
-                        }
-                        .buttonStyle(.plain)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Quick path")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            Text("Short on time or kit? Reshape today's session.")
+                .font(.system(size: 15))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            CMSNFlowLayout(spacing: 8) {
+                ForEach(QuickPathAction.allCases) { action in
+                    Button {
+                        onSelect(action)
+                    } label: {
+                        Text(action.chipTitle)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .cmsnChip(isSelected: false)
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }

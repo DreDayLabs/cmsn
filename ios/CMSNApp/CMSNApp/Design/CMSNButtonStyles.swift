@@ -1,20 +1,17 @@
 import SwiftUI
 
-/// Flat, tracked, full-width actions. One filled white button is the
-/// strongest thing on a screen. Ghost is an outline in solid gray, not a
-/// frosted fill. Pressed ghost and text labels drop to `textSecondary`,
-/// which still clears AA on black. They do not fade to 40% white. The
+/// Pill actions in the system face. One filled white button is the strongest
+/// thing on a screen. Ghost is a `#111` pill, not an outlined box. The
 /// primary button dims as a whole so its black label stays on white.
 
 private struct CMSNButtonLabelStyle: ViewModifier {
     let textColor: Color
     func body(content: Content) -> some View {
         content
-            .font(CMSNTypography.eyebrow())
-            .kerning(2.4)
+            .font(.system(size: 17, weight: .semibold))
             .foregroundStyle(textColor)
-            .padding(.vertical, CMSNSpacing.buttonVertical)
-            .padding(.horizontal, CMSNSpacing.buttonHorizontal)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 20)
             .frame(maxWidth: .infinity)
     }
 }
@@ -23,10 +20,7 @@ struct CMSNPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .modifier(CMSNButtonLabelStyle(textColor: CMSNColor.Semantic.buttonLabel))
-            .background(
-                RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .fill(CMSNColor.Semantic.buttonFill)
-            )
+            .background(Capsule().fill(CMSNColor.Semantic.buttonFill))
             // Whole-control dim only. Gray ink on the white face would miss AA.
             .opacity(configuration.isPressed ? 0.92 : 1)
     }
@@ -35,34 +29,52 @@ struct CMSNPrimaryButtonStyle: ButtonStyle {
 struct CMSNGhostButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .modifier(CMSNButtonLabelStyle(
-                textColor: configuration.isPressed ? CMSNColor.Semantic.textSecondary : CMSNColor.Semantic.textPrimary
-            ))
+            .modifier(CMSNButtonLabelStyle(textColor: CMSNColor.Semantic.textPrimary))
             .background(
-                RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .fill(configuration.isPressed ? CMSNSurfaceStyle.fillPressed : Color.clear)
+                Capsule().fill(configuration.isPressed ? CMSNSurfaceStyle.fillPressed : CMSNSurfaceStyle.fill)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .strokeBorder(CMSNColor.Semantic.borderStrong, lineWidth: CMSNSpacing.hairline)
-            )
+    }
+}
+
+/// White Log pill that sizes to its label. The full-width primary would
+/// swallow the reps and weight fields.
+struct CMSNCompactPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(CMSNColor.Semantic.buttonLabel)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 22)
+            .background(Capsule().fill(CMSNColor.Semantic.buttonFill))
+            .opacity(configuration.isPressed ? 0.92 : 1)
+    }
+}
+
+/// Later sets stay tappable without competing with the active set's Log.
+struct CMSNCompactQuietButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 22)
+            .background(Capsule().fill(CMSNColor.Semantic.border))
+            .opacity(configuration.isPressed ? 0.92 : 1)
     }
 }
 
 /// Outline for a light surface. Unused by current screens; kept so a light
 /// section can outline in black without inventing a new style later.
-/// Label `#0A0A0A` on white clears AA.
+/// Label is black on white, which clears AA.
 struct CMSNGhostOnSurfaceButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .modifier(CMSNButtonLabelStyle(textColor: CMSNColor.Semantic.buttonLabel))
             .background(
-                RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .fill(configuration.isPressed ? CMSNColor.Semantic.buttonLabel.opacity(0.06) : Color.clear)
+                Capsule().fill(configuration.isPressed ? CMSNColor.Semantic.buttonLabel.opacity(0.06) : Color.clear)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                    .strokeBorder(CMSNColor.Semantic.buttonLabel.opacity(configuration.isPressed ? 1 : 0.35), lineWidth: CMSNSpacing.hairline)
+                Capsule().strokeBorder(CMSNColor.Semantic.buttonLabel.opacity(configuration.isPressed ? 1 : 0.35), lineWidth: CMSNSpacing.hairline)
             )
     }
 }
@@ -70,8 +82,7 @@ struct CMSNGhostOnSurfaceButtonStyle: ButtonStyle {
 struct CMSNTextButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(CMSNTypography.eyebrow())
-            .kerning(2.4)
+            .font(.system(size: 16, weight: .semibold))
             .foregroundStyle(configuration.isPressed ? CMSNColor.Semantic.textSecondary : CMSNColor.Semantic.textPrimary)
     }
 }
@@ -90,4 +101,12 @@ extension ButtonStyle where Self == CMSNGhostOnSurfaceButtonStyle {
 
 extension ButtonStyle where Self == CMSNTextButtonStyle {
     static var cmsnText: CMSNTextButtonStyle { CMSNTextButtonStyle() }
+}
+
+extension ButtonStyle where Self == CMSNCompactPrimaryButtonStyle {
+    static var cmsnCompactPrimary: CMSNCompactPrimaryButtonStyle { CMSNCompactPrimaryButtonStyle() }
+}
+
+extension ButtonStyle where Self == CMSNCompactQuietButtonStyle {
+    static var cmsnCompactQuiet: CMSNCompactQuietButtonStyle { CMSNCompactQuietButtonStyle() }
 }

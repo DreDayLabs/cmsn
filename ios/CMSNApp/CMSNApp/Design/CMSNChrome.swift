@@ -1,15 +1,14 @@
 import UIKit
 
 /// Opaque black chrome for the tab bar and navigation bar. The system
-/// material blur read as glass; these appearances are a flat `#0A0A0A`
-/// with a `#2A2A2A` hairline. Called once from `RootView` before the
-/// tabs exist, so it does not have to edit `MainTabView`.
+/// material blur read as glass; these appearances are flat `#000000`.
+/// Called once from `RootView` before the tabs exist, so it does not
+/// have to edit `MainTabView`.
 enum CMSNChrome {
     static func apply() {
         let background = CMSNPalette.background.uiColor
         let primary = CMSNPalette.textPrimary.uiColor
         let secondary = CMSNPalette.textSecondary.uiColor
-        let hairline = CMSNPalette.border.uiColor
         let tabFont = UIFont.systemFont(ofSize: 10, weight: .medium)
 
         let item = UITabBarItemAppearance()
@@ -17,19 +16,19 @@ enum CMSNChrome {
         item.normal.titleTextAttributes = [
             .foregroundColor: secondary,
             .font: tabFont,
-            .kern: 0.6,
+            .kern: 0,
         ]
         item.selected.iconColor = primary
         item.selected.titleTextAttributes = [
             .foregroundColor: primary,
             .font: tabFont,
-            .kern: 0.6,
+            .kern: 0,
         ]
 
         let tab = UITabBarAppearance()
         tab.configureWithOpaqueBackground()
         tab.backgroundColor = background
-        tab.shadowColor = hairline
+        tab.shadowColor = background
         tab.stackedLayoutAppearance = item
         tab.inlineLayoutAppearance = item
         tab.compactInlineLayoutAppearance = item
@@ -44,7 +43,7 @@ enum CMSNChrome {
         let nav = UINavigationBarAppearance()
         nav.configureWithOpaqueBackground()
         nav.backgroundColor = background
-        nav.shadowColor = hairline
+        nav.shadowColor = background
         nav.titleTextAttributes = [
             .foregroundColor: primary,
             .font: UIFont.systemFont(ofSize: 16, weight: .medium),

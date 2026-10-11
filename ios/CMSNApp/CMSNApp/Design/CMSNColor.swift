@@ -51,28 +51,26 @@ enum CMSNContrast {
 ///
 /// Retired from the UI, and not present as live values:
 /// - Navy `#0B1526`. The only chromatic token. It was `Semantic.accent` and
-///   nearly invisible on off-black (about 1.08:1). Garment navy stays a fabric
-///   color, not a screen color. No accent hue replaces it.
+///   nearly invisible on black. Garment navy stays a fabric color, not a
+///   screen color. No accent hue replaces it.
 /// - Warm surface `#F5F3F0`. A beige cast. Light surfaces, if they ship, are
 ///   neutral `#F5F5F5` / white.
-/// - Off-white `#FAFAF8`. A warm cast on primary type. Replaced by `#F4F4F4`.
-/// - `textSecondary` as off-white at 40% opacity. The composite on `#0A0A0A`
-///   was about 3.66:1, under AA. Secondary type is now solid `#8A8A8A`.
-/// - `textSecondaryOnSurface` as off-black at 35% on the warm beige. About
-///   2.32:1. Secondary type on a surface is the same solid gray.
+/// - Off-white `#FAFAF8` and the later `#F4F4F4` primary. v01 type is `#FFFFFF`.
+/// - Near-black `#0A0A0A` field. v01 is true `#000000`.
+/// - `textSecondary` as off-white at 40% opacity. Secondary type is solid `#8A8A8A`.
 enum CMSNPalette {
-    /// Shipped dark experience.
+    /// Shipped dark experience. Approved v01: pure black, white, and gray.
     static let black = CMSNRGB(red: 0x00, green: 0x00, blue: 0x00)
-    static let background = CMSNRGB(red: 0x0A, green: 0x0A, blue: 0x0A)
-    static let surface = CMSNRGB(red: 0x12, green: 0x12, blue: 0x12)
-    static let surfacePressed = CMSNRGB(red: 0x1C, green: 0x1C, blue: 0x1C)
-    static let textPrimary = CMSNRGB(red: 0xF4, green: 0xF4, blue: 0xF4)
-    /// Brand gray. 5.73:1 on background, 5.43:1 on surface, 4.94:1 on pressed.
+    static let background = CMSNRGB(red: 0x00, green: 0x00, blue: 0x00)
+    static let surface = CMSNRGB(red: 0x11, green: 0x11, blue: 0x11)
+    static let surfacePressed = CMSNRGB(red: 0x1A, green: 0x1A, blue: 0x1A)
+    static let textPrimary = CMSNRGB(red: 0xFF, green: 0xFF, blue: 0xFF)
+    /// Brand gray. Clears AA on black, on `#111111`, and on `#1A1A1A`.
     static let textSecondary = CMSNRGB(red: 0x8A, green: 0x8A, blue: 0x8A)
     static let white = CMSNRGB(red: 0xFF, green: 0xFF, blue: 0xFF)
-    static let border = CMSNRGB(red: 0x2A, green: 0x2A, blue: 0x2A)
-    /// Ghost outline. Solid, so the stroke is not a translucent wash.
-    static let borderStrong = CMSNRGB(red: 0x4A, green: 0x4A, blue: 0x4A)
+    static let border = CMSNRGB(red: 0x26, green: 0x26, blue: 0x26)
+    /// A step above the surface, for fields and quiet controls.
+    static let borderStrong = CMSNRGB(red: 0x3A, green: 0x3A, blue: 0x3A)
 
     /// Specified light mode. Contrast-tested. Not installed — see the enum note.
     static let lightBackground = CMSNRGB(red: 0xF5, green: 0xF5, blue: 0xF5)
@@ -87,8 +85,7 @@ enum CMSNPalette {
 /// Live colors for the shipped dark UI. Features should prefer `Semantic`.
 enum CMSNColor {
     static let black = CMSNPalette.black.color
-    /// App background. Kept at `#0A0A0A` so the welcome-video scrim, which is
-    /// this color at the existing opacities, does not get darker or lighter.
+    /// App background. True black (`#000000`), including the welcome-video scrim.
     static let offBlack = CMSNPalette.background.color
     static let offWhite = CMSNPalette.textPrimary.color
     /// Reserved for the primary button face. Not a tint — it is the brightest
@@ -120,7 +117,7 @@ enum CMSNColor {
     }
 }
 
-/// Opacity that still clears AA when `#F4F4F4` is drawn on `#0A0A0A`.
+/// Opacity that still clears AA when white is drawn on black.
 /// Used for an unselected option, not for body copy.
 enum CMSNEmphasis {
     static let unselected = 0.72

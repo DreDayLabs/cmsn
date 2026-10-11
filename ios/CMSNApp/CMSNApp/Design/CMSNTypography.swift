@@ -32,10 +32,11 @@ enum CMSNTypography {
         .system(.body, design: .default, weight: .regular)
     }
 
-    /// Quiet register for disclaimers and secondary sentences. Subheadline
-    /// is 15pt light italic and scales.
+    /// Secondary sentences. Subheadline is 15pt and scales. v01 drops the
+    /// gray italic; callers still tint this with `textSecondary` when the
+    /// line is supporting, not primary.
     static func bodyQuiet() -> Font {
-        .system(.subheadline, design: .default, weight: .light).italic()
+        .system(.subheadline, design: .default, weight: .regular)
     }
 
     /// Supporting metadata. Caption is 12pt and scales.
