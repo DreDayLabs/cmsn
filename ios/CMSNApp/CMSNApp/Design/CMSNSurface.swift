@@ -41,7 +41,7 @@ struct CMSNFlowLayout: Layout {
     var spacing: CGFloat = 8
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = resolvedWidth(proposal: proposal, subviews: subviews)
+        let width = resolvedWidth(proposal: proposal)
         let rows = rows(for: subviews, maxWidth: width)
         return CGSize(width: proposal.width ?? rows.map(\.width).max() ?? 0, height: height(of: rows))
     }
@@ -62,16 +62,15 @@ struct CMSNFlowLayout: Layout {
         }
     }
 
-    /// A nil proposal means "ideal size". Wrapping at width 0 stacks every
-    /// pill on its own row and then clips them when the real bounds arrive.
-    private func resolvedWidth(proposal: ProposedViewSize, subviews: Subviews) -> CGFloat {
-        if let width = proposal.width, width.isFinite, width > 0 {
+    /// A nil or enormous proposal is the ideal-size pass. A flexible frame
+    /// keeps that height and then places the row in a narrower bounds, which
+    /// clips every wrapped line. Measure those passes at a phone content
+    /// width so the second row is reserved.
+    private func resolvedWidth(proposal: ProposedViewSize) -> CGFloat {
+        if let width = proposal.width, width.isFinite, width > 0, width < 4_000 {
             return width
         }
-        let ideal = subviews.reduce(CGFloat(0)) { partial, view in
-            partial + view.sizeThatFits(.unspecified).width + spacing
-        }
-        return max(ideal, 1)
+        return 360
     }
 
     private func height(of rows: [Row]) -> CGFloat {

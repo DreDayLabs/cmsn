@@ -50,8 +50,7 @@ enum QuickPathAction: String, CaseIterable, Identifiable {
     }
 }
 
-/// Horizontal quick-path row. Pills wrap onto the next line so a chip is
-/// never clipped at the screen edge.
+/// Quick-path pills in two rows, so every chip is on screen.
 struct QuickPathActionBar: View {
     let onSelect: (QuickPathAction) -> Void
 
@@ -63,22 +62,35 @@ struct QuickPathActionBar: View {
             Text("Short on time or kit? Reshape today's session.")
                 .font(.system(size: 15))
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
-            CMSNFlowLayout(spacing: 8) {
-                ForEach(QuickPathAction.allCases) { action in
-                    Button {
-                        onSelect(action)
-                    } label: {
-                        Text(action.chipTitle)
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                            .padding(.vertical, 11)
-                            .padding(.horizontal, 14)
-                            .cmsnChip(isSelected: false)
-                    }
-                    .buttonStyle(.plain)
+            // Two fixed rows. A wrapping layout reported a one-row height
+            // and then clipped "I'm sore" and "Coming back".
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    chip(.fifteenMinutes)
+                    chip(.dumbbellsOnly)
+                    chip(.walk)
+                }
+                HStack(spacing: 8) {
+                    chip(.soreToday)
+                    chip(.comingBack)
+                    Spacer(minLength: 0)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    private func chip(_ action: QuickPathAction) -> some View {
+        Button {
+            onSelect(action)
+        } label: {
+            Text(action.chipTitle)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                .lineLimit(1)
+                .padding(.vertical, 11)
+                .padding(.horizontal, 14)
+                .cmsnChip(isSelected: false)
+        }
+        .buttonStyle(.plain)
     }
 }

@@ -94,7 +94,7 @@ struct ScoreView: View {
 
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(CMSNColor.Semantic.borderStrong)
+                    Capsule().fill(CMSNColor.Semantic.track)
                     Capsule()
                         .fill(CMSNColor.white)
                         .frame(width: geometry.size.width * fraction)

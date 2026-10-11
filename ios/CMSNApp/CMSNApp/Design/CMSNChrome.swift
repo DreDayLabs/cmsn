@@ -32,11 +32,17 @@ enum CMSNChrome {
         tab.stackedLayoutAppearance = item
         tab.inlineLayoutAppearance = item
         tab.compactInlineLayoutAppearance = item
+        tab.backgroundEffect = nil
 
         let tabBar = UITabBar.appearance()
         tabBar.standardAppearance = tab
         tabBar.scrollEdgeAppearance = tab
-        tabBar.isTranslucent = false
+        // Stay translucent for layout only. An opaque bar already ends the
+        // page above itself; `isTranslucent = false` makes SwiftUI inset by
+        // that height a second time, which leaves a black band and clips the
+        // last card. The appearance above is an opaque black fill, so the
+        // bar does not go back to a material blur.
+        tabBar.isTranslucent = true
         tabBar.tintColor = primary
         tabBar.unselectedItemTintColor = secondary
 

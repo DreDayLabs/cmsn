@@ -37,5 +37,7 @@ struct MainTabView: View {
                 .tag(AppTab.settings)
         }
         .tint(CMSNColor.offWhite)
+        .toolbarBackground(CMSNColor.black, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }

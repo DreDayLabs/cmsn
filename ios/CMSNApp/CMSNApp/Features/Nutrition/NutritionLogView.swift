@@ -74,7 +74,7 @@ struct NutritionLogView: View {
             HStack(alignment: .center, spacing: 18) {
                 ZStack {
                     Circle()
-                        .stroke(CMSNColor.Semantic.divider, lineWidth: 8)
+                        .stroke(CMSNColor.Semantic.track, lineWidth: 8)
                     Circle()
                         .trim(from: 0, to: fraction)
                         .stroke(CMSNColor.white, style: StrokeStyle(lineWidth: 8, lineCap: .round))
@@ -102,6 +102,9 @@ struct NutritionLogView: View {
                         .foregroundStyle(CMSNColor.Semantic.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
+                        // Bebas keeps a deep line box under the digits. Pull
+                        // "g left" up without eating the figure itself.
+                        .padding(.bottom, -8)
                     Text(proteinLeft.rounded() < 0 ? "g over" : "g left")
                         .font(.system(size: 15))
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
@@ -149,7 +152,7 @@ struct NutritionLogView: View {
             }
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(CMSNColor.Semantic.borderStrong)
+                    Capsule().fill(CMSNColor.Semantic.track)
                     Capsule()
                         .fill(CMSNColor.white)
                         .frame(width: geometry.size.width * fraction)

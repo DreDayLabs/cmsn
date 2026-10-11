@@ -71,6 +71,9 @@ enum CMSNPalette {
     static let border = CMSNRGB(red: 0x26, green: 0x26, blue: 0x26)
     /// A step above the surface, for fields and quiet controls.
     static let borderStrong = CMSNRGB(red: 0x3A, green: 0x3A, blue: 0x3A)
+    /// Empty progress track. `#3A3A3A` disappears on a `#111111` card;
+    /// this is still gray, and clearly a track rather than a second ink.
+    static let track = CMSNRGB(red: 0x5C, green: 0x5C, blue: 0x5C)
 
     /// Specified light mode. Contrast-tested. Not installed — see the enum note.
     static let lightBackground = CMSNRGB(red: 0xF5, green: 0xF5, blue: 0xF5)
@@ -105,6 +108,7 @@ enum CMSNColor {
         static let divider = CMSNPalette.border.color
         static let border = CMSNPalette.border.color
         static let borderStrong = CMSNPalette.borderStrong.color
+        static let track = CMSNPalette.track.color
         /// No chromatic accent. Hierarchy is weight, size, and gray.
         static let accent = CMSNColor.offWhite
         static let scorePositive = CMSNColor.offWhite
