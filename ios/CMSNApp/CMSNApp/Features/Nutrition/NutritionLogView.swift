@@ -31,24 +31,24 @@ struct NutritionLogView: View {
             ZStack {
                 CMSNColor.offBlack.ignoresSafeArea()
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 28) {
+                    VStack(alignment: .leading, spacing: 22) {
                         header
-                        proteinRing
+                        macroSummary
                         TrainingDayWhyCard(adjustment: adjustment)
                         logFoodSection
                         quickAddRow
                         if !savedMeals.isEmpty { myMealsSection }
                         if !(log?.entries.isEmpty ?? true) { todaysEntries }
-                        macroContext
                         mealEngineEntry
 
                         if showingMealSuggestions {
                             mealSuggestionsList
                         }
                     }
-                    .padding(24)
+                    .padding(20)
                 }
             }
+            .toolbar(.hidden, for: .navigationBar)
             .task(id: targetSyncID) { loadLog() }
             .sheet(isPresented: $showingMealBuilder) {
                 MealBuilderView { name, totals, ingredients, saveAsMeal in
@@ -59,62 +59,146 @@ struct NutritionLogView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            EyebrowLabel(text: "Nutrition")
-            Text("Protein")
-                .font(CMSNTypography.displaySmall(40))
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
-        }
+        CMSNScreenHeader(
+            title: "Nutrition",
+            trailing: Date().formatted(.dateTime.weekday(.wide).month(.abbreviated).day())
+        )
     }
 
-    private var proteinRing: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            let logged = log?.proteinGramsLogged ?? 0
-            let target = targets.proteinGrams
-            Text("\(Int(logged))g / \(Int(target))g")
-                .font(CMSNTypography.numeric(28))
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+    private var macroSummary: some View {
+        let loggedProtein = log?.proteinGramsLogged ?? 0
+        let proteinTarget = targets.proteinGrams
+        let proteinLeft = proteinTarget - loggedProtein
+        let fraction = proteinTarget > 0 ? min(1, max(0, loggedProtein / proteinTarget)) : 0
+        return VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .center, spacing: 18) {
+                ZStack {
+                    Circle()
+                        .stroke(CMSNColor.Semantic.track, lineWidth: 8)
+                    Circle()
+                        .trim(from: 0, to: fraction)
+                        .stroke(CMSNColor.white, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                    VStack(spacing: 0) {
+                        Text("\(whole(loggedProtein))")
+                            .font(CMSNTypography.numeric(28, weight: .bold))
+                            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                        Text("of \(whole(proteinTarget))")
+                            .font(.system(size: 12))
+                            .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    }
+                }
+                .frame(width: 108, height: 108)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Protein")
+                .accessibilityValue("\(whole(loggedProtein)) of \(whole(proteinTarget)) grams")
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Protein")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    Text(whole(abs(proteinLeft)))
+                        .font(CMSNTypography.display(52))
+                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        // Bebas keeps a deep line box under the digits. Pull
+                        // "g left" up without eating the figure itself.
+                        .padding(.bottom, -8)
+                    Text(proteinLeft.rounded() < 0 ? "g over" : "g left")
+                        .font(.system(size: 15))
+                        .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    Text("~\(grouped(targets.calorieEstimate)) kcal target")
+                        .font(.system(size: 13))
+                        .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                }
+                Spacer(minLength: 0)
+            }
+
+            macroBar(
+                title: "Calories",
+                logged: caloriesLogged,
+                target: targets.calorieEstimate,
+                unit: "kcal"
+            )
+            macroBar(
+                title: "Carbs",
+                logged: summed(\.carbGrams),
+                target: targets.carbGrams,
+                unit: "g"
+            )
+            macroBar(
+                title: "Fat",
+                logged: summed(\.fatGrams),
+                target: targets.fatGrams,
+                unit: "g"
+            )
+        }
+        .padding(18)
+        .cmsnCard()
+    }
+
+    private func macroBar(title: String, logged: Double, target: Double, unit: String) -> some View {
+        let fraction = target > 0 ? min(1, max(0, logged / target)) : 0
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                Spacer()
+                Text("\(grouped(logged)) / \(grouped(target)) \(unit)")
+                    .font(CMSNTypography.numeric(14))
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            }
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    Rectangle().fill(CMSNColor.Semantic.divider)
-                    Rectangle().fill(CMSNColor.offWhite)
-                        .frame(width: geometry.size.width * min(1, target > 0 ? logged / target : 0))
+                    Capsule().fill(CMSNColor.Semantic.track)
+                    Capsule()
+                        .fill(CMSNColor.white)
+                        .frame(width: geometry.size.width * fraction)
                 }
             }
             .frame(height: 8)
         }
-        .padding(20)
-        .cmsnCard()
+    }
+
+    private var caloriesLogged: Double {
+        (log?.entries ?? []).reduce(0) { $0 + ($1.calories ?? 0) }
+    }
+
+    private func summed(_ keyPath: KeyPath<NutritionEntry, Double?>) -> Double {
+        (log?.entries ?? []).reduce(0) { $0 + ($1[keyPath: keyPath] ?? 0) }
+    }
+
+    private func whole(_ value: Double) -> String {
+        "\(Int(value.rounded()))"
+    }
+
+    private func grouped(_ value: Double) -> String {
+        Int(value.rounded()).formatted(.number.grouping(.automatic))
     }
 
     private var quickAddRow: some View {
         HStack(spacing: 12) {
-            Button("+ Shake (25g)") { quickAdd(label: "Protein Shake", grams: 25, source: .quickAddShake) }
+            Button("+ Shake 25 g") { quickAdd(label: "Protein Shake", grams: 25, source: .quickAddShake) }
                 .buttonStyle(.cmsnGhost)
-            Button("+ Meal (30g)") { quickAdd(label: "Meal", grams: 30, source: .quickAddProtein) }
+            Button("+ Meal 30 g") { quickAdd(label: "Meal", grams: 30, source: .quickAddProtein) }
                 .buttonStyle(.cmsnGhost)
-        }
-    }
-
-    private var macroContext: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            EyebrowLabel(text: "Today's Estimate")
-            Text("~\(Int(targets.calorieEstimate.rounded())) kcal · \(Int(targets.carbGrams.rounded()))g carb · \(Int(targets.fatGrams.rounded()))g fat")
-                .font(CMSNTypography.bodyQuiet())
-                .foregroundStyle(CMSNColor.Semantic.textSecondary)
         }
     }
 
     private var mealEngineEntry: some View {
         VStack(alignment: .leading, spacing: 12) {
-            EyebrowLabel(text: "Need An Idea?")
+            Text("Need an idea?")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
             HStack(spacing: 12) {
-                Button("High Protein, Low Cost") {
+                Button("High protein, low cost") {
                     mealResults = MealSuggestionEngine.highProteinLowCostNoCook()
                     showingMealSuggestions = true
                 }
                 .buttonStyle(.cmsnGhost)
-                Button("Under 15 Min") {
+                Button("Under 15 min") {
                     mealResults = MealSuggestionEngine.under15Minutes()
                     showingMealSuggestions = true
                 }
@@ -142,27 +226,23 @@ struct NutritionLogView: View {
     }
 
     private var logFoodSection: some View {
-        Button {
-            showingMealBuilder = true
-        } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Log Food")
-                        .font(CMSNTypography.body())
-                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                    Text("Scan a barcode, search, or build a meal")
-                        .font(CMSNTypography.bodyQuiet())
-                        .foregroundStyle(CMSNColor.Semantic.textSecondary)
+        VStack(alignment: .leading, spacing: 10) {
+            Button {
+                showingMealBuilder = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "fork.knife")
+                    Text("Log food")
                 }
-                Spacer()
-                Text("+")
-                    .font(CMSNTypography.displaySmall(22))
-                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
             }
-            .padding(18)
+            .buttonStyle(.cmsnPrimary)
+            .accessibilityLabel("Log Food")
+
+            Text("Scan a barcode, search, or build a meal")
+                .font(.system(size: 13))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.plain)
-        .cmsnCard()
     }
 
     private var myMealsSection: some View {

@@ -21,9 +21,10 @@ struct ScoreView: View {
                         dimensionBreakdown
                         recentActivity
                     }
-                    .padding(24)
+                    .padding(20)
                 }
             }
+            .toolbar(.hidden, for: .navigationBar)
             .task { reload() }
             .refreshable { reload() }
         }
@@ -31,11 +32,36 @@ struct ScoreView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
-            EyebrowLabel(text: "CMSN Score")
-            Text("\(Int(breakdown.total))")
-                .font(CMSNTypography.displaySmall(64))
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            HStack(alignment: .center) {
+                CMSNWordmark(height: 16)
+                Spacer()
+                Text("This week")
+                    .font(.system(size: 15))
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            }
+            Text("CMSN score")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                .padding(.top, 8)
+            // The figure is the real weighted total. "/ 100" is the approved
+            // frame from the v01 board. The score is not capped at 100.
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(Int(breakdown.total.rounded()))")
+                    .font(CMSNTypography.display(148))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.4)
+                Text("/ 100")
+                    .font(CMSNTypography.display(44))
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            }
+            Text("Earned in the gym, the kitchen and recovery.")
+                .font(.system(size: 15))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("CMSN score")
+        .accessibilityValue("\(Int(breakdown.total.rounded())) of 100")
     }
 
     private var dimensionBreakdown: some View {
@@ -51,36 +77,62 @@ struct ScoreView: View {
 
     private func dimensionBar(title: String, raw: Double, weight: Double) -> some View {
         let contribution = raw * weight
-        let maxBarRaw: Double = max(1, recentEvents.map { $0.points }.reduce(0, +))
-        let fraction = min(1, raw / max(maxBarRaw, 1))
-        return VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(title.uppercased())
-                    .font(CMSNTypography.eyebrow())
-                    .kerning(1.8)
-                Spacer()
-                Text("\(Int(contribution)) pts · \(Int(weight * 100))% weight")
-                    .font(CMSNTypography.bodyQuiet())
+        let fraction = min(1, raw / 40)
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(title)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                Spacer(minLength: 8)
+                Text("\(Int(contribution.rounded())) pts")
+                    .font(CMSNTypography.numeric(15))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                Text("\(Int((weight * 100).rounded()))% weight")
+                    .font(CMSNTypography.numeric(15))
+                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
             }
-            .foregroundStyle(CMSNColor.Semantic.textSecondary)
 
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    Rectangle().fill(CMSNColor.Semantic.divider)
-                    Rectangle().fill(CMSNColor.offWhite).frame(width: geometry.size.width * fraction)
+                    Capsule().fill(CMSNColor.Semantic.track)
+                    Capsule()
+                        .fill(CMSNColor.white)
+                        .frame(width: geometry.size.width * fraction)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 8)
         }
     }
 
     private var recentActivity: some View {
         VStack(alignment: .leading, spacing: 12) {
-            EyebrowLabel(text: "Recent Activity")
+            Text("Recent activity")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
             if recentEvents.isEmpty {
-                Text("Complete a session to start earning score.")
-                    .font(CMSNTypography.bodyQuiet())
-                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                HStack(spacing: 12) {
+                    Image(systemName: "diamond")
+                        .font(.system(size: 18))
+                        .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(CMSNColor.black))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("No activity yet")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                        Text("Complete a session to start earning score.")
+                            .font(.system(size: 13))
+                            .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 8)
+                    Button("Start") {
+                        appState.selectedTab = .today
+                    }
+                    .buttonStyle(.cmsnCompactPrimary)
+                }
+                .padding(14)
+                .cmsnCard()
             }
             ForEach(recentEvents.prefix(20)) { event in
                 HStack {
@@ -95,10 +147,7 @@ struct ScoreView: View {
                         .font(CMSNTypography.numeric(14))
                         .foregroundStyle(CMSNColor.Semantic.scorePositive)
                 }
-                .overlay(alignment: .bottom) {
-                    Rectangle().fill(CMSNColor.Semantic.divider).frame(height: 1)
-                }
-                .padding(.vertical, 6)
+                .padding(.vertical, 8)
             }
         }
     }

@@ -46,22 +46,24 @@ struct TodayView: View {
                 daysInactive = appState.workoutRepository.daysSinceLastLoggedWork()
                 syncTargets()
             }
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
 
     private func screen(proxy: ScrollViewProxy) -> some View {
-        VStack(alignment: .leading, spacing: 24) {
-            header
+        VStack(alignment: .leading, spacing: 28) {
+            CMSNScreenHeader(title: "Today", trailing: dateLabel)
+                .accessibilityIdentifier("today.screen")
 
             if let daysInactive, daysInactive >= 7 {
                 ReturnStateView(daysInactive: daysInactive)
             }
 
-            QuickPathActionBar { action in
-                startQuickPath(action)
-            }
-
             if let state = homeState {
+                sessionHero(state, proxy: proxy)
+                QuickPathActionBar { action in
+                    startQuickPath(action)
+                }
                 sessionCard(state)
                 fuelCard(state)
                 TrainingDayWhyCard(adjustment: state.adjustment)
@@ -73,42 +75,105 @@ struct TodayView: View {
                     }
                 }
 
-                Button(state.primaryAction.title) {
-                    perform(state.primaryAction, proxy: proxy, articleID: state.articleID)
-                }
-                .buttonStyle(.cmsnPrimary)
-                .accessibilityIdentifier("today.primaryAction")
-
                 if state.showsRecoveryLog {
-                    Button("Log Recovery Day") { showingRecoveryLog = true }
+                    Button("Log recovery day") { showingRecoveryLog = true }
                         .buttonStyle(.cmsnGhost)
                 }
             }
         }
-        .padding(24)
+        .padding(20)
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center) {
-                CMSNWordmark(height: 18)
-                Spacer()
-                EyebrowLabel(text: Date().formatted(.dateTime.weekday(.wide)))
+    private var dateLabel: String {
+        Date().formatted(.dateTime.weekday(.wide).month(.abbreviated).day())
+    }
+
+    private func sessionHero(_ state: TodayHomeState, proxy: ScrollViewProxy) -> some View {
+        CMSNVideoHero(height: 390, badge: "Background video") {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(heroStatus(state))
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                Text(state.headline)
+                    .font(CMSNTypography.display(104))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.4)
+                Text(heroStats(state))
+                    .font(.system(size: 15))
+                    .foregroundStyle(CMSNColor.white.opacity(0.92))
+                Button {
+                    perform(state.primaryAction, proxy: proxy, articleID: state.articleID)
+                } label: {
+                    HStack(spacing: 8) {
+                        if state.primaryAction == .startWorkout {
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 12, weight: .bold))
+                        }
+                        Text(visibleActionTitle(state))
+                    }
+                }
+                .buttonStyle(.cmsnPrimary)
+                .accessibilityIdentifier("today.primaryAction")
+                .accessibilityLabel(state.primaryAction.title)
+                .padding(.top, 6)
             }
-            Text(homeState?.headline ?? "TODAY")
-                .font(CMSNTypography.displaySmall(44))
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
-            Text("Prepare · Perform · Prove")
-                .font(CMSNTypography.bodyQuiet())
-                .foregroundStyle(CMSNColor.Semantic.textSecondary)
         }
+    }
+
+    private func heroStatus(_ state: TodayHomeState) -> String {
+        switch state.session {
+        case .planned: return "Planned"
+        case .inProgress: return "In progress"
+        case .finished: return "Finished"
+        case .rest: return "Rest day"
+        case .noProgram: return "Program"
+        }
+    }
+
+    private func heroStats(_ state: TodayHomeState) -> String {
+        switch state.session {
+        case .planned(let plan):
+            let exercises = plan.exerciseNames.count
+            let sets = resolvedDay?.resolvedExercises.reduce(0) { $0 + $1.plannedExercise.plannedSets.count } ?? 0
+            return "\(countPhrase(exercises, singular: "exercise", plural: "exercises")) · \(sets) sets · 0 logged"
+        case .inProgress(let work):
+            let exercises = work.exerciseNames.count
+            return "\(countPhrase(exercises, singular: "exercise", plural: "exercises")) · \(work.plannedSets) sets · \(work.attemptedSets) logged"
+        case .finished(let works):
+            let attempted = works.reduce(0) { $0 + $1.attemptedSets }
+            let planned = works.reduce(0) { $0 + $1.plannedSets }
+            return "\(attempted) of \(planned) sets logged"
+        case .rest:
+            return "Nothing is planned"
+        case .noProgram:
+            return "No rotation is set"
+        }
+    }
+
+    private func visibleActionTitle(_ state: TodayHomeState) -> String {
+        switch state.primaryAction {
+        case .startWorkout:
+            if case .inProgress = state.session { return "Resume session" }
+            return "Start workout"
+        case .logFood:
+            return "Log food"
+        case .readWhy:
+            return "Read why"
+        }
+    }
+
+    private func countPhrase(_ count: Int, singular: String, plural: String) -> String {
+        "\(count) \(count == 1 ? singular : plural)"
     }
 
     private func sessionCard(_ state: TodayHomeState) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            EyebrowLabel(text: state.sessionEyebrow)
+            Text(state.sessionEyebrow)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text(state.sessionTitle)
-                .font(CMSNTypography.displaySmall(28))
+                .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
             Text(state.sessionDetail)
                 .font(CMSNTypography.body())
@@ -132,13 +197,15 @@ struct TodayView: View {
     }
 
     private func fuelCard(_ state: TodayHomeState) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            EyebrowLabel(text: state.fuelEyebrow)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(state.fuelEyebrow)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text(state.fuelFigure)
-                .font(CMSNTypography.displaySmall(32))
+                .font(CMSNTypography.display(56))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
             Text(state.fuelCaption)
-                .font(CMSNTypography.body())
+                .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
             Text(state.fuelDetail)
                 .font(CMSNTypography.bodyQuiet())

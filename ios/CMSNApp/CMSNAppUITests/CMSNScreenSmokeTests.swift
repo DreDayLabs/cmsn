@@ -1,10 +1,11 @@
 import XCTest
 
-/// Drives a fresh install through first-run into the five main surfaces and
-/// attaches a full-screen shot of each. This is a capture harness for the
-/// restyle, not a product behavior test — it does not seed data or change
-/// the app. The welcome shot is taken after the splash so the looping
-/// workout video is on screen.
+/// Drives a fresh install through first-run into the six revamp surfaces
+/// and attaches a full-screen shot of each: Today, the workout session,
+/// the session summary, Nutrition, Score, and Workouts/Library. This is a
+/// capture harness, not a product behavior test — it does not seed data.
+/// The welcome shot is taken after the splash so the looping workout
+/// video is on screen.
 ///
 /// The CMSNScreenshots scheme launches without a debugger. On the hosted
 /// macOS runner, attaching LLDB intermittently reports "no debugger version"
@@ -67,8 +68,14 @@ final class CMSNScreenSmokeTests: XCTestCase {
         tap("Build My Plan")
         tap("Enter the App")
 
-        let today = app.staticTexts["Prepare · Perform · Prove"]
-        XCTAssertTrue(today.waitForExistence(timeout: 30), "Today never appeared. \(app.debugDescription)")
+        XCTAssertTrue(
+            waitForAny(timeout: 30) {
+                self.app.staticTexts["Prepare · Perform · Prove"].exists
+                    || self.app.buttons["today.primaryAction"].exists
+                    || self.app.staticTexts["Today"].exists
+            },
+            "Today never appeared. \(app.debugDescription)"
+        )
         // Calendar access is requested from Today's task, and the readiness
         // button is inserted only after that request returns. Dismiss the
         // system sheet before looking for the button.
@@ -76,25 +83,56 @@ final class CMSNScreenSmokeTests: XCTestCase {
         nudgeForInterruptionMonitor()
         capture("today")
 
-        // Today keeps the readiness card and puts the next step on one
-        // primary button. A fresh profile's action is Start Workout.
-        tap("Start Workout")
-        let session = app.staticTexts["Let's Work"]
-        XCTAssertTrue(session.waitForExistence(timeout: 20), "Workout session never appeared")
+        // A fresh profile's action is Start Workout. The revamp keeps that
+        // accessibility label and may show "Resume session" once work exists.
+        tapFirst(of: ["Start Workout", "Start workout", "Resume session"])
+        XCTAssertTrue(
+            waitForAny(timeout: 20) {
+                self.app.staticTexts["Let's Work"].exists
+                    || self.app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Let's work")).firstMatch.exists
+            },
+            "Workout session never appeared. \(app.debugDescription)"
+        )
         capture("workout-session")
 
+        tapFirst(of: ["Finish Session", "Finish session"])
+        XCTAssertTrue(
+            waitForAny(timeout: 20) {
+                self.app.staticTexts["IT COUNTS."].exists
+                    || self.app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "planned sets")).firstMatch.exists
+                    || self.app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Session logged")).firstMatch.exists
+            },
+            "Session summary never appeared. \(app.debugDescription)"
+        )
+        capture("session-summary")
+
         openTab("Nutrition")
-        XCTAssertTrue(app.staticTexts["Protein"].waitForExistence(timeout: 15))
+        XCTAssertTrue(
+            waitForAny(timeout: 15) {
+                self.app.staticTexts["Protein"].exists || self.app.staticTexts["Nutrition"].exists
+            },
+            "Nutrition never appeared. \(app.debugDescription)"
+        )
         capture("nutrition")
 
-        openTab("Library")
-        XCTAssertTrue(app.staticTexts["Library"].waitForExistence(timeout: 15))
-        capture("library")
+        openTab("Score")
+        XCTAssertTrue(
+            waitForAny(timeout: 15) {
+                self.app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Recent")).firstMatch.exists
+                    || self.app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "CMSN score")).firstMatch.exists
+            },
+            "Score never appeared. \(app.debugDescription)"
+        )
+        capture("score")
 
-        openTab("Settings")
-        let export = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Export My Data")).firstMatch
-        XCTAssertTrue(export.waitForExistence(timeout: 15) || app.staticTexts["ACCOUNT"].waitForExistence(timeout: 8))
-        capture("profile-settings")
+        openTab("Library")
+        XCTAssertTrue(
+            waitForAny(timeout: 15) {
+                self.app.staticTexts["Library"].exists || self.app.staticTexts["Workouts"].exists
+            },
+            "Workouts library never appeared. \(app.debugDescription)"
+        )
+        capture("workouts-library")
     }
 
     /// `launch()` returns once Xcode believes the process exists. On a cold
@@ -110,19 +148,64 @@ final class CMSNScreenSmokeTests: XCTestCase {
 
     private func openTab(_ name: String) {
         let tab = app.tabBars.buttons[name]
-        if tab.waitForExistence(timeout: 8), tab.isHittable {
-            tab.tap()
-            return
+        let deadline = Date().addingTimeInterval(20)
+        while Date() < deadline {
+            if tab.exists, tab.isHittable {
+                tab.tap()
+                return
+            }
+            // Summary sits on top of the workout, which sits on Today.
+            // Pop until the tab bar is on screen again.
+            let back = app.navigationBars.buttons["Back"]
+            if back.exists, back.isHittable {
+                back.tap()
+            } else if app.navigationBars.buttons.count > 0 {
+                let leading = app.navigationBars.buttons.element(boundBy: 0)
+                if leading.exists, leading.isHittable {
+                    leading.tap()
+                }
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.4))
         }
-        // A pushed session can cover the tab bar. Step back, then switch.
-        let back = app.navigationBars.buttons["Back"]
-        if back.waitForExistence(timeout: 3), back.isHittable {
-            back.tap()
-        } else if app.navigationBars.buttons.element(boundBy: 0).exists {
-            app.navigationBars.buttons.element(boundBy: 0).tap()
-        }
-        XCTAssertTrue(tab.waitForExistence(timeout: 12), "Missing tab \(name)")
+        XCTAssertTrue(tab.waitForExistence(timeout: 8), "Missing tab \(name). \(app.debugDescription)")
         tab.tap()
+    }
+
+    /// Polls until `condition` is true. Used so one harness can shoot the
+    /// current build and the revamp, which do not share every label.
+    private func waitForAny(timeout: TimeInterval, condition: () -> Bool) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            dismissSystemPrompts(for: 0)
+            if condition() { return true }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        return condition()
+    }
+
+    private func tapFirst(of labels: [String]) {
+        let deadline = Date().addingTimeInterval(40)
+        nudgeForInterruptionMonitor()
+        while Date() < deadline {
+            dismissSystemPrompts(for: 0)
+            for label in labels {
+                let query = app.buttons.matching(NSPredicate(format: "label == %@", label))
+                for index in 0..<query.count {
+                    let button = query.element(boundBy: index)
+                    if button.exists, button.isHittable {
+                        button.tap()
+                        return
+                    }
+                }
+                let named = app.buttons[label]
+                if named.exists, named.isHittable {
+                    named.tap()
+                    return
+                }
+            }
+            app.swipeUp()
+        }
+        XCTFail("Could not tap any of \(labels.joined(separator: ", ")). \(app.debugDescription)")
     }
 
     /// Waits until a button with this exact label exists and is hittable.

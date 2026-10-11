@@ -3,7 +3,9 @@ import SwiftUI
 /// Category list for the education library. The Library tab opens here.
 /// The existing supplement notes stay one step inside Supplements.
 struct EducationLibraryView: View {
+    @Environment(AppState.self) private var appState
     @State private var path: [LibraryDestination]
+    @State private var query = ""
 
     init(openingArticleID: String? = nil) {
         if let destination = EducationLibrary.destination(openingArticleID: openingArticleID) {
@@ -20,20 +22,30 @@ struct EducationLibraryView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         header
-                        ForEach(ArticleCategory.allCases) { category in
-                            NavigationLink(value: LibraryDestination.category(category)) {
-                                CategoryRow(category: category)
+                        searchField
+                        if queryTrimmed.isEmpty {
+                            programHero
+                            Text("Library")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                            ForEach(ArticleCategory.allCases) { category in
+                                NavigationLink(value: LibraryDestination.category(category)) {
+                                    CategoryRow(category: category)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier("education-category-\(category.rawValue)")
                             }
-                            .buttonStyle(.plain)
-                            .accessibilityIdentifier("education-category-\(category.rawValue)")
+                        } else {
+                            searchResults
                         }
                         Text(EducationLibrary.notMedicalAdviceNote)
                             .font(CMSNTypography.bodyQuiet())
                             .foregroundStyle(CMSNColor.Semantic.textSecondary)
                     }
-                    .padding(24)
+                    .padding(20)
                 }
             }
+            .toolbar(.hidden, for: .navigationBar)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(CMSNColor.offBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -56,14 +68,115 @@ struct EducationLibraryView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            EyebrowLabel(text: "Train, fuel, understand")
-            Text("Library")
-                .font(CMSNTypography.displaySmall(36))
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
-            Text("Why training and fueling work, written out. Not a plan, and not a prescription.")
-                .font(CMSNTypography.bodyQuiet())
+        CMSNScreenHeader(title: "Workouts", trailing: nil)
+    }
+
+    private var queryTrimmed: String {
+        query.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            TextField("Search workouts", text: $query)
+                .font(.system(size: 16))
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(CMSNColor.Semantic.surface)
+        )
+    }
+
+    private var programHero: some View {
+        CMSNVideoHero(height: 360, badge: "Video") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(appState.activeProgram.name)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                Text("EARN IT.\nEVERY REP.")
+                    .font(CMSNTypography.display(64))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .lineSpacing(-6)
+                Button("Start training") {
+                    appState.selectedTab = .today
+                }
+                .buttonStyle(.cmsnPrimary)
+                .padding(.top, 4)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var searchResults: some View {
+        let exercises = programMatches
+        let articles = articleMatches
+        if exercises.isEmpty && articles.isEmpty {
+            Text("Nothing matches that.")
+                .font(CMSNTypography.body())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+        }
+        if !exercises.isEmpty {
+            Text("In this program")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            ForEach(Array(exercises.enumerated()), id: \.offset) { _, match in
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(match.name)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                        Text(match.focus)
+                            .font(.system(size: 13))
+                            .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    }
+                    Spacer()
+                }
+                .padding(16)
+                .cmsnCard()
+            }
+        }
+        if !articles.isEmpty {
+            Text("Library")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            ForEach(articles) { article in
+                NavigationLink(value: LibraryDestination.article(article.id)) {
+                    ArticleRow(article: article)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var programMatches: [(focus: String, name: String)] {
+        let needle = queryTrimmed
+        guard !needle.isEmpty else { return [] }
+        return appState.activeProgram.days.flatMap { day in
+            day.plannedExercises.compactMap { planned -> (focus: String, name: String)? in
+                guard let exercise = ExerciseCatalog.find(id: planned.exerciseID) else { return nil }
+                let name = exercise.name
+                let focus = day.focus.displayName
+                guard name.localizedCaseInsensitiveContains(needle) || focus.localizedCaseInsensitiveContains(needle) else {
+                    return nil
+                }
+                return (focus, name)
+            }
+        }
+    }
+
+    private var articleMatches: [Article] {
+        let needle = queryTrimmed
+        guard !needle.isEmpty else { return [] }
+        return EducationLibrary.articles.filter {
+            $0.title.localizedCaseInsensitiveContains(needle)
+                || $0.summary.localizedCaseInsensitiveContains(needle)
+                || $0.category.rawValue.localizedCaseInsensitiveContains(needle)
         }
     }
 }
@@ -77,12 +190,8 @@ private struct CategoryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(category.rawValue.uppercased())
-                .font(CMSNTypography.eyebrow())
-                .kerning(1.8)
-                .foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text(category.rawValue)
-                .font(CMSNTypography.body())
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
             Text(categoryDetail)
                 .font(CMSNTypography.bodyQuiet())
@@ -143,6 +252,7 @@ private struct EducationCategoryView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
         .toolbarBackground(CMSNColor.offBlack, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
@@ -238,6 +348,7 @@ struct ArticleReaderView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
         .toolbarBackground(CMSNColor.offBlack, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
@@ -295,9 +406,15 @@ private struct MissingArticleView: View {
 }
 
 #Preview("Library") {
+    let container = CMSNModelContainerFactory.makeInMemory()
     EducationLibraryView()
+        .modelContainer(container)
+        .environment(AppState(modelContainer: container))
 }
 
 #Preview("Fuel after training") {
+    let container = CMSNModelContainerFactory.makeInMemory()
     EducationLibraryView(openingArticleID: EducationLibrary.fuelAfterTrainingID)
+        .modelContainer(container)
+        .environment(AppState(modelContainer: container))
 }
