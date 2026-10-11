@@ -33,6 +33,10 @@ enum CMSNChrome {
         tab.inlineLayoutAppearance = item
         tab.compactInlineLayoutAppearance = item
         tab.backgroundEffect = nil
+        // A stretched opaque image keeps the fill at true black. With the
+        // bar translucent for layout, a color alone was compositing up to
+        // about #1C1C1C.
+        tab.backgroundImage = Self.opaqueBlackImage()
 
         let tabBar = UITabBar.appearance()
         tabBar.standardAppearance = tab
@@ -62,5 +66,15 @@ enum CMSNChrome {
         navigationBar.compactAppearance = nav
         navigationBar.tintColor = primary
         navigationBar.isTranslucent = false
+    }
+
+    /// 2×2 opaque black, stretched by the bar. Any translucent pixel would
+    /// turn the material back on.
+    private static func opaqueBlackImage() -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2))
+        return renderer.image { context in
+            UIColor.black.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
+        }
     }
 }
