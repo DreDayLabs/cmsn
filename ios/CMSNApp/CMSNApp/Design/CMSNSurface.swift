@@ -35,17 +35,15 @@ private struct CMSNChipModifier: ViewModifier {
     }
 }
 
-/// Wrapping row of pills. A horizontal scroll clipped the quick-path chips
-/// ("JUST W"); this keeps every chip on a full line.
+/// Wrapping row of pills. Measurement and placement share one width so a
+/// wrapped row cannot be reserved as empty space and then clipped.
 struct CMSNFlowLayout: Layout {
     var spacing: CGFloat = 8
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = proposal.width ?? 0
+        let width = resolvedWidth(proposal: proposal, subviews: subviews)
         let rows = rows(for: subviews, maxWidth: width)
-        let spacingTotal = spacing * CGFloat(max(rows.count - 1, 0))
-        let height = rows.reduce(0) { $0 + $1.height } + spacingTotal
-        return CGSize(width: width, height: height)
+        return CGSize(width: proposal.width ?? rows.map(\.width).max() ?? 0, height: height(of: rows))
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
@@ -64,6 +62,23 @@ struct CMSNFlowLayout: Layout {
         }
     }
 
+    /// A nil proposal means "ideal size". Wrapping at width 0 stacks every
+    /// pill on its own row and then clips them when the real bounds arrive.
+    private func resolvedWidth(proposal: ProposedViewSize, subviews: Subviews) -> CGFloat {
+        if let width = proposal.width, width.isFinite, width > 0 {
+            return width
+        }
+        let ideal = subviews.reduce(CGFloat(0)) { partial, view in
+            partial + view.sizeThatFits(.unspecified).width + spacing
+        }
+        return max(ideal, 1)
+    }
+
+    private func height(of rows: [Row]) -> CGFloat {
+        let spacingTotal = spacing * CGFloat(max(rows.count - 1, 0))
+        return rows.reduce(0) { $0 + $1.height } + spacingTotal
+    }
+
     private struct Item {
         var view: LayoutSubview
         var size: CGSize
@@ -71,6 +86,7 @@ struct CMSNFlowLayout: Layout {
 
     private struct Row {
         var items: [Item]
+        var width: CGFloat
         var height: CGFloat
     }
 
@@ -83,7 +99,7 @@ struct CMSNFlowLayout: Layout {
             let size = view.sizeThatFits(.unspecified)
             let next = current.isEmpty ? size.width : rowWidth + spacing + size.width
             if next > maxWidth, !current.isEmpty {
-                rows.append(Row(items: current, height: rowHeight))
+                rows.append(Row(items: current, width: rowWidth, height: rowHeight))
                 current = []
                 rowWidth = 0
                 rowHeight = 0
@@ -93,7 +109,7 @@ struct CMSNFlowLayout: Layout {
             rowHeight = max(rowHeight, size.height)
         }
         if !current.isEmpty {
-            rows.append(Row(items: current, height: rowHeight))
+            rows.append(Row(items: current, width: rowWidth, height: rowHeight))
         }
         return rows
     }

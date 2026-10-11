@@ -102,7 +102,7 @@ struct NutritionLogView: View {
                         .foregroundStyle(CMSNColor.Semantic.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
-                    Text(proteinLeft.rounded() < 0 ? "g over" : "left")
+                    Text(proteinLeft.rounded() < 0 ? "g over" : "g left")
                         .font(.system(size: 15))
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                     Text("~\(grouped(targets.calorieEstimate)) kcal target")
@@ -149,13 +149,13 @@ struct NutritionLogView: View {
             }
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(CMSNColor.Semantic.divider)
+                    Capsule().fill(CMSNColor.Semantic.borderStrong)
                     Capsule()
                         .fill(CMSNColor.white)
                         .frame(width: geometry.size.width * fraction)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 8)
         }
     }
 

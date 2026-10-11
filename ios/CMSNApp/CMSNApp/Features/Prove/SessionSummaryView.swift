@@ -30,7 +30,7 @@ struct SessionSummaryView: View {
         ZStack {
             CMSNColor.offBlack.ignoresSafeArea()
             ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
+                VStack(alignment: .leading, spacing: 20) {
                     header
                     completionSummary
                     nutritionRemainder
@@ -75,15 +75,16 @@ struct SessionSummaryView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("Session logged")
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text("IT COUNTS.")
-                .font(CMSNTypography.display(72))
+                .font(CMSNTypography.display(64))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.vertical, -6)
             Text(headerDetail)
                 .font(CMSNTypography.body())
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
@@ -99,15 +100,16 @@ struct SessionSummaryView: View {
     }
 
     private var completionSummary: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("\(totalSetsAttempted)")
-                    .font(CMSNTypography.display(96))
+                    .font(CMSNTypography.display(80))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
                 Text("/ \(totalSetsPlanned)")
-                    .font(CMSNTypography.display(40))
+                    .font(CMSNTypography.display(36))
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
             }
+            .padding(.vertical, -8)
             Text("planned sets done")
                 .font(.system(size: 15))
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
@@ -125,7 +127,7 @@ struct SessionSummaryView: View {
                             .font(CMSNTypography.numeric(16))
                             .foregroundStyle(CMSNColor.Semantic.textSecondary)
                     }
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 8)
                 }
             }
         }
@@ -143,7 +145,7 @@ struct SessionSummaryView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text(proteinNumber(remainder))
-                            .font(CMSNTypography.display(56))
+                            .font(CMSNTypography.display(48))
                             .foregroundStyle(CMSNColor.Semantic.textPrimary)
                         Text(proteinUnit(remainder))
                             .font(.system(size: 16))

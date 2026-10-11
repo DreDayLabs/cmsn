@@ -94,7 +94,7 @@ struct EducationLibraryView: View {
     }
 
     private var programHero: some View {
-        CMSNVideoHero(height: 440, badge: "Video") {
+        CMSNVideoHero(height: 360, badge: "Video") {
             VStack(alignment: .leading, spacing: 12) {
                 Text(appState.activeProgram.name)
                     .font(.system(size: 15, weight: .medium))

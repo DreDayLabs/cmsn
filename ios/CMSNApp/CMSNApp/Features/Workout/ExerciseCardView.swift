@@ -241,7 +241,7 @@ private struct SetRowView: View {
                         .frame(width: 56, height: 44)
                         .background(
                             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(CMSNColor.black)
+                                .fill(CMSNColor.Semantic.borderStrong)
                         )
                         .accessibilityLabel("Weight")
                     Text(unitPreference.weightUnitLabel)
@@ -268,7 +268,7 @@ private struct SetRowView: View {
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
                 .frame(width: 44, height: 44)
-                .background(Circle().fill(CMSNColor.black))
+                .background(Circle().fill(CMSNColor.Semantic.borderStrong))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)

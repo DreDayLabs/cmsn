@@ -71,13 +71,14 @@ struct QuickPathActionBar: View {
                         Text(action.chipTitle)
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                            .padding(.vertical, 11)
+                            .padding(.horizontal, 14)
                             .cmsnChip(isSelected: false)
                     }
                     .buttonStyle(.plain)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
