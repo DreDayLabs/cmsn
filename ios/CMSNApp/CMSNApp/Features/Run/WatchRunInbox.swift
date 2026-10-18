@@ -29,7 +29,7 @@ final class WatchRunInbox: NSObject, WCSessionDelegate {
     }
 
     nonisolated func session(_ session: WCSession, didReceive file: WCSessionFile) {
-        guard let data = try? Data(contentsOf: file.file) else { return }
+        guard let data = try? Data(contentsOf: file.fileURL) else { return }
         Task { @MainActor in
             await self.importData(data)
         }
