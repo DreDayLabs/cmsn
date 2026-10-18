@@ -149,6 +149,10 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
         CODE_SIGN_ENTITLEMENTS: CMSNWatchApp/CMSNWatchApp.entitlements
         TARGETED_DEVICE_FAMILY: "4"
+        # Xcode's debug dylib plus CopyAndPreserveArchs both emit
+        # CMSNWatchApp.app/CMSNWatchApp. Turning the dylib off is what
+        # stops that duplicate on the watch simulator build.
+        ENABLE_DEBUG_DYLIB: NO
         # Correct standard practice for a target embedded in a host app
         # (kept even though it wasn't what actually fixed CI - see
         # CMSNApp's dependencies comment above for the real fix).
