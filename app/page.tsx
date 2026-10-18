@@ -1,13 +1,14 @@
 import { CMSN_LOCKUP, CMSN_SYMBOL } from "@/lib/brand-mark";
+import ApparelSection from "@/app/components/ApparelSection";
 import SignupForm from "@/app/components/SignupForm";
 
 /**
  * CMSN — app landing page.
  *
- * Deliberately carries no product grid and no photography. The app exists;
- * the apparel does not yet, and there are no CMSN photographs. Borrowing
- * stock imagery to stand in for either would make a claim the house cannot
- * currently support, so the page is mark-led and typographic instead.
+ * Deliberately carries no product grid. The hero and the Score stay
+ * typographic. The apparel section is the one place with motion: a recovered
+ * Higgsfield loop behind the existing copy. It is not a product photograph,
+ * and nothing on the page is for sale.
  *
  * Type is the Helvetica stack already declared in globals.css. CMSN has not
  * chosen a brand typeface; that decision stays open rather than being made
@@ -167,20 +168,7 @@ export default function Page() {
 
         <hr className="mx-auto w-full max-w-5xl border-white/10" />
 
-        {/* Apparel — stated plainly, not sold */}
-        <section className="mx-auto w-full max-w-5xl px-6 py-24 sm:py-32">
-          <h2 className="text-[11px] uppercase tracking-[0.24em] text-white/40">
-            Apparel
-          </h2>
-          <p className="mt-8 max-w-[48ch] text-2xl leading-snug sm:text-3xl">
-            Collection 01 is in development. Black and white, symbol-led.
-          </p>
-          <p className="mt-6 max-w-[52ch] text-[15px] leading-relaxed text-white/55">
-            Nothing is for sale yet, and there are no product photographs to
-            show. When there are, they will be of real garments. The list above
-            hears about it first.
-          </p>
-        </section>
+        <ApparelSection />
       </main>
 
       <footer className="mx-auto w-full max-w-5xl px-6 pb-16">
