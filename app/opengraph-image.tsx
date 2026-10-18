@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { CMSN_LOCKUP } from "@/lib/brand-mark";
 
-export const alt = "CMSN — Earn Your CMSN";
+export const alt = "CMSN Performance — Earn Your CMSN";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

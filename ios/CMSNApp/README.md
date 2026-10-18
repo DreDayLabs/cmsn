@@ -31,9 +31,15 @@ In Xcode:
    automatic signing. The bundle id stays `com.earnyourcmsn.app`. Unsigned
    simulator CI passes `CODE_SIGNING_ALLOWED=NO` and does not sign.
 3. Camera and calendar usage strings are in the generated Info.plist.
-   HealthKit is not declared — no source file imports HealthKit. StoreKit 2
-   needs no entitlement key. EventKit needs no capability, only the calendar
-   usage strings.
+   HealthKit is declared for the phone and the watch
+   (`CMSNApp.entitlements` and `CMSNWatchApp.entitlements`). Enable the
+   HealthKit capability on App IDs `com.earnyourcmsn.app` and
+   `com.earnyourcmsn.app.watchkitapp` in the Apple developer portal before
+   a signed device or TestFlight build. Unsigned CI sets
+   `CODE_SIGNING_ALLOWED=NO` and can compile without that portal switch.
+   StoreKit 2 needs no entitlement key. EventKit needs no capability, only
+   the calendar usage strings. Location, motion, and Bluetooth usage
+   strings are present because a run asks for them when it starts.
 4. Build & run (⌘R).
 
 ## Local subscription testing
@@ -66,7 +72,9 @@ xcodebuild test -project CMSNApp.xcodeproj -scheme CMSNApp -destination 'platfor
 rounding, equipment substitution, injury-based exercise exclusion/load
 reduction, program rotation, macro targets, readiness banding, the
 four-dimension score model (including partial-session and rest-day
-scoring), and day-boundary/timezone handling for the Return-loop logic.
+scoring), day-boundary/timezone handling for the Return-loop logic, and
+the run kernel (pace, splits, personal records, GPS spike rejection,
+the auto-pause state machine, and the V3 → V4 SwiftData migration).
 
 ## What's missing on purpose (see the plan's "Explicitly deferred to V1/V2")
 
@@ -78,9 +86,12 @@ scoring), and day-boundary/timezone handling for the Return-loop logic.
   is bundled (OFL license alongside it) and registered under `UIAppFonts`.
 - **Instructional video library**: `ExerciseCardView` has the UI slot
   (`demonstrationVideoAssetName`) but no real video assets — V1 scope.
-- **Apple Watch app**: `CMSNWatchApp` target is a working, minimal scaffold
-  (compiles, shows a placeholder screen) — not the real companion
-  experience (start session, log sets from the wrist). V1 scope.
+- **Apple Watch run**: `CMSNWatchApp` records an outdoor or indoor run on
+  the watch (including a night-visibility screen) and transfers the
+  finished file to the phone. It builds on the `CMSNWatchApp` scheme and
+  is not embedded in the iOS app, because embedding it trips the XcodeGen
+  "Multiple commands produce CMSNWatchApp.app/CMSNWatchApp" bug. Logging
+  strength sets from the wrist is still out of scope.
 - **Cloud sync / backend**: everything is local-only via SwiftData. No
   Supabase, no auth, no cross-device sync, no server-side entitlement
   validation. V2 scope — see `brand/08-app-strategy.md`.

@@ -55,9 +55,30 @@ enum CMSNSchemaV3: VersionedSchema {
     }
 }
 
+/// V4: running. Adds Run, RunSplit, RunRoute, RunShoe, RunSettings, and
+/// the empty Phase 2 club models. All new tables — nothing on Athlete or
+/// the earlier models changes — so the stage is lightweight.
+enum CMSNSchemaV4: VersionedSchema {
+    static var versionIdentifier: Schema.Version = Schema.Version(4, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        CMSNSchemaV3.models + [
+            Run.self,
+            RunSplit.self,
+            RunRoute.self,
+            RunShoe.self,
+            RunSettings.self,
+            RunClub.self,
+            ClubMembership.self,
+            Challenge.self,
+            ChallengeEntry.self,
+        ]
+    }
+}
+
 enum CMSNMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [CMSNSchemaV1.self, CMSNSchemaV2.self, CMSNSchemaV3.self]
+        [CMSNSchemaV1.self, CMSNSchemaV2.self, CMSNSchemaV3.self, CMSNSchemaV4.self]
     }
     static var stages: [MigrationStage] {
         [
@@ -70,6 +91,7 @@ enum CMSNMigrationPlan: SchemaMigrationPlan {
                     try WeightHistorySeeder.seedIfUnmarked(in: context)
                 }
             ),
+            .lightweight(fromVersion: CMSNSchemaV3.self, toVersion: CMSNSchemaV4.self),
         ]
     }
 }
@@ -103,11 +125,12 @@ enum CMSNModelContainerFactory {
     /// not delete, replace, or move the store — a failed open must not look
     /// like an empty account.
     ///
-    /// Opens schema V3 with `CMSNMigrationPlan`, so an existing V2 store runs
-    /// the custom stage that seeds weight history. A store created at V3 (or
-    /// a migration whose callback did not run) still gets one seed pass here.
-    /// The marker makes that pass a no-op forever after, so deleting every
-    /// entry does not resurrect the original weight.
+    /// Opens schema V4 with `CMSNMigrationPlan`. An existing V2 store still
+    /// runs the custom stage that seeds weight history on the way through
+    /// V3. A store created at V3 (or a migration whose callback did not run)
+    /// still gets one seed pass here. The marker makes that pass a no-op
+    /// forever after, so deleting every entry does not resurrect the
+    /// original weight. V3 to V4 only adds run and club tables.
     static func makeDefault() throws -> ModelContainer {
         let container = try open(defaultPersistentConfiguration())
         do {
@@ -232,6 +255,6 @@ enum CMSNModelContainerFactory {
     }
 
     private static func currentSchema() -> Schema {
-        Schema(versionedSchema: CMSNSchemaV3.self)
+        Schema(versionedSchema: CMSNSchemaV4.self)
     }
 }

@@ -6,6 +6,7 @@ import Observation
 /// a workout can open the existing food diary instead of a second logger.
 enum AppTab: Hashable {
     case today
+    case run
     case nutrition
     case score
     case library
@@ -35,12 +36,21 @@ final class AppState {
     /// writes `.nutrition` when the athlete follows the path into logging.
     var selectedTab: AppTab = .today
 
+    /// Lives for the process, not for a screen, so a locked phone or a tab
+    /// change does not tear down an open run.
+    let runSession: RunSessionController
+    let watchInbox: WatchRunInbox
+
     init(modelContainer: ModelContainer, activeProgram: TrainingProgram = SeedData.pushPullLegs) {
         self.modelContainer = modelContainer
         self.calendarService = CalendarSplitService()
         self.storeKitManager = StoreKitManager()
         self.suggestionEngine = RuleBasedSuggestionEngine()
         self.activeProgram = activeProgram
+        self.runSession = RunSessionController()
+        let inbox = WatchRunInbox(container: modelContainer)
+        self.watchInbox = inbox
+        inbox.activate()
     }
 
     var athleteRepository: AthleteRepository { AthleteRepository(context: modelContainer.mainContext) }

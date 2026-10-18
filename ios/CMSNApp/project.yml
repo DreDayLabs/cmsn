@@ -35,6 +35,9 @@ targets:
     platform: iOS
     sources:
       - path: CMSNApp
+        excludes:
+          - "**/*.entitlements"
+      - path: Shared
     resources:
       - path: CMSNApp/Resources
     info:
@@ -47,14 +50,23 @@ targets:
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         # Home screen label. Without this key SpringBoard uses the target
         # name, so the icon reads CMSNApp.
-        CFBundleDisplayName: CMSN
+        CFBundleDisplayName: CMSN Performance
         UILaunchScreen: {}
         NSCalendarsUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
         NSCalendarsFullAccessUsageDescription: "CMSN checks today's calendar for a scheduled workout (like \"Leg Day\") so it can auto-select your split instead of guessing."
         NSCameraUsageDescription: "CMSN uses the camera only to scan food barcodes so you can log meals without typing. Nothing is photographed or stored."
+        NSLocationWhenInUseUsageDescription: "CMSN Performance uses your location only while you record a run, to measure distance, pace, and the route. It stops the moment the run ends."
+        NSLocationAlwaysAndWhenInUseUsageDescription: "CMSN Performance uses location in the background only during an active run, so a locked screen or a phone call does not cut the route short. It does not track you at any other time."
+        NSMotionUsageDescription: "CMSN Performance uses motion during an indoor run to estimate treadmill distance from your steps. It is not read when you are not running."
+        NSHealthShareUsageDescription: "CMSN Performance reads heart rate and workouts from Apple Health while you run, so your heart rate can show on the run and a workout is not saved twice."
+        NSHealthUpdateUsageDescription: "CMSN Performance saves each finished run to Apple Health — distance, time, energy, and route — so it appears with your other workouts. Nothing is written until you finish a run."
+        NSBluetoothAlwaysUsageDescription: "CMSN Performance connects to a heart-rate strap only during a run, and only if you turn the strap option on. It does not scan at any other time."
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        UIBackgroundModes: []
+        UIBackgroundModes:
+          - location
+          - audio
+          - bluetooth-central
         ITSAppUsesNonExemptEncryption: false
         # Registers the bundled Resources/Fonts/BebasNeue-Regular.ttf (OFL
         # license alongside it in the same folder). Its PostScript name is
@@ -63,11 +75,11 @@ targets:
         # wiring needed.
         UIAppFonts:
           - BebasNeue-Regular.ttf
-    # No HealthKit capability. Nothing in this target imports HealthKit, and
-    # an unused Health entitlement or usage string is an App Review risk.
-    # StoreKit 2 (com.apple.InAppPurchase) needs no entitlement key; the
-    # entry stays so the intent is visible. XcodeGen 2.46 does not emit an
-    # entitlements file from `capabilities`.
+    # HealthKit is declared in CMSNApp.entitlements. XcodeGen 2.46 does not
+    # emit an entitlements file from `capabilities`, so the file is set
+    # with CODE_SIGN_ENTITLEMENTS below. The App ID still has to have
+    # HealthKit turned on in the Apple developer portal before a signed
+    # device build will succeed. StoreKit 2 needs no entitlement key.
     capabilities:
       com.apple.InAppPurchase: {}
     # No `dependencies: - target: CMSNWatchApp` here. It was there
@@ -81,17 +93,15 @@ targets:
     # CreateBuildDescription. That rules out arch multiplicity,
     # install-packaging, and embedding as the cause - the one variable
     # that was never isolated was whether CMSNWatchApp gets built at all
-    # as part of the CMSNApp scheme. It's a genuine V0 stub (see
-    # CMSNWatchApp.swift: "not implemented... coming in a future
-    # update"), explicitly not required to build in V0 per the project
-    # plan - so it's simplest and most honest to not build it as a
-    # CMSNApp dependency at all. The target stays in the project,
-    # buildable on its own scheme, ready for V1 to actually wire it up
-    # (and re-litigate this bug if it resurfaces once there's a real
-    # reason to embed it).
+    # as part of the CMSNApp scheme. The watch app now records a run and
+    # transfers it to the phone, but it still must not be a CMSNApp
+    # dependency: embedding it reproduces the duplicate-output error.
+    # Build it with the CMSNWatchApp scheme. Install it beside the phone
+    # app until that XcodeGen bug is fixed.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app
+        CODE_SIGN_ENTITLEMENTS: CMSNApp/CMSNApp.entitlements
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         DEVELOPMENT_ASSET_PATHS: ""
@@ -104,23 +114,40 @@ targets:
     platform: watchOS
     sources:
       - path: CMSNWatchApp
+        excludes:
+          - "**/*.entitlements"
+      - path: Shared
     info:
       path: CMSNWatchApp/Info.plist
       properties:
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleDisplayName: CMSN Performance
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.earnyourcmsn.app
+        WKBackgroundModes:
+          - workout-processing
+        UIBackgroundModes:
+          - location
+          - workout-processing
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false
-    # No HealthKit entitlement or usage strings. This target is a V0 stub
-    # (see CMSNWatchApp.swift) and does not import HealthKit. Add the
-    # capability and the Health usage strings back in the same change that
-    # actually calls HealthKit.
+        NSLocationWhenInUseUsageDescription: "CMSN Performance uses the watch's location only while you record a run, including when the watch face is down. It stops when the run ends."
+        NSLocationAlwaysAndWhenInUseUsageDescription: "CMSN Performance keeps location on only during an active run, so the route continues when your wrist drops. It does not track you at any other time."
+        NSMotionUsageDescription: "CMSN Performance uses motion during an indoor run to estimate treadmill distance. It is not read when you are not running."
+        NSHealthShareUsageDescription: "CMSN Performance reads heart rate during a run from the watch, and checks Apple Health so a finished run is not saved twice."
+        NSHealthUpdateUsageDescription: "CMSN Performance saves the run to Apple Health on this watch when you finish. It syncs to your iPhone afterward."
+    # HealthKit entitlement is the file below, not a capabilities entry.
+    # XcodeGen 2.46 does not emit entitlements from `capabilities`. The
+    # watch App ID needs HealthKit enabled in the developer portal.
+    # This target is still not embedded in CMSNApp: embedding it reproduced
+    # "Multiple commands produce CMSNWatchApp.app/CMSNWatchApp". It builds
+    # on the CMSNWatchApp scheme.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
+        CODE_SIGN_ENTITLEMENTS: CMSNWatchApp/CMSNWatchApp.entitlements
         TARGETED_DEVICE_FAMILY: "4"
         # Correct standard practice for a target embedded in a host app
         # (kept even though it wasn't what actually fixed CI - see
@@ -161,6 +188,13 @@ targets:
         TEST_TARGET_NAME: CMSNApp
 
 schemes:
+  CMSNWatchApp:
+    build:
+      targets:
+        CMSNWatchApp: all
+    run:
+      config: Debug
+
   CMSNApp:
     build:
       targets:

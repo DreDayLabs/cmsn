@@ -64,7 +64,12 @@ export default function Page() {
   return (
     <div className="flex min-h-full flex-col bg-[var(--cmsn-off-black)] text-[var(--cmsn-off-white)]">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-7">
-        <Wordmark height={16} />
+        <div className="flex items-center gap-3">
+          <Wordmark height={16} />
+          <span className="text-[10px] uppercase tracking-[0.28em] text-white/45">
+            Performance
+          </span>
+        </div>
         <span className="text-[10px] uppercase tracking-[0.28em] text-white/40">
           Earned, not given
         </span>

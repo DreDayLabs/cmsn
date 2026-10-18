@@ -96,6 +96,30 @@ jobs:
           name: build-log
           path: ios/CMSNApp/build.log
 
+      # The watch target is not a dependency of the CMSNApp scheme (embedding
+      # it reproduces the XcodeGen duplicate-output bug). Build it on its
+      # own scheme so a watch compile error still fails this job. A generic
+      # simulator destination does not need a named Apple Watch device.
+      - name: Build watch app (unsigned simulator)
+        working-directory: ios/CMSNApp
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project CMSNApp.xcodeproj \
+            -scheme CMSNWatchApp \
+            -destination 'generic/platform=watchOS Simulator' \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            | tee watch-build.log
+
+      - name: Upload watch build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watch-build-log
+          path: ios/CMSNApp/watch-build.log
+
       - name: Run unit tests
         working-directory: ios/CMSNApp
         run: |

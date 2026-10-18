@@ -114,6 +114,15 @@ final class CMSNScreenSmokeTests: XCTestCase {
             tab.tap()
             return
         }
+        let more = app.tabBars.buttons["More"]
+        if more.waitForExistence(timeout: 3), more.isHittable {
+            more.tap()
+            let cell = app.cells[name]
+            if cell.waitForExistence(timeout: 4), cell.isHittable {
+                cell.tap()
+                return
+            }
+        }
         // A pushed session can cover the tab bar. Step back, then switch.
         let back = app.navigationBars.buttons["Back"]
         if back.waitForExistence(timeout: 3), back.isHittable {
