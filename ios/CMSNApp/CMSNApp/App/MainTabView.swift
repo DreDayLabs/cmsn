@@ -6,9 +6,9 @@ import SwiftUI
 /// education shelf. Settings holds the subscription entry point and profile.
 /// Run Club is not a tab — see `RunClubNavigationSlot`.
 ///
-/// Icons are chosen for brand register, not generic fitness-app chrome:
-/// The Walk for Today, a book for the education library (never a pill),
-/// a quiet mark for Score instead of a filled chart.
+/// Icons follow the approved v01 tab bar: a calendar for Today, a grid
+/// for Nutrition, a diamond for Score, a book for the library, and lines
+/// for Settings.
 struct MainTabView: View {
     let athlete: Athlete
     @Environment(AppState.self) private var appState
@@ -17,7 +17,7 @@ struct MainTabView: View {
         @Bindable var appState = appState
         TabView(selection: $appState.selectedTab) {
             TodayView(athlete: athlete)
-                .tabItem { Label("Today", systemImage: "figure.walk") }
+                .tabItem { Label("Today", systemImage: "calendar") }
                 .tag(AppTab.today)
 
             RunHomeView(athlete: athlete)
@@ -41,5 +41,7 @@ struct MainTabView: View {
                 .tag(AppTab.settings)
         }
         .tint(CMSNColor.offWhite)
+        .toolbarBackground(CMSNColor.black, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }

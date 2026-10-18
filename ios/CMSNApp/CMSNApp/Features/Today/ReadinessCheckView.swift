@@ -69,10 +69,12 @@ struct ReadinessCheckView: View {
             }
             HStack(spacing: 8) {
                 ForEach(1...5, id: \.self) { level in
-                    Rectangle()
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .fill(level <= value.wrappedValue ? CMSNColor.offWhite : CMSNColor.Semantic.divider)
-                        .frame(height: 6)
+                        .frame(height: 28)
                         .onTapGesture { value.wrappedValue = level }
+                        .accessibilityLabel("\(title) \(level) of 5")
+                        .accessibilityAddTraits(level == value.wrappedValue ? .isSelected : [])
                 }
             }
         }

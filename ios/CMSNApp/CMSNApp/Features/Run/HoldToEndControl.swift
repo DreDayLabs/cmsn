@@ -28,7 +28,7 @@ struct HoldToEndControl: View {
         .background(CMSNColor.Semantic.surface)
         .overlay(
             RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                .strokeBorder(CMSNColor.Semantic.borderStrong, lineWidth: CMSNSpacing.hairline)
+                .strokeBorder(CMSNColor.Semantic.textPrimary, lineWidth: CMSNSpacing.hairline)
         )
         .contentShape(Rectangle())
         .gesture(hold)

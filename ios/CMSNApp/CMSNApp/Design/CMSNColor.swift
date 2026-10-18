@@ -51,35 +51,31 @@ enum CMSNContrast {
 ///
 /// Retired from the UI, and not present as live values:
 /// - Navy `#0B1526`. The only chromatic token. It was `Semantic.accent` and
-///   nearly invisible on off-black (about 1.08:1). Garment navy stays a fabric
-///   color, not a screen color. No accent hue replaces it.
+///   nearly invisible on black. Garment navy stays a fabric color, not a
+///   screen color. No accent hue replaces it.
 /// - Warm surface `#F5F3F0`. A beige cast. Light surfaces, if they ship, are
 ///   neutral `#F5F5F5` / white.
-/// - Off-white `#FAFAF8`. A warm cast on primary type. Primary type is now
-///   pure white.
-/// - Lifted background `#0A0A0A` and primary ink `#F4F4F4`. They cleared AA
-///   but read dull. Screens are true black with pure white primary ink.
+/// - Off-white `#FAFAF8` and the later `#F4F4F4` primary. v01 type is `#FFFFFF`.
+/// - Near-black `#0A0A0A` as a screen field. v01 screens are true `#000000`.
 ///   `#0A0A0A` remains only as `scrim`, for photo and video overlays whose
 ///   opacities were tuned against that value.
-/// - `textSecondary` as off-white at 40% opacity (about 3.66:1). Then solid
-///   `#8A8A8A` (about 5.7:1), which cleared AA and still read gray-on-black.
-///   Secondary type is now `#C8C8C8` (12.55:1 on black, 11.20:1 on surface).
-/// - `textSecondaryOnSurface` as off-black at 35% on the warm beige. About
-///   2.32:1. Secondary type on a surface is the same solid gray.
+/// - `textSecondary` as off-white at 40% opacity. Secondary type is solid `#8A8A8A`.
 enum CMSNPalette {
-    /// Shipped dark experience. Primary ink is pure white on true black.
+    /// Shipped dark experience. Approved v01: pure black, white, and gray.
     static let black = CMSNRGB(red: 0x00, green: 0x00, blue: 0x00)
     static let background = CMSNRGB(red: 0x00, green: 0x00, blue: 0x00)
-    static let surface = CMSNRGB(red: 0x12, green: 0x12, blue: 0x12)
-    static let surfacePressed = CMSNRGB(red: 0x1C, green: 0x1C, blue: 0x1C)
+    static let surface = CMSNRGB(red: 0x11, green: 0x11, blue: 0x11)
+    static let surfacePressed = CMSNRGB(red: 0x1A, green: 0x1A, blue: 0x1A)
     static let textPrimary = CMSNRGB(red: 0xFF, green: 0xFF, blue: 0xFF)
-    /// Secondary ink. 12.55:1 on black, 11.20:1 on surface, 10.19:1 on pressed.
-    static let textSecondary = CMSNRGB(red: 0xC8, green: 0xC8, blue: 0xC8)
+    /// Brand gray. Clears AA on black, on `#111111`, and on `#1A1A1A`.
+    static let textSecondary = CMSNRGB(red: 0x8A, green: 0x8A, blue: 0x8A)
     static let white = CMSNRGB(red: 0xFF, green: 0xFF, blue: 0xFF)
-    static let border = CMSNRGB(red: 0x3A, green: 0x3A, blue: 0x3A)
-    /// Outlines for secondary actions. White, so a ghost button is not a
-    /// gray stroke on a gray card.
-    static let borderStrong = CMSNRGB(red: 0xFF, green: 0xFF, blue: 0xFF)
+    static let border = CMSNRGB(red: 0x26, green: 0x26, blue: 0x26)
+    /// A step above the surface, for fields and quiet controls.
+    static let borderStrong = CMSNRGB(red: 0x3A, green: 0x3A, blue: 0x3A)
+    /// Empty progress track. `#3A3A3A` disappears on a `#111111` card;
+    /// this is still gray, and clearly a track rather than a second ink.
+    static let track = CMSNRGB(red: 0x5C, green: 0x5C, blue: 0x5C)
     /// Photo and video scrim. Not used for type or screen backgrounds.
     static let scrim = CMSNRGB(red: 0x0A, green: 0x0A, blue: 0x0A)
 
@@ -119,6 +115,7 @@ enum CMSNColor {
         static let divider = CMSNPalette.border.color
         static let border = CMSNPalette.border.color
         static let borderStrong = CMSNPalette.borderStrong.color
+        static let track = CMSNPalette.track.color
         /// No chromatic accent. Hierarchy is weight, size, and gray.
         static let accent = CMSNColor.offWhite
         static let scorePositive = CMSNColor.offWhite
@@ -131,7 +128,7 @@ enum CMSNColor {
     }
 }
 
-/// Opacity that still clears AA when `#F4F4F4` is drawn on `#0A0A0A`.
+/// Opacity that still clears AA when white is drawn on black.
 /// Used for an unselected option, not for body copy.
 enum CMSNEmphasis {
     static let unselected = 0.72

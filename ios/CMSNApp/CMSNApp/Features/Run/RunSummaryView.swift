@@ -169,7 +169,6 @@ struct RunSummaryView: View {
                     } label: {
                         Text(label(option))
                             .font(CMSNTypography.eyebrow())
-                            .kerning(1.1)
                             .padding(.vertical, 10)
                             .frame(maxWidth: .infinity)
                             .foregroundStyle(on ? CMSNColor.offBlack : CMSNColor.Semantic.textPrimary)
@@ -245,7 +244,6 @@ struct RunSummaryView: View {
             PhotosPicker(selection: $photoItem, matching: .images) {
                 Text(run.photoJPEG == nil ? "Add photo" : "Replace photo")
                     .font(CMSNTypography.eyebrow())
-                    .kerning(1.6)
                     .foregroundStyle(CMSNColor.offWhite)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -262,7 +260,6 @@ struct RunSummaryView: View {
                 ShareLink(item: shareURL) {
                     Text("Share card")
                         .font(CMSNTypography.eyebrow())
-                        .kerning(2.2)
                         .foregroundStyle(CMSNColor.offBlack)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)

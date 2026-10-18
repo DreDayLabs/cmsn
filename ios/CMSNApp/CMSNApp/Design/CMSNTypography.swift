@@ -35,7 +35,8 @@ enum CMSNTypography {
     }
 
     /// Secondary sentences and hints. Subheadline is 15pt regular — not
-    /// light, and not italic — and scales.
+    /// light, and not italic — and scales. Callers tint this with
+    /// `textSecondary` when the line is supporting, not primary.
     static func bodyQuiet() -> Font {
         .system(.subheadline, design: .default, weight: .regular)
     }

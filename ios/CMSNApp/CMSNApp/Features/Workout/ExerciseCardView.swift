@@ -7,6 +7,8 @@ import SwiftData
 struct ExerciseCardView: View {
     @Bindable var loggedExercise: LoggedExercise
     let exercise: any ExerciseRepresentable
+    var position: Int = 1
+    var exerciseCount: Int = 1
     let suggestionEngine: SuggestionEngine
     let recentHistory: [LoggedSet]
     let readiness: ReadinessBand
@@ -48,12 +50,14 @@ struct ExerciseCardView: View {
             }
 
             Text(suggestion.rationale)
-                .font(CMSNTypography.bodyQuiet())
+                .font(CMSNTypography.body())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
 
             ForEach(loggedExercise.loggedSets.sorted(by: { $0.setIndex < $1.setIndex })) { set in
                 SetRowView(
                     set: set,
+                    isActive: set.id == activeSetID,
                     suggestedWeightKG: suggestion.suggestedWeightKG,
                     unitPreference: unitPreference,
                     onLogged: { restSeconds in
@@ -63,24 +67,44 @@ struct ExerciseCardView: View {
                 )
             }
         }
-        .padding(20)
-        .cmsnCard()
+    }
+
+    private var activeSetID: UUID? {
+        loggedExercise.loggedSets
+            .sorted { $0.setIndex < $1.setIndex }
+            .first { !$0.isAttempted }?
+            .id
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Exercise \(position) of \(exerciseCount)")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text(exercise.name)
-                    .font(CMSNTypography.displaySmall(24))
+                    .font(CMSNTypography.display(40))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.6)
                     .fixedSize(horizontal: false, vertical: true)
                     .layoutPriority(1)
                 Spacer(minLength: 12)
-                Button("Swap") { onRequestSubstitution() }
-                    .buttonStyle(.cmsnText)
-                    .fixedSize()
+                Button {
+                    onRequestSubstitution()
+                } label: {
+                    Text("Swap")
+                        .font(CMSNTypography.button())
+                        .lineLimit(1)
+                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 14)
+                        .background(Capsule().fill(CMSNColor.Semantic.surfacePressed))
+                }
+                .buttonStyle(.plain)
+                .fixedSize()
             }
-            Button(showingCues ? "Hide setup & cues" : "Show setup & cues") {
+            Button(showingCues ? "Hide setup & cues" : "Setup & cues") {
                 showingCues.toggle()
             }
             .buttonStyle(.cmsnText)
@@ -115,6 +139,7 @@ struct ExerciseCardView: View {
 /// cannot pretend to fit by crushing the target into a one-character column.
 private struct SetRowView: View {
     @Bindable var set: LoggedSet
+    var isActive: Bool = false
     let suggestedWeightKG: Double?
     let unitPreference: UnitPreference
     let onLogged: (Int) -> Void
@@ -133,6 +158,12 @@ private struct SetRowView: View {
                 discomfortToggle
             }
         }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
+                .fill(CMSNColor.Semantic.surface)
+        )
         .onAppear {
             if repsInput == 0 { repsInput = set.plannedRepRangeLow }
             if weightInput == 0 { weightInput = displayWeight(suggestedWeightKG ?? set.plannedWeightKG ?? 0) }
@@ -251,9 +282,15 @@ private struct SetRowView: View {
         }
     }
 
+    @ViewBuilder
     private var logButton: some View {
-        Button("Log", action: logSet)
-            .buttonStyle(.cmsnCompactPrimary)
+        if isActive {
+            Button("Log", action: logSet)
+                .buttonStyle(.cmsnCompactPrimary)
+        } else {
+            Button("Log", action: logSet)
+                .buttonStyle(.cmsnCompactQuiet)
+        }
     }
 
     private var discomfortToggle: some View {
@@ -319,10 +356,10 @@ private struct SetRowView: View {
     private func stepButton(systemName: String, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.body.weight(.semibold))
+                .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                .frame(minWidth: 36, minHeight: 36)
-                .contentShape(Rectangle())
+                .frame(width: 44, height: 44)
+                .background(Circle().fill(CMSNColor.Semantic.borderStrong))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)
@@ -345,8 +382,8 @@ private struct SetRowView: View {
     }
 }
 
-/// Caption over a single-line value. The stroke is white so the field
-/// reads on the card instead of disappearing into the surface.
+/// Caption over a single-line value. The well is `#3A3A3A`, a step above
+/// the `#111` card, so the field reads instead of disappearing into the surface.
 private struct LabeledValueControl<Content: View>: View {
     let title: String
     let content: Content
@@ -364,11 +401,11 @@ private struct LabeledValueControl<Content: View>: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             content
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .overlay(
-                    RoundedRectangle(cornerRadius: CMSNSurfaceStyle.cornerRadius, style: .continuous)
-                        .strokeBorder(CMSNColor.Semantic.textPrimary, lineWidth: CMSNSpacing.hairline)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(CMSNColor.Semantic.borderStrong)
                 )
         }
     }

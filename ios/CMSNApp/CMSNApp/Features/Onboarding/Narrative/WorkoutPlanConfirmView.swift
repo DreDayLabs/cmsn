@@ -110,7 +110,7 @@ struct WorkoutPlanConfirmView: View {
                         .padding(.horizontal, 16)
                         .foregroundStyle(value == selected ? CMSNColor.Semantic.buttonLabel : CMSNColor.Semantic.textPrimary)
                         .background(value == selected ? CMSNColor.Semantic.buttonFill : Color.clear)
-                        .overlay(Rectangle().strokeBorder(value == selected ? CMSNColor.Semantic.buttonFill : CMSNColor.Semantic.borderStrong, lineWidth: CMSNSpacing.hairline))
+                        .overlay(Rectangle().strokeBorder(value == selected ? CMSNColor.Semantic.buttonFill : CMSNColor.Semantic.textPrimary, lineWidth: CMSNSpacing.hairline))
                 }
                 .buttonStyle(.plain)
             }

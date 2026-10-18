@@ -25,11 +25,15 @@ struct WorkoutSessionView: View {
     var body: some View {
         // Background ignores the safe area. The scroll view must not: on a
         // pushed screen the leading safe area is inset, and a ZStack sibling
-        // that ignores it lays the header out under that inset. The first
-        // glyph ("PUSH" / "LET'S WORK") was clipped at the screen edge.
+        // that ignores it lays the first row out under that inset. The title
+        // lives in the navigation bar. The form video stays in the scroll view.
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                header
+            VStack(alignment: .leading, spacing: 22) {
+                CMSNVideoHero(height: 220, badge: nil) {
+                    Text("Form video")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                }
 
                 if let activeRestSeconds {
                     RestTimerView(totalSeconds: activeRestSeconds) {
@@ -38,11 +42,14 @@ struct WorkoutSessionView: View {
                 }
 
                 if let session {
-                    ForEach(session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })) { loggedExercise in
+                    let exercises = session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })
+                    ForEach(Array(exercises.enumerated()), id: \.element.id) { index, loggedExercise in
                         if let exercise = ExerciseCatalog.find(id: loggedExercise.exerciseID) {
                             ExerciseCardView(
                                 loggedExercise: loggedExercise,
                                 exercise: exercise,
+                                position: index + 1,
+                                exerciseCount: exercises.count,
                                 suggestionEngine: appState.suggestionEngine,
                                 recentHistory: appState.workoutRepository.loggedSets(forExerciseID: loggedExercise.exerciseID, limit: 5),
                                 readiness: readiness.readinessBand,
@@ -54,17 +61,30 @@ struct WorkoutSessionView: View {
                     }
                 }
 
-                Button("Finish Session") { finishSession() }
-                    .buttonStyle(.cmsnPrimary)
+                Button("Finish session") { finishSession() }
+                    .buttonStyle(.cmsnGhost)
+                    .accessibilityLabel("Finish Session")
+                    .padding(.top, 8)
             }
-            .padding(.horizontal, CMSNSpacing.xl)
-            .padding(.vertical, CMSNSpacing.xl)
+            .padding(20)
             .frame(maxWidth: .infinity, alignment: .leading)
             .containerRelativeFrame(.horizontal, alignment: .leading)
         }
         .background(CMSNColor.Semantic.background.ignoresSafeArea())
-        .toolbarBackground(CMSNColor.Semantic.background, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
+        .toolbarBackground(CMSNColor.black, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("\(resolvedDay.focus.displayName) · Let's work")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
         .navigationDestination(isPresented: $navigateToSummary) {
             if let session, let completedScoreBreakdown {
                 SessionSummaryView(session: session, scoreBreakdown: completedScoreBreakdown, athlete: athlete)
@@ -79,15 +99,6 @@ struct WorkoutSessionView: View {
         }
         .task {
             if session == nil { buildSession() }
-        }
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            EyebrowLabel(text: resolvedDay.focus.displayName)
-            Text("Let's Work")
-                .font(CMSNTypography.displaySmall(36))
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
         }
     }
 

@@ -30,7 +30,7 @@ struct SessionSummaryView: View {
         ZStack {
             CMSNColor.offBlack.ignoresSafeArea()
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 20) {
                     header
                     completionSummary
                     nutritionRemainder
@@ -39,12 +39,25 @@ struct SessionSummaryView: View {
                     recoveryRecommendation
                     shareSection
 
-                    Button("Log How Your Gear Performed") {
+                    Button("Log how your gear performed") {
                         showingApparelFeedback = true
                     }
                     .buttonStyle(.cmsnGhost)
+                    .accessibilityLabel("Log How Your Gear Performed")
                 }
-                .padding(24)
+                .padding(20)
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
+        .toolbarBackground(CMSNColor.black, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("\(session.splitFocus.displayName) · Complete")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
             }
         }
         .sheet(isPresented: $showingApparelFeedback) {
@@ -62,65 +75,99 @@ struct SessionSummaryView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            EyebrowLabel(text: wasFullyCompleted ? "Session Complete" : "Session Logged")
-            Text(session.splitFocus.displayName)
-                .font(CMSNTypography.displaySmall(40))
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Session logged")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            Text("IT COUNTS.")
+                .font(CMSNTypography.display(64))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
-            if !wasFullyCompleted {
-                Text("You didn't hit everything on the plan today — that's still real, logged work. It counts.")
-                    .font(CMSNTypography.bodyQuiet())
-                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
-            }
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.vertical, -6)
+            Text(headerDetail)
+                .font(CMSNTypography.body())
+                .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
         }
+    }
+
+    private var headerDetail: String {
+        if wasFullyCompleted {
+            return "You hit the plan. That's logged."
+        }
+        return "You didn't hit everything on the plan today. That's still real, logged work."
     }
 
     private var completionSummary: some View {
         VStack(alignment: .leading, spacing: 10) {
-            EyebrowLabel(text: "Work")
-            Text("\(totalSetsAttempted) of \(totalSetsPlanned) planned sets")
-                .font(CMSNTypography.body())
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
-            ForEach(session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })) { exercise in
-                let attempted = exercise.loggedSets.filter(\.isAttempted).count
-                Text("· \(exercise.exerciseNameSnapshot): \(attempted)/\(exercise.loggedSets.count)")
-                    .font(CMSNTypography.bodyQuiet())
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(totalSetsAttempted)")
+                    .font(CMSNTypography.display(80))
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                Text("/ \(totalSetsPlanned)")
+                    .font(CMSNTypography.display(36))
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
             }
+            .padding(.vertical, -8)
+            Text("planned sets done")
+                .font(.system(size: 15))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+
+            VStack(spacing: 0) {
+                ForEach(session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })) { exercise in
+                    let attempted = exercise.loggedSets.filter(\.isAttempted).count
+                    HStack {
+                        Text(exercise.exerciseNameSnapshot)
+                            .font(.system(size: 16))
+                            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                            .lineLimit(2)
+                        Spacer(minLength: 12)
+                        Text("\(attempted)/\(exercise.loggedSets.count)")
+                            .font(CMSNTypography.numeric(16))
+                            .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    }
+                    .padding(.vertical, 8)
+                }
+            }
         }
-        .padding(20)
-        .cmsnCard()
     }
 
     /// Today's training-day targets minus today's diary. The targets include
     /// this session when it has a finish time and a cited activity.
     private var nutritionRemainder: some View {
         let remainder = remainingMacros
-        return VStack(alignment: .leading, spacing: 12) {
-            EyebrowLabel(text: "Nutrition")
-            Text(proteinFigure(remainder))
-                .font(CMSNTypography.displaySmall(32))
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
-            Text(proteinCaption(remainder))
-                .font(CMSNTypography.body())
-                .foregroundStyle(CMSNColor.Semantic.textPrimary)
-            if remainder.hasLoggedFood {
-                Text("\(whole(remainder.proteinLoggedGrams))g logged of \(whole(remainder.proteinTargetGrams))g")
-                    .font(CMSNTypography.bodyQuiet())
-                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
-            }
-            Text(calorieLine(remainder))
-                .font(CMSNTypography.bodyQuiet())
+        return VStack(alignment: .leading, spacing: 14) {
+            Text("Next: refuel")
+                .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
-            if let note = contextNote(remainder) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(proteinNumber(remainder))
+                            .font(CMSNTypography.display(48))
+                            .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                        Text(proteinUnit(remainder))
+                            .font(.system(size: 16))
+                            .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    }
+                    Text(refuelCaption(remainder))
+                        .font(.system(size: 14))
+                        .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                }
+                Spacer(minLength: 8)
+                Button("Log food") {
+                    appState.selectedTab = .nutrition
+                }
+                .buttonStyle(.cmsnCompactPrimary)
+                .accessibilityLabel("Log Food")
+            }
+            if remainder.entriesMissingCalories > 0, let note = contextNote(remainder) {
                 Text(note)
                     .font(CMSNTypography.bodyQuiet())
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Button("Log Food") {
-                appState.selectedTab = .nutrition
-            }
-            .buttonStyle(.cmsnGhost)
         }
         .padding(20)
         .cmsnCard()
@@ -151,21 +198,29 @@ struct SessionSummaryView: View {
         Int(value.rounded())
     }
 
-    private func proteinFigure(_ remaining: RemainingMacros) -> String {
+    private func proteinNumber(_ remaining: RemainingMacros) -> String {
         if !remaining.hasLoggedFood {
-            return "\(whole(remaining.proteinTargetGrams))g"
+            return "\(whole(remaining.proteinTargetGrams))"
         }
         let left = remaining.proteinRemainingGrams
         if left.rounded() < 0 {
-            return "\(whole(abs(left)))g over"
+            return "\(whole(abs(left)))"
         }
-        return "\(whole(left))g"
+        return "\(whole(left))"
     }
 
-    private func proteinCaption(_ remaining: RemainingMacros) -> String {
-        if !remaining.hasLoggedFood { return "protein target" }
-        if remaining.proteinRemainingGrams.rounded() < 0 { return "today's protein target" }
-        return "protein left"
+    private func proteinUnit(_ remaining: RemainingMacros) -> String {
+        if remaining.hasLoggedFood, remaining.proteinRemainingGrams.rounded() < 0 {
+            return "g over"
+        }
+        return "g protein"
+    }
+
+    private func refuelCaption(_ remaining: RemainingMacros) -> String {
+        if !remaining.hasLoggedFood {
+            return "~\(whole(remaining.calorieTarget)) kcal · Nothing logged yet"
+        }
+        return calorieLine(remaining)
     }
 
     private func calorieLine(_ remaining: RemainingMacros) -> String {
@@ -191,9 +246,11 @@ struct SessionSummaryView: View {
 
     private var scoreSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            EyebrowLabel(text: "CMSN Score")
+            Text("CMSN score")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text("+\(Int(scoreBreakdown.total))")
-                .font(CMSNTypography.displaySmall(32))
+                .font(CMSNTypography.display(48))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
             scoreRow("Work", scoreBreakdown.work)
             scoreRow("Consistency", scoreBreakdown.consistency)
@@ -206,7 +263,7 @@ struct SessionSummaryView: View {
 
     private func scoreRow(_ label: String, _ value: Double) -> some View {
         HStack {
-            Text(label).font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.textSecondary)
+            Text(label).font(CMSNTypography.body()).foregroundStyle(CMSNColor.Semantic.textSecondary)
             Spacer()
             Text("\(Int(value))").font(CMSNTypography.numeric(14)).foregroundStyle(CMSNColor.Semantic.textPrimary)
         }
@@ -220,7 +277,9 @@ struct SessionSummaryView: View {
                 ? "Your readiness was low going in — prioritize sleep and protein tonight before your next session."
                 : "Solid session. A normal rest/recovery day tomorrow keeps this sustainable.")
         return VStack(alignment: .leading, spacing: 8) {
-            EyebrowLabel(text: "Recovery")
+            Text("Recovery")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text(message).font(CMSNTypography.body()).foregroundStyle(CMSNColor.Semantic.textPrimary)
         }
     }
