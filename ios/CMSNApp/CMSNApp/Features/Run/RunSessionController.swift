@@ -93,25 +93,27 @@ final class RunSessionController {
     private var ticker: Timer?
 
     init(
-        location: any RunLocationProviding = CoreLocationRunService(),
-        motion: any RunMotionProviding = PedometerRunService(),
-        speech: any RunSpeechProviding = RunSpeechService(),
-        heart: any HeartRateProviding = HeartRateService(),
-        health: any HealthRunWriting = HealthKitRunSync(),
+        location: (any RunLocationProviding)? = nil,
+        motion: (any RunMotionProviding)? = nil,
+        speech: (any RunSpeechProviding)? = nil,
+        heart: (any HeartRateProviding)? = nil,
+        health: (any HealthRunWriting)? = nil,
         automaticallyTicks: Bool = true,
         clock: @escaping () -> Date = Date.init,
-        haptic: @escaping (RunHaptic) -> Void = RunSessionController.deviceHaptic,
-        setIdleTimerDisabled: @escaping (Bool) -> Void = { UIApplication.shared.isIdleTimerDisabled = $0 }
+        haptic: ((RunHaptic) -> Void)? = nil,
+        setIdleTimerDisabled: ((Bool) -> Void)? = nil
     ) {
-        self.location = location
-        self.motion = motion
-        self.speech = speech
-        self.heart = heart
-        self.health = health
+        // Defaults are built in the body. A default argument is nonisolated,
+        // and HealthKitRunSync's initializer is MainActor.
+        self.location = location ?? CoreLocationRunService()
+        self.motion = motion ?? PedometerRunService()
+        self.speech = speech ?? RunSpeechService()
+        self.heart = heart ?? HeartRateService()
+        self.health = health ?? HealthKitRunSync()
         self.automaticallyTicks = automaticallyTicks
         self.clock = clock
-        self.haptic = haptic
-        self.setIdleTimerDisabled = setIdleTimerDisabled
+        self.haptic = haptic ?? { RunSessionController.deviceHaptic($0) }
+        self.setIdleTimerDisabled = setIdleTimerDisabled ?? { UIApplication.shared.isIdleTimerDisabled = $0 }
         bind()
     }
 
