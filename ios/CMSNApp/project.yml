@@ -82,22 +82,15 @@ targets:
     # device build will succeed. StoreKit 2 needs no entitlement key.
     capabilities:
       com.apple.InAppPurchase: {}
-    # No `dependencies: - target: CMSNWatchApp` here. It was there
-    # earlier, in every combination (implicit embed, embed: true,
-    # embed: false) and with every other setting on this page
-    # (EXCLUDED_ARCHS, ONLY_ACTIVE_ARCH, SKIP_INSTALL) tried in isolation
-    # and combined - all four independent fix attempts left the identical
-    # "Multiple commands produce .../CMSNWatchApp.app/CMSNWatchApp"
-    # (CopyAndPreserveArchs vs. Ld, in target CMSNWatchApp) error in
-    # place, always failing at the same instant during
-    # CreateBuildDescription. That rules out arch multiplicity,
-    # install-packaging, and embedding as the cause - the one variable
-    # that was never isolated was whether CMSNWatchApp gets built at all
-    # as part of the CMSNApp scheme. The watch app now records a run and
-    # transfers it to the phone, but it still must not be a CMSNApp
-    # dependency: embedding it reproduces the duplicate-output error.
-    # Build it with the CMSNWatchApp scheme. Install it beside the phone
-    # app until that XcodeGen bug is fixed.
+    # Embed the watch app. Do not link it: a watchOS application is not
+    # an iOS library. XcodeGen puts this in "Embed Watch Content"
+    # ($(CONTENTS_FOLDER_PATH)/Watch) because the dependency platform is
+    # watchOS. link: false keeps it out of the iOS link phase.
+    dependencies:
+      - target: CMSNWatchApp
+        embed: true
+        link: false
+        codeSign: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app
@@ -110,7 +103,12 @@ targets:
         CODE_SIGN_STYLE: Automatic
 
   CMSNWatchApp:
-    type: application.watchapp2
+    # Single-target watch app (Xcode 14+). `application.watchapp2` is the
+    # legacy wrapper: Xcode adds CopyAndPreserveArchs to drop a prebuilt
+    # binary at CMSNWatchApp.app/CMSNWatchApp, and the Compile Sources
+    # link writes that same path. That is the "Multiple commands produce"
+    # error. A watchOS `application` only links.
+    type: application
     platform: watchOS
     sources:
       - path: CMSNWatchApp
@@ -141,11 +139,7 @@ targets:
     # HealthKit entitlement is the file below, not a capabilities entry.
     # XcodeGen 2.46 does not emit entitlements from `capabilities`. The
     # watch App ID needs HealthKit enabled in the developer portal.
-    # This target is still not embedded in CMSNApp. Building the
-    # CMSNWatchApp scheme alone also fails at CreateBuildDescription:
-    # "Multiple commands produce CMSNWatchApp.app/CMSNWatchApp"
-    # (CopyAndPreserveArchs vs Ld). ENABLE_DEBUG_DYLIB = NO did not
-    # clear it. CI does not build this target until that is fixed.
+    # Embedded in CMSNApp, so it is not installed on its own.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
