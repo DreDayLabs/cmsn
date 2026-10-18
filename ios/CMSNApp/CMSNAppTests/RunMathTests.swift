@@ -76,15 +76,17 @@ final class RunMathTests: XCTestCase {
     }
 
     func testSmoothingMovesTheMiddleFixAndLeavesTheEnds() {
+        // A human pace, with a middle fix that is not already the average of its neighbors.
         let points = [
             point(latitude: 37, longitude: -122, at: 0),
-            point(latitude: 37.002, longitude: -122, at: 10),
-            point(latitude: 37.004, longitude: -122, at: 20),
+            point(latitude: 37.001, longitude: -122.001, at: 20),
+            point(latitude: 37.0004, longitude: -122.0002, at: 40),
         ]
         let smoothed = RunMath.smooth(points)
         XCTAssertEqual(smoothed[0].latitude, points[0].latitude, accuracy: 0.000_000_1)
         XCTAssertEqual(smoothed[2].latitude, points[2].latitude, accuracy: 0.000_000_1)
         XCTAssertNotEqual(smoothed[1].latitude, points[1].latitude)
+        XCTAssertEqual(RunMath.accepted(points).count, 3)
         XCTAssertEqual(RunMath.distance(of: points), RunMath.distance(of: RunMath.accepted(points)), accuracy: 0.01)
     }
 
