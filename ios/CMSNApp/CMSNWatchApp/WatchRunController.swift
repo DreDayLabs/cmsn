@@ -42,7 +42,8 @@ final class WatchRunController: NSObject, ObservableObject, CLLocationManagerDel
         location.activityType = .fitness
         location.desiredAccuracy = kCLLocationAccuracyBest
         location.distanceFilter = 5
-        location.pausesLocationUpdatesAutomatically = false
+        // watchOS has no pausesLocationUpdatesAutomatically. The workout
+        // session is what keeps GPS going when the wrist drops.
         loadPrefs()
         try? FileManager.default.createDirectory(at: Self.directory, withIntermediateDirectories: true)
         if let data = try? Data(contentsOf: Self.pendingURL) {
