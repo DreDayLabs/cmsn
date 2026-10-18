@@ -1,0 +1,4 @@
+# Full-resolution Higgsfield originals live in Git LFS so they stay out of
+# regular git history. Everything else in the repo is stored normally.
+media/higgsfield/**/*.png filter=lfs diff=lfs merge=lfs -text
+media/higgsfield/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
