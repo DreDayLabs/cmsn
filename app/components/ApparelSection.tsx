@@ -134,9 +134,8 @@ export default function ApparelSection() {
           <span className="whitespace-nowrap">symbol-led.</span>
         </p>
         <p className="mt-6 max-w-[52ch] text-[15px] leading-relaxed text-white/55">
-          Nothing is for sale yet, and there are no product photographs to
-          show. When there are, they will be of real garments. The list above
-          hears about it first.
+          Nothing is for sale yet — this is the world it&apos;s being built
+          for.
         </p>
 
         {canOfferPlay && !playing ? (
