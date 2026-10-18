@@ -68,7 +68,7 @@ struct SupplementLibraryView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(group.name.uppercased())
                         .font(CMSNTypography.eyebrow())
-                        .kerning(1.8)
+                        .lineLimit(1)
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
                         .padding(.top, 8)
                     ForEach(group.entries) { entry in
@@ -176,7 +176,7 @@ private struct EvidenceBadge: View {
     var body: some View {
         Text(level.displayName.uppercased())
             .font(CMSNTypography.micro())
-            .kerning(1.4)
+            .lineLimit(1)
             .foregroundStyle(CMSNColor.Semantic.textSecondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)

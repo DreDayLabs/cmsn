@@ -133,7 +133,8 @@ struct FlowToggleGrid<Item: Hashable>: View {
                 } label: {
                     Text(label(item))
                         .font(CMSNTypography.eyebrow())
-                        .kerning(1.2)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                         .padding(.vertical, 10)
                         .padding(.horizontal, 12)
                         .frame(maxWidth: .infinity)

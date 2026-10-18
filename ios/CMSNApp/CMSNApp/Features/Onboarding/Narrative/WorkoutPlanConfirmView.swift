@@ -36,8 +36,8 @@ struct WorkoutPlanConfirmView: View {
                 LinearGradient(
                     colors: [
                         .clear,
-                        CMSNColor.offBlack.opacity(0.25),
-                        CMSNColor.offBlack.opacity(0.85),
+                        CMSNColor.scrim.opacity(0.25),
+                        CMSNColor.scrim.opacity(0.85),
                     ],
                     startPoint: .top,
                     endPoint: .bottom

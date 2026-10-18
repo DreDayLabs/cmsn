@@ -3,28 +3,30 @@ import UIKit
 
 /// Type for the shipped app.
 ///
-/// Display stays on the bundled Bebas Neue (OFL, already in the target).
-/// Everything else is the system face — no new font files. Sizes use text
-/// styles, or `UIFontMetrics` for the numeric sizes callers pass in, so
-/// Dynamic Type still scales them. At the default content size the metrics
-/// match the designed points.
+/// Bebas Neue is the display face for large headings only. Body copy,
+/// labels, buttons, and numbers use the system sans (SF Pro on device) at
+/// a weight that stays legible. Nothing here adds letter-spacing: tracking
+/// on small labels was spreading "Swap" and "Show setup & cues" apart.
+/// Sizes use text styles, or `UIFontMetrics` for the numeric sizes callers
+/// pass in, so Dynamic Type still scales them. At the default content size
+/// the metrics match the designed points.
 enum CMSNTypography {
     private static let displayFontName = "BebasNeue-Regular"
 
-    /// Large campaign-style headline.
+    /// Large campaign-style headline. Display face only.
     static func display(_ size: CGFloat) -> Font {
         .custom(displayFontName, size: size, relativeTo: .largeTitle)
     }
 
-    /// Section headers, score numbers, exercise-card titles.
+    /// Section headers and exercise-card titles. Display face only.
     static func displaySmall(_ size: CGFloat = 28) -> Font {
         .custom(displayFontName, size: size, relativeTo: .title)
     }
 
-    /// All-caps letter-spaced labels. Caption 2 is 11pt at the default size
-    /// and scales with Dynamic Type.
+    /// Short section kicker. Caption is 12pt semibold and scales. Callers
+    /// that want capitals use `EyebrowLabel`; this face is not tracked.
     static func eyebrow() -> Font {
-        .system(.caption2, design: .default, weight: .medium)
+        .system(.caption, design: .default, weight: .semibold)
     }
 
     /// Standard body copy. The body text style is 17pt and scales.
@@ -32,10 +34,20 @@ enum CMSNTypography {
         .system(.body, design: .default, weight: .regular)
     }
 
-    /// Quiet register for disclaimers and secondary sentences. Subheadline
-    /// is 15pt light italic and scales.
+    /// Secondary sentences and hints. Subheadline is 15pt regular — not
+    /// light, and not italic — and scales.
     static func bodyQuiet() -> Font {
-        .system(.subheadline, design: .default, weight: .light).italic()
+        .system(.subheadline, design: .default, weight: .regular)
+    }
+
+    /// Control labels ("Reps", "Weight", "Set 1"). Caption semibold.
+    static func label() -> Font {
+        .system(.caption, design: .default, weight: .semibold)
+    }
+
+    /// Button titles. Subheadline semibold, system face, no tracking.
+    static func button() -> Font {
+        .system(.subheadline, design: .default, weight: .semibold)
     }
 
     /// Supporting metadata. Caption is 12pt and scales.
@@ -64,8 +76,8 @@ enum CMSNTypography {
     }
 }
 
-/// Uppercase, tracked label. Tracking is the editorial move; color stays
-/// a neutral, never an accent.
+/// Uppercase section kicker. Capitals only — no extra letter-spacing.
+/// Color stays a neutral, never an accent.
 struct EyebrowLabel: View {
     let text: String
     var color: Color = CMSNColor.Semantic.textSecondary
@@ -73,7 +85,8 @@ struct EyebrowLabel: View {
     var body: some View {
         Text(text.uppercased())
             .font(CMSNTypography.eyebrow())
-            .kerning(2.6)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
             .foregroundStyle(color)
     }
 }

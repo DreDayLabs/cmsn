@@ -229,7 +229,7 @@ struct SessionSummaryView: View {
         VStack(alignment: .leading, spacing: 12) {
             if let shareImage {
                 ShareLink(item: Image(uiImage: shareImage), preview: SharePreview("CMSN Session", image: Image(uiImage: shareImage))) {
-                    Text("Share This Session").font(CMSNTypography.eyebrow()).kerning(1.6)
+                    Text("Share This Session").font(CMSNTypography.button()).lineLimit(1)
                 }
                 .buttonStyle(.cmsnPrimary)
             } else {

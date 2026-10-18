@@ -23,41 +23,48 @@ struct WorkoutSessionView: View {
     @State private var completedScoreBreakdown: ScoreBreakdown?
 
     var body: some View {
-        ZStack {
-            CMSNColor.offBlack.ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    header
+        // Background ignores the safe area. The scroll view must not: on a
+        // pushed screen the leading safe area is inset, and a ZStack sibling
+        // that ignores it lays the header out under that inset. The first
+        // glyph ("PUSH" / "LET'S WORK") was clipped at the screen edge.
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                header
 
-                    if let activeRestSeconds {
-                        RestTimerView(totalSeconds: activeRestSeconds) {
-                            self.activeRestSeconds = nil
-                        }
+                if let activeRestSeconds {
+                    RestTimerView(totalSeconds: activeRestSeconds) {
+                        self.activeRestSeconds = nil
                     }
-
-                    if let session {
-                        ForEach(session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })) { loggedExercise in
-                            if let exercise = ExerciseCatalog.find(id: loggedExercise.exerciseID) {
-                                ExerciseCardView(
-                                    loggedExercise: loggedExercise,
-                                    exercise: exercise,
-                                    suggestionEngine: appState.suggestionEngine,
-                                    recentHistory: appState.workoutRepository.loggedSets(forExerciseID: loggedExercise.exerciseID, limit: 5),
-                                    readiness: readiness.readinessBand,
-                                    unitPreference: athlete.unitPreference,
-                                    onRequestSubstitution: { substitutionTarget = loggedExercise },
-                                    onRestStart: { seconds in activeRestSeconds = seconds }
-                                )
-                            }
-                        }
-                    }
-
-                    Button("Finish Session") { finishSession() }
-                        .buttonStyle(.cmsnPrimary)
                 }
-                .padding(24)
+
+                if let session {
+                    ForEach(session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })) { loggedExercise in
+                        if let exercise = ExerciseCatalog.find(id: loggedExercise.exerciseID) {
+                            ExerciseCardView(
+                                loggedExercise: loggedExercise,
+                                exercise: exercise,
+                                suggestionEngine: appState.suggestionEngine,
+                                recentHistory: appState.workoutRepository.loggedSets(forExerciseID: loggedExercise.exerciseID, limit: 5),
+                                readiness: readiness.readinessBand,
+                                unitPreference: athlete.unitPreference,
+                                onRequestSubstitution: { substitutionTarget = loggedExercise },
+                                onRestStart: { seconds in activeRestSeconds = seconds }
+                            )
+                        }
+                    }
+                }
+
+                Button("Finish Session") { finishSession() }
+                    .buttonStyle(.cmsnPrimary)
             }
+            .padding(.horizontal, CMSNSpacing.xl)
+            .padding(.vertical, CMSNSpacing.xl)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .containerRelativeFrame(.horizontal, alignment: .leading)
         }
+        .background(CMSNColor.Semantic.background.ignoresSafeArea())
+        .toolbarBackground(CMSNColor.Semantic.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .navigationDestination(isPresented: $navigateToSummary) {
             if let session, let completedScoreBreakdown {
                 SessionSummaryView(session: session, scoreBreakdown: completedScoreBreakdown, athlete: athlete)

@@ -57,7 +57,7 @@ struct ScoreView: View {
             HStack {
                 Text(title.uppercased())
                     .font(CMSNTypography.eyebrow())
-                    .kerning(1.8)
+                    .lineLimit(1)
                 Spacer()
                 Text("\(Int(contribution)) pts · \(Int(weight * 100))% weight")
                     .font(CMSNTypography.bodyQuiet())
