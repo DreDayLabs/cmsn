@@ -1,0 +1,7 @@
+# Full-resolution Higgsfield originals live in Git LFS so they stay out of
+# regular git history. The apparel loop shipped from public/videos is a byte
+# copy of one of those originals and is tracked the same way. The poster JPEG
+# is a derivative and stays a normal file.
+media/higgsfield/**/*.png filter=lfs diff=lfs merge=lfs -text
+media/higgsfield/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+public/videos/*.mp4 filter=lfs diff=lfs merge=lfs -text

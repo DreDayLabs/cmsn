@@ -3,12 +3,15 @@ import SwiftUI
 /// Pill actions in the system face. One filled white button is the strongest
 /// thing on a screen. Ghost is a `#111` pill, not an outlined box. The
 /// primary button dims as a whole so its black label stays on white.
+/// Titles stay on one line at every content size.
 
 private struct CMSNButtonLabelStyle: ViewModifier {
     let textColor: Color
     func body(content: Content) -> some View {
         content
-            .font(.system(size: 17, weight: .semibold))
+            .font(CMSNTypography.button())
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(textColor)
             .padding(.vertical, 14)
             .padding(.horizontal, 20)
@@ -37,16 +40,20 @@ struct CMSNGhostButtonStyle: ButtonStyle {
 }
 
 /// White Log pill that sizes to its label. The full-width primary would
-/// swallow the reps and weight fields.
+/// swallow the reps and weight fields. `fixedSize` keeps it from squeezing
+/// the neighboring target into a column.
 struct CMSNCompactPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 16, weight: .semibold))
+            .font(CMSNTypography.button())
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(CMSNColor.Semantic.buttonLabel)
             .padding(.vertical, 12)
             .padding(.horizontal, 22)
             .background(Capsule().fill(CMSNColor.Semantic.buttonFill))
             .opacity(configuration.isPressed ? 0.92 : 1)
+            .fixedSize(horizontal: true, vertical: true)
     }
 }
 
@@ -54,12 +61,15 @@ struct CMSNCompactPrimaryButtonStyle: ButtonStyle {
 struct CMSNCompactQuietButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 16, weight: .semibold))
+            .font(CMSNTypography.button())
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(CMSNColor.Semantic.textPrimary)
             .padding(.vertical, 12)
             .padding(.horizontal, 22)
             .background(Capsule().fill(CMSNColor.Semantic.border))
             .opacity(configuration.isPressed ? 0.92 : 1)
+            .fixedSize(horizontal: true, vertical: true)
     }
 }
 
@@ -82,7 +92,9 @@ struct CMSNGhostOnSurfaceButtonStyle: ButtonStyle {
 struct CMSNTextButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 16, weight: .semibold))
+            .font(CMSNTypography.button())
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(configuration.isPressed ? CMSNColor.Semantic.textSecondary : CMSNColor.Semantic.textPrimary)
     }
 }

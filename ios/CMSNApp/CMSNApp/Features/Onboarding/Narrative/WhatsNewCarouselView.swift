@@ -86,8 +86,8 @@ struct WhatsNewCarouselView: View {
             LinearGradient(
                 colors: [
                     .clear,
-                    CMSNColor.offBlack.opacity(0.28),
-                    CMSNColor.offBlack.opacity(0.8),
+                    CMSNColor.scrim.opacity(0.28),
+                    CMSNColor.scrim.opacity(0.8),
                 ],
                 startPoint: .top,
                 endPoint: .bottom

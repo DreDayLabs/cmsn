@@ -56,7 +56,9 @@ enum CMSNContrast {
 /// - Warm surface `#F5F3F0`. A beige cast. Light surfaces, if they ship, are
 ///   neutral `#F5F5F5` / white.
 /// - Off-white `#FAFAF8` and the later `#F4F4F4` primary. v01 type is `#FFFFFF`.
-/// - Near-black `#0A0A0A` field. v01 is true `#000000`.
+/// - Near-black `#0A0A0A` as a screen field. v01 screens are true `#000000`.
+///   `#0A0A0A` remains only as `scrim`, for photo and video overlays whose
+///   opacities were tuned against that value.
 /// - `textSecondary` as off-white at 40% opacity. Secondary type is solid `#8A8A8A`.
 enum CMSNPalette {
     /// Shipped dark experience. Approved v01: pure black, white, and gray.
@@ -74,6 +76,8 @@ enum CMSNPalette {
     /// Empty progress track. `#3A3A3A` disappears on a `#111111` card;
     /// this is still gray, and clearly a track rather than a second ink.
     static let track = CMSNRGB(red: 0x5C, green: 0x5C, blue: 0x5C)
+    /// Photo and video scrim. Not used for type or screen backgrounds.
+    static let scrim = CMSNRGB(red: 0x0A, green: 0x0A, blue: 0x0A)
 
     /// Specified light mode. Contrast-tested. Not installed — see the enum note.
     static let lightBackground = CMSNRGB(red: 0xF5, green: 0xF5, blue: 0xF5)
@@ -88,11 +92,14 @@ enum CMSNPalette {
 /// Live colors for the shipped dark UI. Features should prefer `Semantic`.
 enum CMSNColor {
     static let black = CMSNPalette.black.color
-    /// App background. True black (`#000000`), including the welcome-video scrim.
+    /// Screen background. True black. The name is historical.
     static let offBlack = CMSNPalette.background.color
+    /// Overlay for the welcome video and narrative photos. Separate from the
+    /// screen background so those opacities keep the composite they were
+    /// tuned for.
+    static let scrim = CMSNPalette.scrim.color
     static let offWhite = CMSNPalette.textPrimary.color
-    /// Reserved for the primary button face. Not a tint — it is the brightest
-    /// neutral, used once per screen.
+    /// Primary button face. Not a tint — the brightest neutral.
     static let white = CMSNPalette.white.color
     static let gray = CMSNPalette.textSecondary.color
 

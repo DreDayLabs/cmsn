@@ -40,6 +40,17 @@ final class CMSNContrastTests: XCTestCase {
         ])
     }
 
+    func testPrimaryInkIsWhiteOnTrueBlack() {
+        XCTAssertEqual(CMSNPalette.background, CMSNRGB(red: 0x00, green: 0x00, blue: 0x00))
+        XCTAssertEqual(CMSNPalette.textPrimary, CMSNRGB(red: 0xFF, green: 0xFF, blue: 0xFF))
+        XCTAssertEqual(CMSNPalette.white, CMSNRGB(red: 0xFF, green: 0xFF, blue: 0xFF))
+        XCTAssertEqual(
+            CMSNContrast.ratio(foreground: CMSNPalette.textPrimary, on: CMSNPalette.background),
+            21,
+            accuracy: 0.05
+        )
+    }
+
     func testSecondaryInkIsSolidGray() {
         XCTAssertEqual(
             CMSNPalette.textSecondary,

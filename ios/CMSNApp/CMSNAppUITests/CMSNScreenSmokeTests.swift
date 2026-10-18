@@ -94,6 +94,7 @@ final class CMSNScreenSmokeTests: XCTestCase {
             "Workout session never appeared. \(app.debugDescription)"
         )
         capture("workout-session")
+        assertWorkoutSessionIsLegible()
 
         tapFirst(of: ["Finish Session", "Finish session"])
         XCTAssertTrue(
@@ -147,15 +148,14 @@ final class CMSNScreenSmokeTests: XCTestCase {
     }
 
     private func openTab(_ name: String) {
-        let tab = app.tabBars.buttons[name]
+        if tapTab(name) { return }
+        if openOverflow(name) { return }
+        // Summary sits on top of the workout, which sits on Today.
+        // Pop until the tab bar — or the overflow list — is on screen again.
         let deadline = Date().addingTimeInterval(20)
         while Date() < deadline {
-            if tab.exists, tab.isHittable {
-                tab.tap()
-                return
-            }
-            // Summary sits on top of the workout, which sits on Today.
-            // Pop until the tab bar is on screen again.
+            if tapTab(name) { return }
+            if openOverflow(name) { return }
             let back = app.navigationBars.buttons["Back"]
             if back.exists, back.isHittable {
                 back.tap()
@@ -167,8 +167,43 @@ final class CMSNScreenSmokeTests: XCTestCase {
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.4))
         }
-        XCTAssertTrue(tab.waitForExistence(timeout: 8), "Missing tab \(name). \(app.debugDescription)")
+        XCTFail("Missing tab \(name). \(app.debugDescription)")
+    }
+
+    private func tapTab(_ name: String) -> Bool {
+        let tab = app.tabBars.buttons[name]
+        guard tab.waitForExistence(timeout: 4), tab.isHittable else { return false }
         tab.tap()
+        return true
+    }
+
+    /// Six tabs put Library and Settings behind the overflow control.
+    /// iOS labels that control "More" and lists the rest as cells or buttons.
+    private func openOverflow(_ name: String) -> Bool {
+        let bar = app.tabBars.buttons
+        let more = bar["More"].exists ? bar["More"] : bar.allElementsBoundByIndex.last(where: { button in
+            !["Today", "Run", "Nutrition", "Score", "Library", "Settings"].contains(button.label)
+        })
+        guard let more, more.waitForExistence(timeout: 2), more.isHittable else { return false }
+        more.tap()
+        let exact = NSPredicate(format: "label == %@", name)
+        let queries = [
+            app.cells.matching(exact).firstMatch,
+            app.buttons.matching(exact).firstMatch,
+            app.staticTexts.matching(exact).firstMatch,
+            app.collectionViews.cells.containing(.staticText, identifier: name).firstMatch,
+        ]
+        for candidate in queries {
+            if candidate.waitForExistence(timeout: 2) {
+                if candidate.isHittable {
+                    candidate.tap()
+                } else {
+                    candidate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                }
+                return true
+            }
+        }
+        return false
     }
 
     /// Polls until `condition` is true. Used so one harness can shoot the
@@ -272,6 +307,62 @@ final class CMSNScreenSmokeTests: XCTestCase {
             if timeout == 0 { return }
             RunLoop.current.run(until: Date().addingTimeInterval(0.3))
         } while Date() < deadline
+    }
+
+    /// The pushed session used to draw under the leading safe area, and the
+    /// rep target used to wrap one character per line. Both are visible in
+    /// element frames, so this locks them without comparing bitmaps.
+    private func assertWorkoutSessionIsLegible() {
+        let headline = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "Let's work")
+        ).firstMatch
+        XCTAssertTrue(headline.waitForExistence(timeout: 5), "Workout headline never appeared")
+        XCTAssertGreaterThan(
+            headline.frame.minX,
+            8,
+            "Workout headline is clipped at the leading edge: \(headline.frame)"
+        )
+        let focus = app.staticTexts["PUSH"]
+        if focus.exists {
+            XCTAssertGreaterThan(
+                focus.frame.minX,
+                8,
+                "Focus label is clipped at the leading edge: \(focus.frame)"
+            )
+        }
+
+        let targets = app.staticTexts.matching(identifier: "workout.repTarget")
+        XCTAssertGreaterThan(targets.count, 0, "Rep target never appeared. \(app.debugDescription)")
+        for index in 0..<targets.count {
+            let target = targets.element(boundBy: index)
+            guard target.exists, target.frame.width > 1 else { continue }
+            XCTAssertLessThan(
+                target.frame.height,
+                44,
+                "Rep target wrapped vertically: \(target.label) \(target.frame)"
+            )
+            XCTAssertGreaterThan(
+                target.frame.width,
+                target.frame.height,
+                "Rep target is a vertical column: \(target.label) \(target.frame)"
+            )
+        }
+
+        XCTAssertTrue(app.staticTexts["Reps"].waitForExistence(timeout: 5), "Reps label missing")
+        XCTAssertTrue(app.staticTexts["Weight"].exists, "Weight label missing")
+        XCTAssertTrue(app.staticTexts["lb"].exists, "Weight unit missing")
+        XCTAssertTrue(app.buttons["Log"].exists, "Log button missing")
+
+        let setLabel = app.staticTexts["Set 1"].firstMatch
+        let discomfort = app.buttons["Felt discomfort on this set"].firstMatch
+        XCTAssertTrue(setLabel.waitForExistence(timeout: 5))
+        XCTAssertTrue(discomfort.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            discomfort.frame.minX,
+            setLabel.frame.minX,
+            accuracy: 4,
+            "Discomfort checkbox should align under its set"
+        )
     }
 
     private func capture(_ name: String) {

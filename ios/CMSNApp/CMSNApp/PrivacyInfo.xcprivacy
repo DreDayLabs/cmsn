@@ -6,11 +6,14 @@
 	  Declares only what CMSNApp code actually does.
 
 	  Not collected (stays on device, Apple's "collect" = sent off device
-	  and retained past the request): SwiftData profile, workouts,
-	  nutrition, supplements, and score; EventKit titles read locally to
-	  match a scheduled workout; VisionKit barcode frames (no photo is
-	  written); StoreKit entitlement state read on device. Purchases are
-	  processed by Apple.
+	  and retained past the request): SwiftData profile, workouts, runs,
+	  routes, shoes, nutrition, supplements, and score; EventKit titles
+	  read locally to match a scheduled workout; VisionKit barcode frames
+	  (no photo is written); a photo the athlete attaches to a run;
+	  location and heart rate used only during that run; StoreKit
+	  entitlement state read on device. Purchases are processed by Apple.
+	  Apple Health receives a finished run only after the athlete allows
+	  it. Nothing in the run path is an analytics SDK.
 
 	  Open Food Facts receives a barcode or search string to answer that
 	  lookup. The request does not include a name, account, or device

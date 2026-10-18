@@ -17,8 +17,8 @@ enum AccountDataService {
     static func exportJSON(context: ModelContext) throws -> URL {
         var root: [String: Any] = [
             "exportedAt": ISO8601DateFormatter().string(from: Date()),
-            "app": "CMSN",
-            "format": 1,
+            "app": "CMSN Performance",
+            "format": 2,
         ]
 
         let iso = ISO8601DateFormatter()
@@ -104,6 +104,27 @@ enum AccountDataService {
             ]
         }
 
+        let runs = (try? context.fetch(FetchDescriptor<Run>(sortBy: [SortDescriptor(\.startedAt)]))) ?? []
+        root["runs"] = runs.filter { $0.status == .ended }.map { run -> [String: Any] in
+            var dict: [String: Any] = [
+                "startedAt": iso.string(from: run.startedAt),
+                "environment": run.environment.rawValue,
+                "source": run.source.rawValue,
+                "distanceMeters": run.distanceMeters,
+                "movingSeconds": run.movingSeconds,
+                "elevationGainMeters": run.elevationGainMeters,
+                "calories": run.calories,
+                "notes": run.notes,
+                "photoAttached": run.photoJPEG != nil,
+            ]
+            if let ended = run.endedAt { dict["endedAt"] = iso.string(from: ended) }
+            if let heart = run.averageHeartRate { dict["averageHeartRate"] = heart }
+            if let ground = run.ground { dict["ground"] = ground.rawValue }
+            if let effort = run.effort { dict["effort"] = effort.rawValue }
+            if let mood = run.mood { dict["mood"] = mood.rawValue }
+            return dict
+        }
+
         let scoreEvents = (try? context.fetch(FetchDescriptor<ScoreEvent>(sortBy: [SortDescriptor(\.date)]))) ?? []
         root["scoreEvents"] = scoreEvents.map { event -> [String: Any] in
             [
@@ -129,6 +150,15 @@ enum AccountDataService {
     static func eraseEverything(context: ModelContext) {
         // Child rows first isn't strictly required (cascades cover it), but
         // being explicit means no orphan survives a future rule change.
+        try? context.delete(model: ChallengeEntry.self)
+        try? context.delete(model: Challenge.self)
+        try? context.delete(model: ClubMembership.self)
+        try? context.delete(model: RunClub.self)
+        try? context.delete(model: RunSplit.self)
+        try? context.delete(model: RunRoute.self)
+        try? context.delete(model: Run.self)
+        try? context.delete(model: RunShoe.self)
+        try? context.delete(model: RunSettings.self)
         try? context.delete(model: ScoreEvent.self)
         try? context.delete(model: ApparelFeedback.self)
         try? context.delete(model: ReadinessCheck.self)

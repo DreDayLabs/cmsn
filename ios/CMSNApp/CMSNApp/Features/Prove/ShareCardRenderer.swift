@@ -24,11 +24,11 @@ struct ShareCardView: View {
             Spacer()
             Text(date.formatted(date: .abbreviated, time: .omitted).uppercased())
                 .font(CMSNTypography.eyebrow())
-                .kerning(1.8)
+                .lineLimit(1)
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text("EARN YOUR CMSN")
                 .font(CMSNTypography.eyebrow())
-                .kerning(2.6)
+                .lineLimit(1)
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
         }
         .padding(32)

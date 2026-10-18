@@ -36,8 +36,8 @@ struct WorkoutPlanConfirmView: View {
                 LinearGradient(
                     colors: [
                         .clear,
-                        CMSNColor.offBlack.opacity(0.25),
-                        CMSNColor.offBlack.opacity(0.85),
+                        CMSNColor.scrim.opacity(0.25),
+                        CMSNColor.scrim.opacity(0.85),
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -110,7 +110,7 @@ struct WorkoutPlanConfirmView: View {
                         .padding(.horizontal, 16)
                         .foregroundStyle(value == selected ? CMSNColor.Semantic.buttonLabel : CMSNColor.Semantic.textPrimary)
                         .background(value == selected ? CMSNColor.Semantic.buttonFill : Color.clear)
-                        .overlay(Rectangle().strokeBorder(value == selected ? CMSNColor.Semantic.buttonFill : CMSNColor.Semantic.borderStrong, lineWidth: CMSNSpacing.hairline))
+                        .overlay(Rectangle().strokeBorder(value == selected ? CMSNColor.Semantic.buttonFill : CMSNColor.Semantic.textPrimary, lineWidth: CMSNSpacing.hairline))
                 }
                 .buttonStyle(.plain)
             }

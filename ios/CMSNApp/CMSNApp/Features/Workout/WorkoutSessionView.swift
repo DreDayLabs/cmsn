@@ -23,50 +23,54 @@ struct WorkoutSessionView: View {
     @State private var completedScoreBreakdown: ScoreBreakdown?
 
     var body: some View {
-        ZStack {
-            CMSNColor.offBlack.ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    CMSNVideoHero(height: 220, badge: nil) {
-                        Text("Form video")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(CMSNColor.Semantic.textPrimary)
-                    }
-
-                    if let activeRestSeconds {
-                        RestTimerView(totalSeconds: activeRestSeconds) {
-                            self.activeRestSeconds = nil
-                        }
-                    }
-
-                    if let session {
-                        let exercises = session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })
-                        ForEach(Array(exercises.enumerated()), id: \.element.id) { index, loggedExercise in
-                            if let exercise = ExerciseCatalog.find(id: loggedExercise.exerciseID) {
-                                ExerciseCardView(
-                                    loggedExercise: loggedExercise,
-                                    exercise: exercise,
-                                    position: index + 1,
-                                    exerciseCount: exercises.count,
-                                    suggestionEngine: appState.suggestionEngine,
-                                    recentHistory: appState.workoutRepository.loggedSets(forExerciseID: loggedExercise.exerciseID, limit: 5),
-                                    readiness: readiness.readinessBand,
-                                    unitPreference: athlete.unitPreference,
-                                    onRequestSubstitution: { substitutionTarget = loggedExercise },
-                                    onRestStart: { seconds in activeRestSeconds = seconds }
-                                )
-                            }
-                        }
-                    }
-
-                    Button("Finish session") { finishSession() }
-                        .buttonStyle(.cmsnGhost)
-                        .accessibilityLabel("Finish Session")
-                        .padding(.top, 8)
+        // Background ignores the safe area. The scroll view must not: on a
+        // pushed screen the leading safe area is inset, and a ZStack sibling
+        // that ignores it lays the first row out under that inset. The title
+        // lives in the navigation bar. The form video stays in the scroll view.
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                CMSNVideoHero(height: 220, badge: nil) {
+                    Text("Form video")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
                 }
-                .padding(20)
+
+                if let activeRestSeconds {
+                    RestTimerView(totalSeconds: activeRestSeconds) {
+                        self.activeRestSeconds = nil
+                    }
+                }
+
+                if let session {
+                    let exercises = session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })
+                    ForEach(Array(exercises.enumerated()), id: \.element.id) { index, loggedExercise in
+                        if let exercise = ExerciseCatalog.find(id: loggedExercise.exerciseID) {
+                            ExerciseCardView(
+                                loggedExercise: loggedExercise,
+                                exercise: exercise,
+                                position: index + 1,
+                                exerciseCount: exercises.count,
+                                suggestionEngine: appState.suggestionEngine,
+                                recentHistory: appState.workoutRepository.loggedSets(forExerciseID: loggedExercise.exerciseID, limit: 5),
+                                readiness: readiness.readinessBand,
+                                unitPreference: athlete.unitPreference,
+                                onRequestSubstitution: { substitutionTarget = loggedExercise },
+                                onRestStart: { seconds in activeRestSeconds = seconds }
+                            )
+                        }
+                    }
+                }
+
+                Button("Finish session") { finishSession() }
+                    .buttonStyle(.cmsnGhost)
+                    .accessibilityLabel("Finish Session")
+                    .padding(.top, 8)
             }
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .containerRelativeFrame(.horizontal, alignment: .leading)
         }
+        .background(CMSNColor.Semantic.background.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .toolbarBackground(CMSNColor.black, for: .navigationBar)
@@ -77,6 +81,8 @@ struct WorkoutSessionView: View {
                 Text("\(resolvedDay.focus.displayName) · Let's work")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
         }
         .navigationDestination(isPresented: $navigateToSummary) {

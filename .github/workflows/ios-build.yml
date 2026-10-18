@@ -96,6 +96,45 @@ jobs:
           name: build-log
           path: ios/CMSNApp/build.log
 
+      # The phone build embeds the watch app, which compiles it for the
+      # companion simulator. This step builds the watch scheme itself
+      # against a concrete watchOS simulator so a watch-only compile
+      # error still fails the job.
+      - name: Build watch app (unsigned simulator)
+        working-directory: ios/CMSNApp
+        run: |
+          set -o pipefail
+          WATCH_ID=$(python3 - <<'PY'
+          import json, subprocess
+          raw = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"])
+          data = json.loads(raw)
+          for runtime, devices in data.get("devices", {}).items():
+              if "watchOS" not in runtime:
+                  continue
+              for device in devices:
+                  if device.get("isAvailable") and device.get("udid"):
+                      print(device["udid"])
+                      raise SystemExit
+          raise SystemExit("No available watchOS simulator")
+          PY
+          )
+          echo "Watch destination id: ${WATCH_ID}"
+          xcodebuild build \
+            -project CMSNApp.xcodeproj \
+            -scheme CMSNWatchApp \
+            -destination "platform=watchOS Simulator,id=${WATCH_ID},arch=arm64" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            | tee watch-build.log
+
+      - name: Upload watch build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watch-build-log
+          path: ios/CMSNApp/watch-build.log
+
       - name: Run unit tests
         working-directory: ios/CMSNApp
         run: |

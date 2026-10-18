@@ -28,5 +28,26 @@
 	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>
 	<string>com.earnyourcmsn.app</string>
+	<key>CFBundleDisplayName</key>
+	<string>CMSN Performance</string>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>workout-processing</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>workout-processing</string>
+	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CMSN Performance uses the watch's location only while you record a run, including when the watch face is down. It stops when the run ends.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>CMSN Performance keeps location on only during an active run, so the route continues when your wrist drops. It does not track you at any other time.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>CMSN Performance uses motion during an indoor run to estimate treadmill distance. It is not read when you are not running.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>CMSN Performance reads heart rate during a run from the watch, and checks Apple Health so a finished run is not saved twice.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>CMSN Performance saves the run to Apple Health on this watch when you finish. It syncs to your iPhone afterward.</string>
 </dict>
 </plist>

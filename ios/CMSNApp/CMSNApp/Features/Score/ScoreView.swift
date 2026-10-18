@@ -83,13 +83,17 @@ struct ScoreView: View {
                 Text(title)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Spacer(minLength: 8)
                 Text("\(Int(contribution.rounded())) pts")
                     .font(CMSNTypography.numeric(15))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    .lineLimit(1)
                 Text("\(Int((weight * 100).rounded()))% weight")
                     .font(CMSNTypography.numeric(15))
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                    .lineLimit(1)
             }
 
             GeometryReader { geometry in
