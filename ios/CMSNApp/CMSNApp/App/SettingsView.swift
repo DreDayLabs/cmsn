@@ -44,7 +44,7 @@ struct SettingsView: View {
                 Button("Delete All My Data", role: .destructive) { eraseEverything() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This permanently erases your profile, weight history, workouts, nutrition, meals, and score from this device. There is no undo. Consider Export My Data first.")
+                Text("This permanently erases your profile, weight history, workouts, runs, nutrition, meals, and score from this device. There is no undo. Consider Export My Data first.")
             }
         }
     }
@@ -187,11 +187,16 @@ struct SettingsView: View {
     }
 
     private var footer: some View {
-        Text("CMSN — Earn Your CMSN")
-            .font(CMSNTypography.bodyQuiet())
-            .foregroundStyle(CMSNColor.Semantic.textSecondary)
-            .frame(maxWidth: .infinity)
-            .padding(.top, 12)
+        VStack(spacing: 4) {
+            Text("CMSN Performance")
+                .font(CMSNTypography.bodyQuiet())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            Text("Earn Your CMSN")
+                .font(CMSNTypography.bodyQuiet())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 12)
     }
 
     private var appVersion: String {

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CMSN — Earn Your CMSN",
+  title: "CMSN Performance — Earn Your CMSN",
   description:
     "A training app that keeps score. Four weighted dimensions, with discipline and recovery carrying the most. Earned, not given. Request an invite.",
   metadataBase: new URL("https://earnyourcmsn.com"),

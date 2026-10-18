@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>CMSN</string>
+	<string>CMSN Performance</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,12 +28,28 @@
 	<string>CMSN checks today's calendar for a scheduled workout (like "Leg Day") so it can auto-select your split instead of guessing.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>CMSN uses the camera only to scan food barcodes so you can log meals without typing. Nothing is photographed or stored.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CMSN Performance uses your location only while you record a run, to measure distance, pace, and the route. It stops the moment the run ends.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>CMSN Performance uses location in the background only during an active run, so a locked screen or a phone call does not cut the route short. It does not track you at any other time.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>CMSN Performance uses motion during an indoor run to estimate treadmill distance from your steps. It is not read when you are not running.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>CMSN Performance reads heart rate and workouts from Apple Health while you run, so your heart rate can show on the run and a workout is not saved twice.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>CMSN Performance saves each finished run to Apple Health — distance, time, energy, and route — so it appears with your other workouts. Nothing is written until you finish a run.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>CMSN Performance connects to a heart-rate strap only during a run, and only if you turn the strap option on. It does not scan at any other time.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>BebasNeue-Regular.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
-	<array/>
+	<array>
+		<string>location</string>
+		<string>audio</string>
+		<string>bluetooth-central</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
