@@ -109,29 +109,52 @@ final class CMSNScreenSmokeTests: XCTestCase {
     }
 
     private func openTab(_ name: String) {
-        let tab = app.tabBars.buttons[name]
-        if tab.waitForExistence(timeout: 8), tab.isHittable {
-            tab.tap()
-            return
-        }
-        let more = app.tabBars.buttons["More"]
-        if more.waitForExistence(timeout: 3), more.isHittable {
-            more.tap()
-            let cell = app.cells[name]
-            if cell.waitForExistence(timeout: 4), cell.isHittable {
-                cell.tap()
-                return
-            }
-        }
+        if tapTab(name) { return }
+        if openOverflow(name) { return }
         // A pushed session can cover the tab bar. Step back, then switch.
         let back = app.navigationBars.buttons["Back"]
         if back.waitForExistence(timeout: 3), back.isHittable {
             back.tap()
-        } else if app.navigationBars.buttons.element(boundBy: 0).exists {
-            app.navigationBars.buttons.element(boundBy: 0).tap()
         }
-        XCTAssertTrue(tab.waitForExistence(timeout: 12), "Missing tab \(name)")
+        if tapTab(name) { return }
+        if openOverflow(name) { return }
+        XCTFail("Missing tab \(name). \(app.debugDescription)")
+    }
+
+    private func tapTab(_ name: String) -> Bool {
+        let tab = app.tabBars.buttons[name]
+        guard tab.waitForExistence(timeout: 4), tab.isHittable else { return false }
         tab.tap()
+        return true
+    }
+
+    /// Six tabs put Library and Settings behind the overflow control.
+    /// iOS labels that control "More" and lists the rest as cells or buttons.
+    private func openOverflow(_ name: String) -> Bool {
+        let bar = app.tabBars.buttons
+        let more = bar["More"].exists ? bar["More"] : bar.allElementsBoundByIndex.last(where: { button in
+            !["Today", "Run", "Nutrition", "Score", "Library", "Settings"].contains(button.label)
+        })
+        guard let more, more.waitForExistence(timeout: 2), more.isHittable else { return false }
+        more.tap()
+        let exact = NSPredicate(format: "label == %@", name)
+        let queries = [
+            app.cells.matching(exact).firstMatch,
+            app.buttons.matching(exact).firstMatch,
+            app.staticTexts.matching(exact).firstMatch,
+            app.collectionViews.cells.containing(.staticText, identifier: name).firstMatch,
+        ]
+        for candidate in queries {
+            if candidate.waitForExistence(timeout: 2) {
+                if candidate.isHittable {
+                    candidate.tap()
+                } else {
+                    candidate.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                }
+                return true
+            }
+        }
+        return false
     }
 
     /// Waits until a button with this exact label exists and is hittable.
