@@ -141,18 +141,16 @@ targets:
     # HealthKit entitlement is the file below, not a capabilities entry.
     # XcodeGen 2.46 does not emit entitlements from `capabilities`. The
     # watch App ID needs HealthKit enabled in the developer portal.
-    # This target is still not embedded in CMSNApp: embedding it reproduced
-    # "Multiple commands produce CMSNWatchApp.app/CMSNWatchApp". It builds
-    # on the CMSNWatchApp scheme.
+    # This target is still not embedded in CMSNApp. Building the
+    # CMSNWatchApp scheme alone also fails at CreateBuildDescription:
+    # "Multiple commands produce CMSNWatchApp.app/CMSNWatchApp"
+    # (CopyAndPreserveArchs vs Ld). ENABLE_DEBUG_DYLIB = NO did not
+    # clear it. CI does not build this target until that is fixed.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.earnyourcmsn.app.watchkitapp
         CODE_SIGN_ENTITLEMENTS: CMSNWatchApp/CMSNWatchApp.entitlements
         TARGETED_DEVICE_FAMILY: "4"
-        # Xcode's debug dylib plus CopyAndPreserveArchs both emit
-        # CMSNWatchApp.app/CMSNWatchApp. Turning the dylib off is what
-        # stops that duplicate on the watch simulator build.
-        ENABLE_DEBUG_DYLIB: NO
         # Correct standard practice for a target embedded in a host app
         # (kept even though it wasn't what actually fixed CI - see
         # CMSNApp's dependencies comment above for the real fix).
