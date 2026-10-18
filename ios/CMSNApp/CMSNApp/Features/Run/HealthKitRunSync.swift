@@ -3,6 +3,10 @@ import Foundation
 import HealthKit
 import SwiftData
 
+private struct HealthWriteFailure: LocalizedError {
+    var errorDescription: String? { "Apple Health finished without returning a workout." }
+}
+
 @MainActor
 protocol HealthRunWriting: AnyObject {
     func liveAuthorizationState() -> HealthAuthorizationState
@@ -103,7 +107,9 @@ final class HealthKitRunSync: HealthRunWriting {
             try await builder.addSamples(samples)
         }
         try await builder.endCollection(at: end)
-        let workout = try await builder.finishWorkout()
+        guard let workout = try await builder.finishWorkout() else {
+            throw HealthWriteFailure()
+        }
         if run.environment == .outdoor, let route = run.route {
             let locations = route.samples().map { sample in
                 CLLocation(

@@ -283,8 +283,8 @@ final class WatchRunController: NSObject, ObservableObject, CLLocationManagerDel
         Task {
             do {
                 try await builder.endCollection(at: end)
-                _ = try await builder.finishWorkout()
-                completion(true)
+                let saved = try await builder.finishWorkout()
+                completion(saved != nil)
             } catch {
                 completion(false)
             }
