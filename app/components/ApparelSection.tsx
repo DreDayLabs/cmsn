@@ -7,24 +7,17 @@ import { flushSync } from "react-dom";
 const POSTER = "/videos/apparel-loop-poster.jpg";
 const SRC = "/videos/apparel-loop.mp4";
 
-/**
- * The loop is portrait and the head sits on the top edge of the frame.
- * Top alignment keeps the crown in view on a landscape desktop; the sides
- * are already fully visible there, and on a phone this stays centered.
- */
-const FRAME_POSITION = "50% 0%";
+/** Phone stays a full-bleed cover, biased to the top of the portrait frame. */
+const MOBILE_POSITION = "50% 0%";
 
 /**
- * Off-black only. A top veil over the type, lighter at the crown, then a
- * long fall so the chest and the rest of the film read. A shorter
- * left-to-right fade keeps the window on the right from sitting under a
- * second plate. Mobile type runs the full width, so the top fade carries
- * the contrast and then opens toward the feet.
+ * Desktop shows the whole 9:16 frame in a right-hand column, so a landscape
+ * crop cannot cut the athlete out as he drops into the squat. The left edge
+ * feathers into the section's off-black, where the type sits.
  */
-const SCRIM_DESKTOP = [
-  "linear-gradient(to right, color-mix(in srgb, var(--cmsn-off-black) 42%, transparent) 0%, color-mix(in srgb, var(--cmsn-off-black) 30%, transparent) 25%, color-mix(in srgb, var(--cmsn-off-black) 14%, transparent) 45%, color-mix(in srgb, var(--cmsn-off-black) 4%, transparent) 62%, transparent 100%)",
-  "linear-gradient(to bottom, color-mix(in srgb, var(--cmsn-off-black) 62%, transparent) 0%, color-mix(in srgb, var(--cmsn-off-black) 72%, transparent) 14%, color-mix(in srgb, var(--cmsn-off-black) 80%, transparent) 28%, color-mix(in srgb, var(--cmsn-off-black) 82%, transparent) 42%, color-mix(in srgb, var(--cmsn-off-black) 70%, transparent) 50%, color-mix(in srgb, var(--cmsn-off-black) 50%, transparent) 56%, color-mix(in srgb, var(--cmsn-off-black) 32%, transparent) 62%, color-mix(in srgb, var(--cmsn-off-black) 8%, transparent) 74%, transparent 88%)",
-].join(", ");
+const DESKTOP_COLUMN = "calc(100svh * 9 / 16)";
+const DESKTOP_FADE =
+  "linear-gradient(to right, var(--cmsn-off-black) 0%, color-mix(in srgb, var(--cmsn-off-black) 45%, transparent) 7%, transparent 16%)";
 
 const SCRIM_MOBILE = [
   "linear-gradient(to right, color-mix(in srgb, var(--cmsn-off-black) 45%, transparent) 0%, color-mix(in srgb, var(--cmsn-off-black) 20%, transparent) 40%, color-mix(in srgb, var(--cmsn-off-black) 5%, transparent) 75%, transparent 100%)",
@@ -43,6 +36,7 @@ export default function ApparelSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [canOfferPlay, setCanOfferPlay] = useState(false);
+  const [wide, setWide] = useState(false);
 
   useEffect(() => {
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -51,6 +45,7 @@ export default function ApparelSection() {
     const sync = () => {
       const reduce = motion.matches;
       const mobile = narrow.matches;
+      setWide(!mobile);
       setCanOfferPlay(!reduce && mobile);
       if (reduce) {
         setPlaying(false);
@@ -85,47 +80,87 @@ export default function ApparelSection() {
 
   return (
     <section className="relative isolate min-h-[100svh] overflow-hidden bg-[var(--cmsn-off-black)] text-[var(--cmsn-off-white)]">
-      <Image
-        src={POSTER}
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-        style={{ objectPosition: FRAME_POSITION }}
-      />
-
-      {playing ? (
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
-          style={{ objectPosition: FRAME_POSITION }}
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={POSTER}
-          preload="auto"
+      <div className="absolute inset-0 sm:hidden">
+        <Image
+          src={POSTER}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+          style={{ objectPosition: MOBILE_POSITION }}
+        />
+        {!wide && playing ? (
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
+            style={{ objectPosition: MOBILE_POSITION }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={POSTER}
+            preload="auto"
+            aria-hidden="true"
+          >
+            <source src={SRC} type="video/mp4" />
+            {/* eslint-disable-next-line @next/next/no-img-element -- paints only when the browser cannot play video */}
+            <img src={POSTER} alt="" style={{ objectPosition: MOBILE_POSITION }} />
+          </video>
+        ) : null}
+        <div
           aria-hidden="true"
-        >
-          <source src={SRC} type="video/mp4" />
-          {/* eslint-disable-next-line @next/next/no-img-element -- paints only when the browser cannot play video */}
-          <img src={POSTER} alt="" style={{ objectPosition: FRAME_POSITION }} />
-        </video>
-      ) : null}
+          className="pointer-events-none absolute inset-0"
+          style={{ backgroundImage: SCRIM_MOBILE }}
+        />
+      </div>
 
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 sm:hidden"
-        style={{ backgroundImage: SCRIM_MOBILE }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 hidden sm:block"
-        style={{ backgroundImage: SCRIM_DESKTOP }}
-      />
+        className="absolute inset-y-0 right-0 hidden h-full sm:block"
+        style={{ width: DESKTOP_COLUMN }}
+      >
+        <Image
+          src={POSTER}
+          alt=""
+          fill
+          priority
+          sizes="40vw"
+          className="object-cover"
+          style={{ objectPosition: "50% 50%" }}
+        />
+        {wide && playing ? (
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
+            style={{ objectPosition: "50% 50%" }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={POSTER}
+            preload="auto"
+            aria-hidden="true"
+          >
+            <source src={SRC} type="video/mp4" />
+            {/* eslint-disable-next-line @next/next/no-img-element -- paints only when the browser cannot play video */}
+            <img src={POSTER} alt="" style={{ objectPosition: "50% 50%" }} />
+          </video>
+        ) : null}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{ backgroundImage: DESKTOP_FADE }}
+        />
+      </div>
 
-      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-5xl flex-col px-6 py-24 sm:py-32">
+      <style>{`
+        @media (min-width: 640px) {
+          .apparel-copy {
+            padding-right: max(1.5rem, calc(100svh * 9 / 16 + 2.5rem - (100vw - 64rem) / 2));
+          }
+        }
+      `}</style>
+      <div className="apparel-copy relative z-10 mx-auto flex min-h-[100svh] w-full max-w-5xl flex-col px-6 py-24 sm:py-32">
         <h2 className="text-[11px] uppercase tracking-[0.24em] text-white/40">
           Apparel
         </h2>
@@ -133,7 +168,7 @@ export default function ApparelSection() {
           Collection 01 is in development. Black and white,{" "}
           <span className="whitespace-nowrap">symbol-led.</span>
         </p>
-        <p className="mt-6 max-w-[52ch] text-[15px] leading-relaxed text-white/55">
+        <p className="mt-6 max-w-[52ch] text-[15px] font-normal leading-relaxed text-white/55">
           Nothing is for sale yet — this is the world it&apos;s being built
           for.
         </p>
@@ -154,8 +189,15 @@ export default function ApparelSection() {
         <img
           src={POSTER}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: FRAME_POSITION }}
+          className="absolute inset-0 h-full w-full object-cover sm:hidden"
+          style={{ objectPosition: MOBILE_POSITION }}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element -- noscript cannot run the image optimizer */}
+        <img
+          src={POSTER}
+          alt=""
+          className="absolute inset-y-0 right-0 hidden h-full object-cover sm:block"
+          style={{ width: DESKTOP_COLUMN, objectPosition: "50% 50%" }}
         />
       </noscript>
     </section>
