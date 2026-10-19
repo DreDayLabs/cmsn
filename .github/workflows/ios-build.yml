@@ -58,11 +58,29 @@ jobs:
           mint install yonaskolb/xcodegen@$XCODEGEN_VERSION
           echo "$HOME/.mint/bin" >> "$GITHUB_PATH"
 
+      # The committed project is what a Mac build uses if it skips
+      # XcodeGen. Generate with the pinned XcodeGen, then fail when that
+      # output differs from the committed CMSNApp.xcodeproj (per-user
+      # xcuserdata is ignored). A later step still builds the generated
+      # project, which is identical when this check passes.
       - name: Generate Xcode project
         working-directory: ios/CMSNApp
         run: |
           xcodegen version
+          got="$(xcodegen version | awk 'NF { print $NF }')"
+          if [ "$got" != "$XCODEGEN_VERSION" ]; then
+            echo "::error::xcodegen ${got} does not match pinned ${XCODEGEN_VERSION}"
+            exit 1
+          fi
+          committed="$(mktemp -d)"
+          cp -a CMSNApp.xcodeproj "$committed/CMSNApp.xcodeproj"
           xcodegen generate
+          # -x is the BSD and GNU form; macOS diff does not accept --exclude.
+          if ! diff -ru -x xcuserdata "$committed/CMSNApp.xcodeproj" CMSNApp.xcodeproj > "${RUNNER_TEMP}/xcodeproj-drift.diff"; then
+            echo "::error::Committed CMSNApp.xcodeproj does not match xcodegen generate (XcodeGen ${XCODEGEN_VERSION}). From ios/CMSNApp, run xcodegen generate and commit CMSNApp.xcodeproj."
+            cat "${RUNNER_TEMP}/xcodeproj-drift.diff"
+            exit 1
+          fi
 
       - name: List available simulators
         run: xcrun simctl list devices available
