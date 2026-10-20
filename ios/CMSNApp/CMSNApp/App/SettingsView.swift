@@ -22,7 +22,10 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                CMSNColor.offBlack.ignoresSafeArea()
+                CMSNPageVideoBackground(
+                    clip: .settings,
+                    isActive: appState.selectedTab == .settings && !showingPaywall
+                )
                 ScrollView {
                     VStack(alignment: .leading, spacing: 28) {
                         header
@@ -34,6 +37,7 @@ struct SettingsView: View {
                     }
                     .padding(24)
                 }
+                .scrollContentBackground(.hidden)
             }
             .sheet(isPresented: $showingPaywall) { PaywallView() }
             .confirmationDialog(

@@ -31,7 +31,10 @@ struct RunHomeView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
-                CMSNColor.offBlack.ignoresSafeArea()
+                CMSNPageVideoBackground(
+                    clip: .run,
+                    isActive: appState.selectedTab == .run && path.isEmpty
+                )
                 ScrollView {
                     VStack(alignment: .leading, spacing: 28) {
                         header
@@ -52,6 +55,7 @@ struct RunHomeView: View {
                     }
                     .padding(24)
                 }
+                .scrollContentBackground(.hidden)
             }
             .navigationDestination(for: RunLink.self) { link in
                 switch link {

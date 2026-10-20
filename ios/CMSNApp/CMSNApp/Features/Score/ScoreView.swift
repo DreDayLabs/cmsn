@@ -14,7 +14,7 @@ struct ScoreView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                CMSNColor.offBlack.ignoresSafeArea()
+                CMSNPageVideoBackground(clip: .score, isActive: appState.selectedTab == .score)
                 ScrollView {
                     VStack(alignment: .leading, spacing: 28) {
                         header
@@ -23,6 +23,7 @@ struct ScoreView: View {
                     }
                     .padding(20)
                 }
+                .scrollContentBackground(.hidden)
             }
             .toolbar(.hidden, for: .navigationBar)
             .task { reload() }

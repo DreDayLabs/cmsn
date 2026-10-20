@@ -24,11 +24,15 @@ struct TodayView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                CMSNColor.offBlack.ignoresSafeArea()
+                CMSNPageVideoBackground(
+                    clip: .today,
+                    isActive: appState.selectedTab == .today && !navigateToSession
+                )
                 ScrollViewReader { proxy in
                     ScrollView {
                         screen(proxy: proxy)
                     }
+                    .scrollContentBackground(.hidden)
                 }
             }
             .navigationDestination(isPresented: $navigateToSession) {
@@ -89,7 +93,7 @@ struct TodayView: View {
     }
 
     private func sessionHero(_ state: TodayHomeState, proxy: ScrollViewProxy) -> some View {
-        CMSNVideoHero(height: 390, badge: "Background video") {
+        CMSNVideoHero(height: 390, badge: "Background video", playsVideo: false) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(heroStatus(state))
                     .font(.system(size: 15, weight: .medium))

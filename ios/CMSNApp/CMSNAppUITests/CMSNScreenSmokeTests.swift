@@ -1,9 +1,10 @@
 import XCTest
 
-/// Drives a fresh install through first-run into the six revamp surfaces
-/// and attaches a full-screen shot of each: Today, the workout session,
-/// the session summary, Nutrition, Score, and Workouts/Library. This is a
-/// capture harness, not a product behavior test — it does not seed data.
+/// Drives a fresh install through first-run into the main surfaces and
+/// attaches a full-screen shot of each: Today, the workout session, the
+/// session summary, Nutrition, Score, Workouts/Library, Settings, Run,
+/// and Build-a-Meal. This is a capture harness, not a product behavior
+/// test — it does not seed data.
 /// The welcome shot is taken after the splash so the looping workout
 /// video is on screen.
 ///
@@ -51,10 +52,12 @@ final class CMSNScreenSmokeTests: XCTestCase {
             getStarted.waitForExistence(timeout: 30),
             "Welcome CTA never appeared. \(app.debugDescription)"
         )
-        // Splash holds for 1.7s and fades for 0.6s; the CTA finishes its
-        // entrance shortly after. Waiting past that puts the looping video,
-        // not the black splash, in the frame.
-        Thread.sleep(forTimeInterval: 4)
+        // Splash plays the hoodie loop for 3.8s, then fades for 0.6s.
+        // Grab it while that film is up, then wait out the fade so the
+        // next shot is the Get Started screen, which loops the same film.
+        Thread.sleep(forTimeInterval: 1.2)
+        capture("welcome-splash")
+        Thread.sleep(forTimeInterval: 5)
         capture("welcome-video")
         XCTAssertTrue(waitUntilHittable(getStarted, timeout: 15), "Get Started was not hittable")
         getStarted.tap()
@@ -134,6 +137,37 @@ final class CMSNScreenSmokeTests: XCTestCase {
             "Workouts library never appeared. \(app.debugDescription)"
         )
         capture("workouts-library")
+
+        openTab("Settings")
+        XCTAssertTrue(
+            waitForAny(timeout: 15) {
+                self.app.staticTexts["ACCOUNT"].exists
+                    || self.app.staticTexts["CMSNer"].exists
+                    || self.app.staticTexts["Delete Everything"].exists
+            },
+            "Settings never appeared. \(app.debugDescription)"
+        )
+        capture("settings")
+
+        openTab("Run")
+        XCTAssertTrue(
+            waitForAny(timeout: 15) {
+                self.app.buttons["Quick Start"].exists
+            },
+            "Run never appeared. \(app.debugDescription)"
+        )
+        capture("run")
+
+        openTab("Nutrition")
+        tapFirst(of: ["Log Food", "Log food"])
+        XCTAssertTrue(
+            waitForAny(timeout: 15) {
+                self.app.staticTexts["WHAT'S IN IT?"].exists
+                    || self.app.staticTexts["Build A Meal"].exists
+            },
+            "Build-a-Meal never appeared. \(app.debugDescription)"
+        )
+        capture("meal-builder")
     }
 
     /// `launch()` returns once Xcode believes the process exists. On a cold

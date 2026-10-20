@@ -39,6 +39,12 @@ targets:
           - "**/*.entitlements"
       - path: Shared
     resources:
+      # The folder is the resource. Page films live in
+      # CMSNApp/Resources/Videos (today, run, nutrition, score, library,
+      # settings, meal-builder) and their still frames live in
+      # Assets.xcassets as `<name>-poster` imagesets. They are muted
+      # fast-start remuxes. The Higgsfield masters stay in
+      # media/higgsfield and are not copied into the app target.
       - path: CMSNApp/Resources
     info:
       path: CMSNApp/Info.plist
