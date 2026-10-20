@@ -123,6 +123,21 @@ final class PlayerLayerView: UIView {
 enum CMSNVideo {
     static let welcomeName = "welcome-loop"
     static let welcomeExtension = "mp4"
+    static let welcomePoster = "welcome-loop-poster"
+    /// Higgsfield master under `media/higgsfield/videos/`. Not bundled.
+    /// `welcome-loop.mp4` is the muted fast-start remux of this file.
+    static let welcomeSourceFileName = "hf_20260824_012218_31083458-b706-4164-b252-fa991253c09a.mp4"
+}
+
+/// Scrim used on the welcome film so the wordmark stays readable and the
+/// chest mark is not buried. Page tabs use the heavier stops on
+/// `CMSNPageVideoBackground`.
+enum CMSNWelcomeFilm {
+    static let scrim: [Gradient.Stop] = [
+        .init(color: CMSNColor.scrim.opacity(0.30), location: 0),
+        .init(color: CMSNColor.scrim.opacity(0.18), location: 0.45),
+        .init(color: CMSNColor.scrim.opacity(0.55), location: 1),
+    ]
 }
 
 /// One emblem loop per main surface. The masters are the 27 Aug 2026
@@ -175,12 +190,20 @@ enum CMSNPageClip: String, CaseIterable {
     }
 }
 
-/// Full-bleed page film. Plays only while `isActive` is true, the scene
+/// Full-bleed muted film. Plays only while `isActive` is true, the scene
 /// is foreground, and the athlete has not asked for a still (Low Power
 /// Mode or Reduce Motion). Otherwise the poster frame holds.
-struct CMSNPageVideoBackground: View {
-    let clip: CMSNPageClip
+struct CMSNFilmBackground: View {
+    let resourceName: String
+    var resourceExtension: String = "mp4"
+    let posterAssetName: String
     var isActive: Bool
+    var scrim: [Gradient.Stop] = [
+        .init(color: Color.black.opacity(0.82), location: 0),
+        .init(color: Color.black.opacity(0.48), location: 0.42),
+        .init(color: Color.black.opacity(0.62), location: 0.72),
+        .init(color: Color.black.opacity(0.88), location: 1),
+    ]
 
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -195,27 +218,17 @@ struct CMSNPageVideoBackground: View {
             .overlay {
                 ZStack {
                     CMSNColor.offBlack
+                    Image(posterAssetName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
                     if showsVideo {
                         LoopingVideoBackground(
-                            resourceName: clip.resourceName,
-                            resourceExtension: clip.resourceExtension,
+                            resourceName: resourceName,
+                            resourceExtension: resourceExtension,
                             isPlaying: true
                         )
-                    } else {
-                        Image(clip.posterAssetName)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
                     }
-                    LinearGradient(
-                        stops: [
-                            .init(color: Color.black.opacity(0.82), location: 0),
-                            .init(color: Color.black.opacity(0.48), location: 0.42),
-                            .init(color: Color.black.opacity(0.62), location: 0.72),
-                            .init(color: Color.black.opacity(0.88), location: 1),
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+                    LinearGradient(stops: scrim, startPoint: .top, endPoint: .bottom)
                 }
                 .clipped()
             }
@@ -225,6 +238,21 @@ struct CMSNPageVideoBackground: View {
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name.NSProcessInfoPowerStateDidChange)) { _ in
                 lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
             }
+    }
+}
+
+/// Full-bleed page film for a main tab.
+struct CMSNPageVideoBackground: View {
+    let clip: CMSNPageClip
+    var isActive: Bool
+
+    var body: some View {
+        CMSNFilmBackground(
+            resourceName: clip.resourceName,
+            resourceExtension: clip.resourceExtension,
+            posterAssetName: clip.posterAssetName,
+            isActive: isActive
+        )
     }
 }
 

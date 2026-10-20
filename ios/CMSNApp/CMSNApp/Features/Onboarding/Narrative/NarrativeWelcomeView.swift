@@ -14,20 +14,13 @@ struct NarrativeWelcomeView: View {
 
     var body: some View {
         ZStack {
-            LoopingVideoBackground(resourceName: "welcome-loop", resourceExtension: "mp4")
-                .ignoresSafeArea()
-
-            LinearGradient(
-                colors: [
-                    CMSNColor.scrim.opacity(0.3),
-                    CMSNColor.scrim.opacity(0.18),
-                    CMSNColor.scrim.opacity(0.55),
-                ],
-                startPoint: .top,
-                endPoint: .bottom
+            CMSNFilmBackground(
+                resourceName: CMSNVideo.welcomeName,
+                resourceExtension: CMSNVideo.welcomeExtension,
+                posterAssetName: CMSNVideo.welcomePoster,
+                isActive: true,
+                scrim: CMSNWelcomeFilm.scrim
             )
-            .ignoresSafeArea()
-
             content
         }
         .onAppear(perform: runSequence)

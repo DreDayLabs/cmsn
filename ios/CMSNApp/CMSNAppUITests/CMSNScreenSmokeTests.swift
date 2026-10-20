@@ -52,10 +52,12 @@ final class CMSNScreenSmokeTests: XCTestCase {
             getStarted.waitForExistence(timeout: 30),
             "Welcome CTA never appeared. \(app.debugDescription)"
         )
-        // Splash holds for 1.7s and fades for 0.6s; the CTA finishes its
-        // entrance shortly after. Waiting past that puts the looping video,
-        // not the black splash, in the frame.
-        Thread.sleep(forTimeInterval: 4)
+        // Splash plays the hoodie loop for 3.8s, then fades for 0.6s.
+        // Grab it while that film is up, then wait out the fade so the
+        // next shot is the Get Started screen, which loops the same film.
+        Thread.sleep(forTimeInterval: 1.2)
+        capture("welcome-splash")
+        Thread.sleep(forTimeInterval: 5)
         capture("welcome-video")
         XCTAssertTrue(waitUntilHittable(getStarted, timeout: 15), "Get Started was not hittable")
         getStarted.tap()

@@ -31,4 +31,19 @@ final class PageVideoCatalogTests: XCTestCase {
         XCTAssertEqual(Set(stills).count, stills.count)
         XCTAssertEqual(Set(sources).count, sources.count)
     }
+
+    func testWelcomeEntranceUsesTheBeigeHoodieMaster() {
+        let bundle = Bundle(for: PlayerLayerView.self)
+        guard let url = bundle.url(forResource: CMSNVideo.welcomeName, withExtension: CMSNVideo.welcomeExtension) else {
+            XCTFail("Missing welcome-loop.mp4")
+            return
+        }
+        let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
+        XCTAssertGreaterThan(size, 1_000_000)
+        XCTAssertNotNil(UIImage(named: CMSNVideo.welcomePoster, in: bundle, compatibleWith: nil))
+        XCTAssertEqual(
+            CMSNVideo.welcomeSourceFileName,
+            "hf_20260824_012218_31083458-b706-4164-b252-fa991253c09a.mp4"
+        )
+    }
 }
