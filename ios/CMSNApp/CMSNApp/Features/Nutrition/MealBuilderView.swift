@@ -35,7 +35,7 @@ struct MealBuilderView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                CMSNColor.offBlack.ignoresSafeArea()
+                CMSNPageVideoBackground(clip: .mealBuilder, isActive: true)
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         header
@@ -60,6 +60,7 @@ struct MealBuilderView: View {
                     }
                     .padding(24)
                 }
+                .scrollContentBackground(.hidden)
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

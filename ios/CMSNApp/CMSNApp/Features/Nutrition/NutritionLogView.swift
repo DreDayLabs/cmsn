@@ -29,7 +29,10 @@ struct NutritionLogView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                CMSNColor.offBlack.ignoresSafeArea()
+                CMSNPageVideoBackground(
+                    clip: .nutrition,
+                    isActive: appState.selectedTab == .nutrition && !showingMealBuilder
+                )
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
                         header
@@ -47,6 +50,7 @@ struct NutritionLogView: View {
                     }
                     .padding(20)
                 }
+                .scrollContentBackground(.hidden)
             }
             .toolbar(.hidden, for: .navigationBar)
             .task(id: targetSyncID) { loadLog() }

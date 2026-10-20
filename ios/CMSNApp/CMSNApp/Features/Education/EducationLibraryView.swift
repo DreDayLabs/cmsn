@@ -18,7 +18,10 @@ struct EducationLibraryView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
-                CMSNColor.offBlack.ignoresSafeArea()
+                CMSNPageVideoBackground(
+                    clip: .library,
+                    isActive: appState.selectedTab == .library && path.isEmpty
+                )
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         header
@@ -44,6 +47,7 @@ struct EducationLibraryView: View {
                     }
                     .padding(20)
                 }
+                .scrollContentBackground(.hidden)
             }
             .toolbar(.hidden, for: .navigationBar)
             .navigationBarTitleDisplayMode(.inline)
@@ -94,7 +98,7 @@ struct EducationLibraryView: View {
     }
 
     private var programHero: some View {
-        CMSNVideoHero(height: 360, badge: "Video") {
+        CMSNVideoHero(height: 360, badge: "Video", playsVideo: false) {
             VStack(alignment: .leading, spacing: 12) {
                 Text(appState.activeProgram.name)
                     .font(.system(size: 15, weight: .medium))
