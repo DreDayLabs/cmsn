@@ -4,9 +4,9 @@ import SwiftData
 
 @MainActor
 final class RunMigrationTests: XCTestCase {
-    func testPlanAddsOneLightweightStage() {
-        XCTAssertEqual(CMSNMigrationPlan.schemas.count, 4)
-        XCTAssertEqual(CMSNMigrationPlan.stages.count, 3)
+    func testPlanReachesDietPreferenceSchema() {
+        XCTAssertEqual(CMSNMigrationPlan.schemas.count, 5)
+        XCTAssertEqual(CMSNMigrationPlan.stages.count, 4)
     }
 
     /// Opens a real V3 store and reopens it on the V4 plan. The athlete

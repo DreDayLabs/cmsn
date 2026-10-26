@@ -208,6 +208,35 @@ struct NutritionRepository {
         context.delete(meal)
         try? context.save()
     }
+
+    // MARK: Restrictive diets
+
+    /// The saved answer, or unanswered when this athlete has no row yet.
+    func dietSelection(for athleteID: UUID) -> NutritionDietSelection {
+        preference(for: athleteID)?.selection ?? .unanswered
+    }
+
+    @discardableResult
+    func saveDietSelection(_ selection: NutritionDietSelection, athleteID: UUID) -> NutritionDietPreference {
+        let normalized = NutritionDietSelection(dietIDs: selection.dietIDs, fastingWindow: selection.fastingWindow)
+        if let existing = preference(for: athleteID) {
+            existing.apply(normalized)
+            try? context.save()
+            return existing
+        }
+        let created = NutritionDietPreference(athleteID: athleteID, selection: normalized)
+        context.insert(created)
+        try? context.save()
+        return created
+    }
+
+    private func preference(for athleteID: UUID) -> NutritionDietPreference? {
+        var descriptor = FetchDescriptor<NutritionDietPreference>(
+            predicate: #Predicate { $0.athleteID == athleteID }
+        )
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor))?.first
+    }
 }
 
 @MainActor

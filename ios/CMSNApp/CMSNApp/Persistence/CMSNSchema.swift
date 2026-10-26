@@ -76,9 +76,27 @@ enum CMSNSchemaV4: VersionedSchema {
     }
 }
 
+/// V5: restrictive diets. Adds `NutritionDietPreference`, one row per
+/// athlete. The athlete model is unchanged, so the stage is lightweight.
+enum CMSNSchemaV5: VersionedSchema {
+    static var versionIdentifier: Schema.Version = Schema.Version(5, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        CMSNSchemaV4.models + [
+            NutritionDietPreference.self,
+        ]
+    }
+}
+
 enum CMSNMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [CMSNSchemaV1.self, CMSNSchemaV2.self, CMSNSchemaV3.self, CMSNSchemaV4.self]
+        [
+            CMSNSchemaV1.self,
+            CMSNSchemaV2.self,
+            CMSNSchemaV3.self,
+            CMSNSchemaV4.self,
+            CMSNSchemaV5.self,
+        ]
     }
     static var stages: [MigrationStage] {
         [
@@ -92,6 +110,7 @@ enum CMSNMigrationPlan: SchemaMigrationPlan {
                 }
             ),
             .lightweight(fromVersion: CMSNSchemaV3.self, toVersion: CMSNSchemaV4.self),
+            .lightweight(fromVersion: CMSNSchemaV4.self, toVersion: CMSNSchemaV5.self),
         ]
     }
 }
@@ -125,12 +144,13 @@ enum CMSNModelContainerFactory {
     /// not delete, replace, or move the store — a failed open must not look
     /// like an empty account.
     ///
-    /// Opens schema V4 with `CMSNMigrationPlan`. An existing V2 store still
+    /// Opens schema V5 with `CMSNMigrationPlan`. An existing V2 store still
     /// runs the custom stage that seeds weight history on the way through
     /// V3. A store created at V3 (or a migration whose callback did not run)
     /// still gets one seed pass here. The marker makes that pass a no-op
     /// forever after, so deleting every entry does not resurrect the
-    /// original weight. V3 to V4 only adds run and club tables.
+    /// original weight. V3 to V4 only adds run and club tables. V4 to V5
+    /// adds the restrictive-diet preference table and leaves `Athlete` alone.
     static func makeDefault() throws -> ModelContainer {
         let container = try open(defaultPersistentConfiguration())
         do {
@@ -255,6 +275,6 @@ enum CMSNModelContainerFactory {
     }
 
     private static func currentSchema() -> Schema {
-        Schema(versionedSchema: CMSNSchemaV4.self)
+        Schema(versionedSchema: CMSNSchemaV5.self)
     }
 }
