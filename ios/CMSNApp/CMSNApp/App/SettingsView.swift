@@ -48,7 +48,7 @@ struct SettingsView: View {
                 Button("Delete All My Data", role: .destructive) { eraseEverything() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This permanently erases your profile, weight history, workouts, runs, nutrition, meals, and score from this device. There is no undo. Consider Export My Data first.")
+                Text("This permanently erases your profile, diet choices, weight history, workouts, runs, nutrition, meals, and score from this device. There is no undo. Consider Export My Data first.")
             }
         }
     }

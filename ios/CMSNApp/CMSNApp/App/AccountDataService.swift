@@ -24,7 +24,7 @@ enum AccountDataService {
         let iso = ISO8601DateFormatter()
 
         if let athlete = (try? context.fetch(FetchDescriptor<Athlete>()))?.first {
-            root["profile"] = [
+            var profile: [String: Any] = [
                 "name": athlete.name ?? "",
                 "age": athlete.age,
                 "heightCM": athlete.heightCM,
@@ -33,7 +33,15 @@ enum AccountDataService {
                 "goals": athlete.goalTypesRaw,
                 "equipment": athlete.equipmentProfile.rawValue,
                 "trainingFrequencyPerWeek": athlete.trainingFrequencyPerWeek,
-            ] as [String: Any]
+            ]
+            if let diets = (try? context.fetch(FetchDescriptor<NutritionDietPreference>()))?
+                .first(where: { $0.athleteID == athlete.id }) {
+                profile["restrictiveDietIDs"] = diets.dietIDsRaw
+                if let window = diets.fastingWindowRaw {
+                    profile["fastingWindow"] = window
+                }
+            }
+            root["profile"] = profile
         }
 
         let sessions = (try? context.fetch(FetchDescriptor<WorkoutSession>(sortBy: [SortDescriptor(\.date)]))) ?? []
@@ -173,6 +181,7 @@ enum AccountDataService {
         try? context.delete(model: CustomExercise.self)
         try? context.delete(model: WeightEntry.self)
         try? context.delete(model: WeightHistorySeedMarker.self)
+        try? context.delete(model: NutritionDietPreference.self)
         try? context.delete(model: Athlete.self)
         try? context.save()
     }

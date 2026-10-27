@@ -40,6 +40,7 @@ struct NutritionLogView: View {
                         TrainingDayWhyCard(adjustment: adjustment)
                         logFoodSection
                         quickAddRow
+                        RestrictiveDietsSection(athleteID: athlete.id)
                         if !savedMeals.isEmpty { myMealsSection }
                         if !(log?.entries.isEmpty ?? true) { todaysEntries }
                         mealEngineEntry
