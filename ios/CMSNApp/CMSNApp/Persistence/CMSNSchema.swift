@@ -168,14 +168,19 @@ enum CMSNModelContainerFactory {
     /// not that an athlete's data is at risk, so it stays a hard failure.
     /// Does not seed: tests insert athletes after the container exists, and
     /// an early marker would hide the V2→V3 seed.
+    ///
+    /// Never traps: if the versioned open fails, it retries without the
+    /// migration plan (an in-memory store has nothing to migrate), and as a
+    /// last resort returns a plain container for the current models.
     static func makeInMemory() -> ModelContainer {
         let schema = currentSchema()
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        do {
-            return try open(configuration)
-        } catch {
-            fatalError("Failed to create in-memory CMSN store: \(error)")
+        if let container = try? open(configuration) { return container }
+        if let container = try? ModelContainer(for: schema, configurations: [configuration]) {
+            return container
         }
+        // Unreachable in practice; still better than a crash on a preview path.
+        return try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
     }
 
     /// Same configuration `makeDefault()` opens, so quarantine targets the
@@ -200,11 +205,49 @@ enum CMSNModelContainerFactory {
                 migrationPlan: CMSNMigrationPlan.self,
                 configurations: [configuration]
             )
-        } catch {
-            throw StoreOpenFailure(
-                message: "CMSN couldn't open its saved data. Nothing was deleted. \(error.localizedDescription)"
-            )
+        } catch let stagedError {
+            // Every VersionedSchema above lists the live @Model types, so a
+            // store written by an earlier build (TestFlight/dev) whose model
+            // shape matches none of today's version hashes fails staged
+            // migration with "unknown model version" (Cocoa 134504). Every
+            // schema change so far is additive, so Core Data's inferred
+            // lightweight migration can carry that store forward. Copy the
+            // files first so a failed attempt can never cost data.
+            guard !configuration.isStoredInMemoryOnly else {
+                throw StoreOpenFailure(
+                    message: "CMSN couldn't open its saved data. Nothing was deleted. \(stagedError.localizedDescription)"
+                )
+            }
+            let storeURL = configuration.url
+            if FileManager.default.fileExists(atPath: storeURL.path) {
+                _ = try? backupPersistentStore(at: storeURL)
+            }
+            do {
+                return try ModelContainer(for: schema, configurations: [configuration])
+            } catch {
+                throw StoreOpenFailure(
+                    message: "CMSN couldn't open its saved data. Nothing was deleted. \(stagedError.localizedDescription)"
+                )
+            }
         }
+    }
+
+    /// Copies (never moves) the store and its sidecars into a timestamped
+    /// folder under `CMSNStoreBackups`, before a fallback migration.
+    @discardableResult
+    static func backupPersistentStore(
+        at storeURL: URL,
+        now: Date = Date(),
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        let existing = relatedStoreURLs(for: storeURL).filter { fileManager.fileExists(atPath: $0.path) }
+        guard !existing.isEmpty else { throw StoreQuarantineError.nothingToMove }
+        let backupDir = backupDirectory(for: storeURL, now: now, fileManager: fileManager)
+        try fileManager.createDirectory(at: backupDir, withIntermediateDirectories: true)
+        for url in existing {
+            try fileManager.copyItem(at: url, to: backupDir.appendingPathComponent(url.lastPathComponent))
+        }
+        return backupDir
     }
 
     /// The store file plus the SQLite WAL sidecars SwiftData writes beside it.

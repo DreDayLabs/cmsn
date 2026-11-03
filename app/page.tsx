@@ -180,6 +180,8 @@ export default function Page() {
         <div className="flex flex-col gap-6 border-t border-white/10 pt-10 sm:flex-row sm:items-center sm:justify-between">
           <Wordmark height={14} />
           <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">
+            <a href="/privacy" className="mr-6 hover:text-white">Privacy</a>
+            <a href="/support" className="mr-6 hover:text-white">Support</a>
             © {new Date().getFullYear()} CMSN
           </p>
         </div>

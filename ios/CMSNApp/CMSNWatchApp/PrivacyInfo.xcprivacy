@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Declares only what CMSNApp code actually does.
+
+	  Not collected (stays on device, Apple's "collect" = sent off device
+	  and retained past the request): SwiftData profile, workouts, runs,
+	  routes, shoes, nutrition, supplements, and score; EventKit titles
+	  read locally to match a scheduled workout; VisionKit barcode frames
+	  (no photo is written); a photo the athlete attaches to a run;
+	  location and heart rate used only during that run; StoreKit
+	  entitlement state read on device. Purchases are processed by Apple.
+	  Apple Health receives a finished run only after the athlete allows
+	  it. Nothing in the run path is an analytics SDK.
+
+	  Open Food Facts receives a barcode or search string to answer that
+	  lookup. The request does not include a name, account, or device
+	  identifier, and CMSN does not retain it on a server. Data used only
+	  to service the request is not collected.
+
+	  NSPrivacyCollectedDataTypes stays empty on purpose: under Apple's
+	  definition nothing above is collected. Re-audit before adding any
+	  analytics, crash reporter, account, or sync backend.
+
+	  NSPrivacyAccessedAPITypes: app code does not call file-timestamp,
+	  system-boot-time, disk-space, or active-keyboard APIs (audited
+	  2026-11-03). UserDefaults is declared with CA92.1 (app-only access)
+	  defensively, so a future @AppStorage or a linked dependency cannot
+	  trip ITMS-91053 at upload. System frameworks ship their own manifests.
+	-->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
