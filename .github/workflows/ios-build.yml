@@ -1,38 +1,135 @@
 name: iOS Build
 
+# GitHub-hosted macOS minutes cost about 10x a Linux minute. Do not start
+# build-and-test on every push or pull request.
+#
+# The Mac job runs only when:
+# - someone dispatches this workflow
+# - the pull request carries the mac-ci label (including later commits)
+# - the pull request is marked ready for review (that event's head commit)
+# mac-preflight then refuses the Mac runner when that same head commit
+# already has a successful build-and-test check. See docs/CI.md.
+#
+# Pushes to main, claude/**, and codex/** used to start this file. They
+# no longer do. Dispatch the workflow when a branch tip needs a Mac build.
 on:
-  push:
-    branches:
-      - "claude/**"
-      - main
-      - "codex/**"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Run the iOS build even if this commit already passed
+        required: false
+        type: boolean
+        default: false
   pull_request:
+    # opened/synchronize/reopened stay so a PR that already carries mac-ci
+    # rebuilds on new commits. labeled and ready_for_review are the opt-in
+    # events. These activity types apply once this file is on the default
+    # branch; GitHub decides whether a pull_request event fires from the
+    # workflow on that branch.
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - ready_for_review
     branches:
       - main
-      # Stacked drafts target cursor/* branches. Those PRs need this
-      # build, which previously ran only for PRs into main.
+      # Stacked drafts target cursor/* branches. A draft does not take a
+      # Mac runner unless it carries mac-ci or is marked ready for review.
       - "cursor/**"
-  workflow_dispatch: {}
+
+# One in-flight run per head commit. A second request waits; preflight then
+# sees the first success and does not start another Mac runner. Do not
+# cancel-in-progress: cancelling a duplicate would abort the build the
+# duplicate was supposed to reuse.
+concurrency:
+  group: ios-build-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 
 # Runner image: GitHub only publishes a small, fixed set of macOS labels
 # (macos-13/14/15/latest, etc.) for hosted runners — the "macos-26-arm64"
 # seen in earlier logs was the runner's *internal* image name, not a
 # selectable label (confirmed: a job requesting that label sat in `queued`
 # indefinitely instead of picking up a runner within seconds like every
-# other run here). So `runs-on` stays macos-latest, the only thing GitHub
-# actually lets us request. What's fully pinned instead, deliberately, is
-# what determines actual build behavior: the exact Xcode install and the
-# exact XcodeGen version, both hard-failing loudly if they drift rather
-# than silently picking "whatever's newest" (which caused two of the
-# earlier failures here).
+# other run here). The hosted fallback is therefore macos-latest.
+#
+# runs-on reads the MAC_RUNNER repository variable first (Settings →
+# Secrets and variables → Actions → Variables). Set that variable to the
+# Mac Mini's self-hosted label when the machine is registered; leave it
+# unset to keep the billed macos-latest fallback. One label, not a JSON
+# array — the expression below is a single runs-on string.
+#
+# What's fully pinned instead, deliberately, is what determines actual
+# build behavior: the exact Xcode install and the exact XcodeGen version,
+# both hard-failing loudly if they drift rather than silently picking
+# "whatever's newest" (which caused two of the earlier failures here).
 env:
   XCODE_VERSION: "26.6"
   XCODE_APP_PATH: "/Applications/Xcode_26.6.app"
   XCODEGEN_VERSION: "2.46.0"
 
 jobs:
+  # Decides whether a Mac runner is allowed to start. Runs on Linux only
+  # after a Mac build was requested, and only to read prior check results.
+  # This repo has no Linux-runnable test target (the job below is
+  # xcodebuild + simulators), so there is no separate Linux CI job.
+  mac-preflight:
+    name: mac preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+    if: "${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && (contains(github.event.pull_request.labels.*.name, 'mac-ci') || github.event.action == 'ready_for_review')) }}"
+    outputs:
+      passed: ${{ steps.prior.outputs.passed }}
+    steps:
+      - name: Skip if this commit already passed
+        id: prior
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const force = String(context.payload.inputs?.force ?? '') === 'true';
+            const sha = context.payload.pull_request?.head?.sha || context.sha;
+            if (force) {
+              core.info(`force=true; iOS build will run for ${sha}`);
+              core.setOutput('passed', 'false');
+              return;
+            }
+            const { owner, repo } = context.repo;
+            const checks = await github.paginate(github.rest.checks.listForRef, {
+              owner,
+              repo,
+              ref: sha,
+              check_name: 'build-and-test',
+              filter: 'all',
+              per_page: 100,
+            });
+            if (!Array.isArray(checks)) {
+              throw new Error('checks.listForRef pagination did not return a list');
+            }
+            const mine = `/actions/runs/${context.runId}/`;
+            const hit = checks.find((check) =>
+              check.conclusion === 'success' &&
+              check.app?.slug === 'github-actions' &&
+              !(check.details_url || '').includes(mine)
+            );
+            if (hit) {
+              core.info(`build-and-test already passed for ${sha} (${hit.html_url})`);
+              core.setOutput('passed', 'true');
+              return;
+            }
+            core.info(`No successful build-and-test for ${sha}; the Mac job may start`);
+            core.setOutput('passed', 'false');
+
   build-and-test:
-    runs-on: macos-latest
+    name: build-and-test
+    needs: mac-preflight
+    # A skipped preflight means this event did not ask for a Mac build.
+    # A successful preflight with passed=true means this commit is already
+    # green. Either way, do not request a runner.
+    if: "${{ !cancelled() && needs.mac-preflight.result == 'success' && needs.mac-preflight.outputs.passed != 'true' }}"
+    runs-on: "${{ vars.MAC_RUNNER || 'macos-latest' }}"
 
     steps:
       - name: Checkout
