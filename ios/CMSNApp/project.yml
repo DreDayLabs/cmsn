@@ -12,7 +12,7 @@ settings:
     SWIFT_VERSION: "5.9"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    CURRENT_PROJECT_VERSION: "2"
     # Thought Garden Labs LLC. This is the only place the team id is set;
     # targets inherit it. Unsigned simulator CI still passes
     # CODE_SIGNING_ALLOWED=NO and does not sign.
