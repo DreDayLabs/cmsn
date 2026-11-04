@@ -1,13 +1,20 @@
 import SwiftUI
 
-/// In-app privacy policy. Founder decision 2026-08-23: ship starter pages
-/// in-app now; App Store review will additionally want a public web URL
-/// for the privacy policy at submission time — swap these to links then.
+/// Public copies of these pages. App Store Connect's Privacy Policy URL
+/// and Support URL fields point here; the web copy lives in
+/// app/privacy/page.tsx and app/support/page.tsx and must stay in sync.
+enum LegalLinks {
+    static let privacy = URL(string: "https://earnyourcmsn.com/privacy")!
+    static let support = URL(string: "https://earnyourcmsn.com/support")!
+}
+
+/// In-app privacy policy (works offline). Each page also links to its
+/// hosted copy above.
 /// The copy below states what the app ACTUALLY does today (local-only
 /// store, Open Food Facts lookups); update it if the data story changes.
 struct PrivacyPolicyView: View {
     var body: some View {
-        LegalPageScaffold(title: "PRIVACY", eyebrow: "Privacy Policy") {
+        LegalPageScaffold(title: "PRIVACY", eyebrow: "Privacy Policy", webURL: LegalLinks.privacy) {
             LegalSection(
                 heading: "The Short Version",
                 text: "Your data stays on your phone. CMSN has no server, no account system, and no analytics or ad tracking. We can't see your workouts, your meals, or your body stats — nobody can but you."
@@ -38,7 +45,7 @@ struct PrivacyPolicyView: View {
 
 struct SupportPageView: View {
     var body: some View {
-        LegalPageScaffold(title: "SUPPORT", eyebrow: "Help & Contact") {
+        LegalPageScaffold(title: "SUPPORT", eyebrow: "Help & Contact", webURL: LegalLinks.support) {
             LegalSection(
                 heading: "Get In Touch",
                 text: "Questions, bugs, or ideas — email support@earnyourcmsn.com and include what you were doing when the problem happened. Screenshots help."
@@ -64,6 +71,7 @@ struct SupportPageView: View {
 private struct LegalPageScaffold<Content: View>: View {
     let title: String
     let eyebrow: String
+    let webURL: URL
     @ViewBuilder let content: Content
 
     var body: some View {
@@ -78,6 +86,10 @@ private struct LegalPageScaffold<Content: View>: View {
                             .foregroundStyle(CMSNColor.Semantic.textPrimary)
                     }
                     content
+                    Link("View online at \(webURL.host ?? "")\(webURL.path)", destination: webURL)
+                        .font(CMSNTypography.caption())
+                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                        .accessibilityIdentifier("legal.webLink")
                     Text("Last updated October 2026")
                         .font(CMSNTypography.caption())
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
