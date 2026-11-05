@@ -59,9 +59,15 @@ shared `.xcscheme` to `CMSNApp/Resources/Configuration.storekit`. No App
 Store Connect account and no charge. `SKTestSession` loads the same file
 from the test bundle by the name `Configuration`.
 
-On the iOS 26.5 simulator, `SKTestSession` does not connect and
-`Product.products` stays empty. That is fixed in the iOS 26.6 simulator
-(FB22500243). Re-run this suite on an iPhone 17 whose runtime is iOS 26.6.
+Do not gate `StoreKitPurchaseFlowTests` on the iOS 26.5 simulator.
+`SKTestSession` does not connect there (FB22500243, fixed in the iOS 26.6
+simulator runtime). `xcodebuild -downloadPlatform iOS -buildVersion 26.6`
+reports that 26.6 is not available yet. On 26.5 the five purchase tests
+skip after a failed product load. They do not pass. Prefer an installed
+iOS simulator runtime 26.4 or older. Mac Catalyst is the other runtime
+where this bug does not reproduce. This app is not a Catalyst target
+(it embeds a watch app and HealthKit), so there is no Catalyst scheme
+here. Otherwise wait until the iOS 26.6 simulator runtime can be installed.
 
 `CMSNAppTests/StoreKitPurchaseFlowTests` loads the file with `SKTestSession`
 and covers buy (trial unlocks CMSN+), restore after a fresh manager, expiry
@@ -75,7 +81,7 @@ cd ios/CMSNApp
 xcodebuild test \
   -project CMSNApp.xcodeproj \
   -scheme CMSNApp \
-  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.6,arch=arm64' \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.4,arch=arm64' \
   -only-testing:CMSNAppTests/StoreKitPurchaseFlowTests
 ```
 

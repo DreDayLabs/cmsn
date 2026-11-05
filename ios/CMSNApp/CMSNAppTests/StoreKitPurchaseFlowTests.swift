@@ -9,6 +9,10 @@ import XCTest
 /// Run and Test both reference Configuration.storekit with a path that
 /// resolves from the .xcscheme file. These tests still open an
 /// SKTestSession themselves and do not use a purchase dialog.
+///
+/// The iOS 26.5 simulator does not connect SKTestSession (FB22500243).
+/// On that runtime a failed product load skips the purchase assertions.
+/// Other runtimes still fail the test when products do not load.
 @MainActor
 final class StoreKitPurchaseFlowTests: XCTestCase {
     private var session: SKTestSession?
@@ -46,6 +50,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     func testBuyingTheTrialUnlocksCMSNPlus() async throws {
         let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
+        try await ensureStoreKitCatalog()
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
         let annual = try await loadProduct(CMSNProductID.annual, manager: manager)
 
@@ -72,6 +77,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
 
     func testRestoreBringsBackEntitlementAfterReset() async throws {
         let session = try await openSession()
+        try await ensureStoreKitCatalog()
         session.clearTransactions()
         _ = try await session.buyProduct(identifier: CMSNProductID.monthly, options: [])
 
@@ -91,6 +97,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     func testExpiryAndCancellationLockCMSNPlus() async throws {
         let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
+        try await ensureStoreKitCatalog()
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
 
         await manager.purchase(monthly)
@@ -120,6 +127,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     func testFailedPurchaseShowsCleanErrorWithoutStuckPurchasing() async throws {
         let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
+        try await ensureStoreKitCatalog()
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
         try await session.setSimulatedError(
             .generic(.networkError(URLError(.notConnectedToInternet))),
@@ -138,6 +146,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     func testCancelledPurchaseShowsCleanErrorWithoutStuckPurchasing() async throws {
         let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
+        try await ensureStoreKitCatalog()
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
 
@@ -183,6 +192,59 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         }
         return nil
     }
+
+    /// Asks StoreKit for both CMSN+ products. A miss on the iOS 26.5
+    /// simulator skips the test. A miss on any other runtime fails it.
+    private func ensureStoreKitCatalog() async throws {
+        let deadline = Date().addingTimeInterval(Self.isIOS26_5Simulator ? 5 : 20)
+        var ids: [String] = []
+        var errorText: String?
+        while Date() < deadline {
+            do {
+                let fetched = try await Product.products(for: CMSNProductID.all)
+                ids = fetched.map(\.id).sorted()
+                if Set(CMSNProductID.all).isSubset(of: Set(ids)) {
+                    return
+                }
+            } catch {
+                errorText = error.localizedDescription
+            }
+            try await Task.sleep(nanoseconds: 250_000_000)
+        }
+        if Self.isIOS26_5Simulator {
+            throw XCTSkip(Self.ios26_5SkipMessage)
+        }
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        XCTFail(
+            """
+            CMSN+ products did not load.
+            configuration: \(Self.configurationURL()?.path ?? "missing")
+            Product.products ids: \(ids)
+            Product.products error: \(errorText ?? "none")
+            runtime \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)
+            """
+        )
+        throw LoadError.missingProduct
+    }
+
+    /// iOS 26.5.x simulator only. Mac Catalyst reports a macOS version and
+    /// must keep the real assertions. FB22500243 is fixed in iOS 26.6.
+    private static var isIOS26_5Simulator: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        #if targetEnvironment(simulator)
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        return version.majorVersion == 26 && version.minorVersion == 5
+        #else
+        return false
+        #endif
+        #endif
+    }
+
+    private static let ios26_5SkipMessage = """
+    SKTestSession does not connect on the iOS 26.5 simulator (FB22500243, fixed in the iOS 26.6 simulator). Product.products stayed empty, so this is a skip, not a pass. Do not gate StoreKitPurchaseFlowTests on iOS 26.5. Prefer an iOS simulator runtime 26.4 or older, Mac Catalyst, or the iOS 26.6 runtime when it can be installed.
+    """
 
     private func loadProduct(_ id: String, manager: StoreKitManager) async throws -> Product {
         let deadline = Date().addingTimeInterval(20)
