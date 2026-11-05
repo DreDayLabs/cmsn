@@ -11,8 +11,9 @@ import XCTest
 /// SKTestSession themselves and do not use a purchase dialog.
 ///
 /// The iOS 26.5 simulator does not connect SKTestSession (FB22500243).
-/// On that runtime a failed product load skips the purchase assertions.
-/// Other runtimes still fail the test when products do not load.
+/// On that runtime a failed product load skips. A skip is not a pass and
+/// does not prove purchases. Other runtimes still fail when products do
+/// not load, and still run the full assertions when they do.
 @MainActor
 final class StoreKitPurchaseFlowTests: XCTestCase {
     private var session: SKTestSession?
@@ -227,8 +228,8 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         throw LoadError.missingProduct
     }
 
-    /// iOS 26.5.x simulator only. Mac Catalyst reports a macOS version and
-    /// must keep the real assertions. FB22500243 is fixed in iOS 26.6.
+    /// iOS 26.5.x simulator only. FB22500243 is fixed in iOS 26.6.
+    /// A macOS version number must not take this branch.
     private static var isIOS26_5Simulator: Bool {
         #if targetEnvironment(macCatalyst)
         return false
@@ -243,7 +244,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     private static let ios26_5SkipMessage = """
-    SKTestSession does not connect on the iOS 26.5 simulator (FB22500243, fixed in the iOS 26.6 simulator). Product.products stayed empty, so this is a skip, not a pass. Do not gate StoreKitPurchaseFlowTests on iOS 26.5. Prefer an iOS simulator runtime 26.4 or older, Mac Catalyst, or the iOS 26.6 runtime when it can be installed.
+    HOLD. Skipping StoreKitPurchaseFlowTests does not prove purchases work and does not make the suite green. SKTestSession does not connect on the iOS 26.5 simulator (FB22500243, fixed in the iOS 26.6 simulator). Do not gate this suite on iOS 26.5. Re-run the full assertions, not this skip, when an iOS 26.6 or 26.4-or-older simulator runtime is available.
     """
 
     private func loadProduct(_ id: String, manager: StoreKitManager) async throws -> Product {

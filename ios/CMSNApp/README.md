@@ -59,22 +59,21 @@ shared `.xcscheme` to `CMSNApp/Resources/Configuration.storekit`. No App
 Store Connect account and no charge. `SKTestSession` loads the same file
 from the test bundle by the name `Configuration`.
 
-Do not gate `StoreKitPurchaseFlowTests` on the iOS 26.5 simulator.
+HOLD on `StoreKitPurchaseFlowTests`. A merge needs every test green.
+`XCTSkip` on the iOS 26.5 simulator does not prove purchases work.
 `SKTestSession` does not connect there (FB22500243, fixed in the iOS 26.6
-simulator runtime). `xcodebuild -downloadPlatform iOS -buildVersion 26.6`
-reports that 26.6 is not available yet. On 26.5 the five purchase tests
-skip after a failed product load. They do not pass. Prefer an installed
-iOS simulator runtime 26.4 or older. Mac Catalyst is the other runtime
-where this bug does not reproduce. This app is not a Catalyst target
-(it embeds a watch app and HealthKit), so there is no Catalyst scheme
-here. Otherwise wait until the iOS 26.6 simulator runtime can be installed.
+simulator). That 26.6 runtime is not downloadable yet, and no
+26.4-or-older runtime is installed. Do not gate this suite on 26.5.
+Re-run the full assertions when an iOS 26.6 or 26.4-or-older simulator
+is available. This app stays an iOS target. There is no Catalyst scheme.
 
 `CMSNAppTests/StoreKitPurchaseFlowTests` loads the file with `SKTestSession`
 and covers buy (trial unlocks CMSN+), restore after a fresh manager, expiry
 and cancellation locking CMSN+ again, and a failed or cancelled purchase
 that clears the purchasing flag and sets a short error.
 
-On a wiped simulator:
+On a wiped simulator once iOS 26.6 or 26.4-or-older is installed. Do not
+substitute `OS=26.5`. That runtime skips and is not the gate:
 
 ```bash
 cd ios/CMSNApp
