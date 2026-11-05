@@ -16,6 +16,23 @@ final class StoreKitManagerTests: XCTestCase {
         XCTAssertEqual(Set(CMSNProductID.all), Set([CMSNProductID.monthly, CMSNProductID.annual]))
     }
 
+    func testPaywallDisplayPrices() {
+        XCTAssertEqual(CMSNPlusDisplayPrice.monthly, "$9.99")
+        XCTAssertEqual(CMSNPlusDisplayPrice.annual, "$59.99")
+        XCTAssertEqual(
+            CMSNPlusDisplayPrice.resolve(storePrice: nil, fallback: CMSNPlusDisplayPrice.monthly),
+            "$9.99"
+        )
+        XCTAssertEqual(
+            CMSNPlusDisplayPrice.resolve(storePrice: "  ", fallback: CMSNPlusDisplayPrice.annual),
+            "$59.99"
+        )
+        XCTAssertEqual(
+            CMSNPlusDisplayPrice.resolve(storePrice: "$9.99", fallback: CMSNPlusDisplayPrice.monthly),
+            "$9.99"
+        )
+    }
+
     func testManagerStartsUnsubscribedBeforeAnyEntitlementCheck() {
         // A fresh manager must never default to "subscribed" — that would
         // silently unlock CMSN+ gating for every user before any real

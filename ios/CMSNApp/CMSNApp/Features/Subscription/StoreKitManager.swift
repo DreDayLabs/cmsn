@@ -3,13 +3,28 @@ import StoreKit
 import Observation
 
 /// Product identifiers — placeholders until real App Store Connect
-/// products exist. Pricing target from `brand/08-app-strategy.md`:
-/// $9.99/mo, $59.99/yr, 7-day free trial (the trial is configured in App
-/// Store Connect / the local `.storekit` file, not in Swift).
+/// products exist. Locked prices, confirmed in Family Meeting:
+/// $9.99/mo and $59.99/yr. The 7-day free trial is configured in App
+/// Store Connect / the local `.storekit` file, not in Swift.
 enum CMSNProductID {
     static let monthly = "com.earnyourcmsn.app.plus.monthly"
     static let annual = "com.earnyourcmsn.app.plus.annual"
     static let all: [String] = [monthly, annual]
+}
+
+/// Prices drawn on the paywall. These are display strings, not App Store
+/// Connect products. Both prices are locked: $9.99 a month and $59.99 a year.
+enum CMSNPlusDisplayPrice {
+    static let monthly = "$9.99"
+    static let annual = "$59.99"
+
+    /// StoreKit's localized price wins once a product is actually loaded.
+    /// Until then the paywall shows the configured display string.
+    static func resolve(storePrice: String?, fallback: String) -> String {
+        guard let storePrice else { return fallback }
+        let trimmed = storePrice.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? fallback : trimmed
+    }
 }
 
 /// V0's StoreKit 2 scaffolding: local product loading, purchase, restore,
