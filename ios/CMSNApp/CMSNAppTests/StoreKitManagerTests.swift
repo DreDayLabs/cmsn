@@ -19,10 +19,6 @@ final class StoreKitManagerTests: XCTestCase {
     func testPaywallDisplayPrices() {
         XCTAssertEqual(CMSNPlusDisplayPrice.monthly, "$9.99")
         XCTAssertEqual(CMSNPlusDisplayPrice.annual, "$59.99")
-        XCTAssertTrue(
-            CMSNPlusDisplayPrice.annualIsPlaceholder,
-            "Annual $59.99 is a placeholder until the founder confirms it."
-        )
         XCTAssertEqual(
             CMSNPlusDisplayPrice.resolve(storePrice: nil, fallback: CMSNPlusDisplayPrice.monthly),
             "$9.99"

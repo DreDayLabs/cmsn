@@ -1,8 +1,7 @@
 import SwiftUI
 import StoreKit
 
-/// The CMSN+ paywall. Monthly is $9.99. Annual $59.99 is a placeholder
-/// until the founder confirms it (`CMSNPlusDisplayPrice.annualIsPlaceholder`).
+/// The CMSN+ paywall. Monthly $9.99 and annual $59.99 are locked.
 /// Both are display strings. They are not App Store Connect products.
 /// Positioning against Fitbod's $15.99/$95.99 is in `brand/08-app-strategy.md`.
 struct PaywallView: View {
