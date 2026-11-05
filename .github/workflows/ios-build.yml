@@ -1,5 +1,20 @@
 name: iOS Build
 
+# GitHub-hosted macOS minutes cost about 10x a Linux minute. push and
+# pull_request still start this workflow. The only job that starts by
+# default is the Linux `mac preflight` below. It does not check out the
+# repo and it does not request a Mac runner.
+#
+# build-and-test is queued only when that preflight says so:
+# - workflow_dispatch
+# - the pull request has the mac-ci label
+# - repository variable MAC_RUNNER is set (non-empty)
+#
+# MAC_RUNNER is the Mac Mini's self-hosted runner label (Settings ->
+# Secrets and variables -> Actions -> Variables). It is not a secret.
+# runs-on is that label when the variable is set, otherwise the hosted
+# macos-latest fallback used only for an explicit dispatch or mac-ci.
+# One label string, not a JSON array. See docs/CI.md.
 on:
   push:
     branches:
@@ -7,32 +22,97 @@ on:
       - main
       - "codex/**"
   pull_request:
+    # labeled is included so adding mac-ci starts a run without another
+    # commit. That activity type is subscribed from the default branch, so
+    # it takes effect once this file is on main. opened, synchronize, and
+    # reopened read labels from the workflow on the pull request.
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
     branches:
       - main
-      # Stacked drafts target cursor/* branches. Those PRs need this
-      # build, which previously ran only for PRs into main.
+      # Stacked drafts target cursor/* branches. Those PRs still fire this
+      # workflow; preflight skips the Mac job unless mac-ci is present or
+      # MAC_RUNNER is set.
       - "cursor/**"
   workflow_dispatch: {}
 
-# Runner image: GitHub only publishes a small, fixed set of macOS labels
-# (macos-13/14/15/latest, etc.) for hosted runners — the "macos-26-arm64"
-# seen in earlier logs was the runner's *internal* image name, not a
-# selectable label (confirmed: a job requesting that label sat in `queued`
-# indefinitely instead of picking up a runner within seconds like every
-# other run here). So `runs-on` stays macos-latest, the only thing GitHub
-# actually lets us request. What's fully pinned instead, deliberately, is
-# what determines actual build behavior: the exact Xcode install and the
-# exact XcodeGen version, both hard-failing loudly if they drift rather
-# than silently picking "whatever's newest" (which caused two of the
-# earlier failures here).
+# Group by ref, not by commit, so a newer push or pull_request event
+# cancels the in-flight run. Grouping by SHA would never cancel.
+concurrency:
+  group: ios-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Hosted runner labels are the small fixed set GitHub publishes
+# (macos-13/14/15/latest, and so on). The "macos-26-arm64" string in older
+# logs was the runner image's internal name, not a selectable label: a job
+# that requested it stayed queued. The hosted fallback therefore remains
+# macos-latest, and only for the opt-in paths above.
+#
+# What is pinned, deliberately, is build behavior: the Xcode install and
+# the XcodeGen version. Both hard-fail if they drift instead of silently
+# picking whatever is newest (that drift caused two earlier failures).
 env:
   XCODE_VERSION: "26.6"
   XCODE_APP_PATH: "/Applications/Xcode_26.6.app"
   XCODEGEN_VERSION: "2.46.0"
 
 jobs:
+  mac-preflight:
+    name: mac preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+      reason: ${{ steps.decide.outputs.reason }}
+    steps:
+      - name: Decide whether to start a Mac runner
+        id: decide
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          # Empty when the repository variable is unset. Not a secret.
+          MAC_RUNNER: ${{ vars.MAC_RUNNER }}
+          # && short-circuits, so the pull_request payload is not read on push.
+          MAC_CI_LABEL: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'mac-ci') }}
+        run: |
+          set -euo pipefail
+          label="${MAC_CI_LABEL:-false}"
+          run_mac=false
+          reason="default-skip"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            run_mac=true
+            reason="workflow_dispatch"
+          elif [ "$label" = "true" ]; then
+            run_mac=true
+            reason="mac-ci"
+          elif [ -n "$MAC_RUNNER" ]; then
+            run_mac=true
+            reason="MAC_RUNNER"
+          fi
+          if [ "$run_mac" != "true" ]; then
+            printf 'run=%s\nreason=%s\n' "$run_mac" "$reason" >> "$GITHUB_OUTPUT"
+            echo "mac preflight: event=${EVENT_NAME} mac_ci_label=${label} MAC_RUNNER=${MAC_RUNNER:-<unset>} run_mac=false reason=${reason}; Mac job skipped, no runner requested"
+            exit 0
+          fi
+          if [ -n "$MAC_RUNNER" ]; then
+            runner="$MAC_RUNNER"
+          else
+            runner="macos-latest"
+          fi
+          printf 'run=%s\nreason=%s\n' "$run_mac" "$reason" >> "$GITHUB_OUTPUT"
+          echo "mac preflight: event=${EVENT_NAME} mac_ci_label=${label} MAC_RUNNER=${MAC_RUNNER:-<unset>} run_mac=true reason=${reason} requesting runs-on=${runner}"
+
   build-and-test:
-    runs-on: macos-latest
+    needs: mac-preflight
+    # Skipped jobs are not queued, so a false decision never requests
+    # macos-latest or the self-hosted label. A cancelled or failed
+    # preflight does not start a Mac runner either.
+    if: needs.mac-preflight.outputs.run == 'true'
+    runs-on: ${{ vars.MAC_RUNNER || 'macos-latest' }}
 
     steps:
       - name: Checkout
