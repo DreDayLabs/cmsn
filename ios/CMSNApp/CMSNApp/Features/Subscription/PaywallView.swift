@@ -38,15 +38,15 @@ struct PaywallView: View {
         }
     }
 
-    /// Capabilities this build actually has. A video library and cloud
-    /// sync are not listed.
+    /// Capabilities this build actually has. A video library, cloud
+    /// sync, and founding status are not listed. Nothing in the app
+    /// grants a founding benefit.
     private var featureList: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach([
                 "Advanced strength & volume analytics",
                 "Apple Watch companion",
                 "Recovery-aware program adjustments",
-                "Founding CMSNer status",
             ], id: \.self) { feature in
                 HStack(alignment: .top, spacing: 10) {
                     Text("·").foregroundStyle(CMSNColor.Semantic.textPrimary)
