@@ -8,6 +8,11 @@ import XCTest
 /// The welcome shot is taken after the splash so the looping workout
 /// video is on screen.
 ///
+/// Launch passes `-CMSNResetFirstRun` (see `CMSNModelContainerFactory`).
+/// A simulator that already finished onboarding would open on Today, and
+/// the welcome CTA would never exist. The splash also covers that CTA
+/// for 3.8s, so the shot of the film is taken before the button is required.
+///
 /// The CMSNScreenshots scheme launches without a debugger. On the hosted
 /// macOS runner, attaching LLDB intermittently reports "no debugger version"
 /// and `launch()` then dies with "Timed out while launching application via
@@ -28,6 +33,7 @@ final class CMSNScreenSmokeTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app.launchArguments += [
+            "-CMSNResetFirstRun",
             "-AppleLanguages", "(en)",
             "-AppleLocale", "en_US",
             "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL",
@@ -47,19 +53,23 @@ final class CMSNScreenSmokeTests: XCTestCase {
     func testCaptureMainScreens() throws {
         launchApp()
 
-        let getStarted = app.buttons["Get Started"]
+        // The film covers the narrative for 3.8s. The CTA is not in the
+        // accessibility tree until that cover lifts, so shoot the splash
+        // first, then require the button.
+        _ = waitForAny(timeout: 8) {
+            self.app.staticTexts["Earn Your CMSN"].exists || self.app.images["CMSN"].exists
+        }
+        capture("welcome-splash")
+
         XCTAssertTrue(
-            getStarted.waitForExistence(timeout: 30),
+            waitForAny(timeout: 30) {
+                self.app.buttons["welcome.getStarted"].exists || self.app.buttons["Get Started"].exists
+            },
             "Welcome CTA never appeared. \(app.debugDescription)"
         )
-        // Splash plays the hoodie loop for 3.8s, then fades for 0.6s.
-        // Grab it while that film is up, then wait out the fade so the
-        // next shot is the Get Started screen, which loops the same film.
-        Thread.sleep(forTimeInterval: 1.2)
-        capture("welcome-splash")
-        Thread.sleep(forTimeInterval: 5)
-        capture("welcome-video")
+        let getStarted = welcomeCTA()
         XCTAssertTrue(waitUntilHittable(getStarted, timeout: 15), "Get Started was not hittable")
+        capture("welcome-video")
         getStarted.tap()
 
         tap("Skip")
@@ -168,6 +178,14 @@ final class CMSNScreenSmokeTests: XCTestCase {
             "Build-a-Meal never appeared. \(app.debugDescription)"
         )
         capture("meal-builder")
+    }
+
+    /// Identifier first. The visible label stays "Get Started" so an older
+    /// build of the same screen still matches.
+    private func welcomeCTA() -> XCUIElement {
+        let identified = app.buttons["welcome.getStarted"]
+        if identified.exists { return identified }
+        return app.buttons["Get Started"]
     }
 
     /// `launch()` returns once Xcode believes the process exists. On a cold
