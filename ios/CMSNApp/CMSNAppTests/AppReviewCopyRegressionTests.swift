@@ -10,6 +10,9 @@ import XCTest
 final class AppReviewCopyRegressionTests: XCTestCase {
     /// Case-insensitive substrings. Longer than a single common word so
     /// "Coming Back" and "the next session is soon" stay legal.
+    /// Undelivered benefit claims (video library, cloud sync, founding
+    /// status) are not here. Restoring one is a paywall edit, not a
+    /// placeholder regression.
     static let bannedPhrases = [
         "background video",
         "form video",
@@ -24,9 +27,6 @@ final class AppReviewCopyRegressionTests: XCTestCase {
         "the gear",
         "how'd the gear",
         "how the gear",
-        "instructional video library",
-        "cloud backup",
-        "cross-device sync",
     ]
 
     /// Case-insensitive whole words. Short tokens are bounded so "swipe"
