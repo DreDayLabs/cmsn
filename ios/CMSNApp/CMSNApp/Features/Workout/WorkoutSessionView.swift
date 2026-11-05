@@ -26,13 +26,13 @@ struct WorkoutSessionView: View {
         // Background ignores the safe area. The scroll view must not: on a
         // pushed screen the leading safe area is inset, and a ZStack sibling
         // that ignores it lays the first row out under that inset. The title
-        // lives in the navigation bar. The form video stays in the scroll view.
+        // lives in the navigation bar. The form-video card stays in the
+        // scroll view with no title: "Form video" was a placeholder on the
+        // welcome loop, and this screen has no per-exercise film yet.
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 CMSNVideoHero(height: 220, badge: nil) {
-                    Text("Form video")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                    EmptyView()
                 }
 
                 if let activeRestSeconds {

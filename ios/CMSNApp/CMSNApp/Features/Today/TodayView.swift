@@ -93,7 +93,9 @@ struct TodayView: View {
     }
 
     private func sessionHero(_ state: TodayHomeState, proxy: ScrollViewProxy) -> some View {
-        CMSNVideoHero(height: 390, badge: "Background video", playsVideo: false) {
+        // The page film is the picture. "Background video" was a slot label
+        // drawn on that card, not a product title.
+        CMSNVideoHero(height: 390, badge: nil, playsVideo: false) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(heroStatus(state))
                     .font(.system(size: 15, weight: .medium))

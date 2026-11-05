@@ -2,9 +2,9 @@ import XCTest
 
 /// Drives a fresh install through first-run into the main surfaces and
 /// attaches a full-screen shot of each: Today, the workout session, the
-/// session summary, Nutrition, Score, Workouts/Library, Settings, Run,
-/// and Build-a-Meal. This is a capture harness, not a product behavior
-/// test — it does not seed data.
+/// session summary, Nutrition, Score, Workouts/Library, Settings, the
+/// CMSN+ paywall, Run, and Build-a-Meal. This is a capture harness, not a
+/// product behavior test — it does not seed data.
 /// The welcome shot is taken after the splash so the looping workout
 /// video is on screen.
 ///
@@ -95,6 +95,7 @@ final class CMSNScreenSmokeTests: XCTestCase {
         dismissSystemPrompts(for: 8)
         nudgeForInterruptionMonitor()
         capture("today")
+        assertPlaceholderAbsent("Background video")
 
         // A fresh profile's action is Start Workout. The revamp keeps that
         // accessibility label and may show "Resume session" once work exists.
@@ -107,6 +108,7 @@ final class CMSNScreenSmokeTests: XCTestCase {
             "Workout session never appeared. \(app.debugDescription)"
         )
         capture("workout-session")
+        assertPlaceholderAbsent("Form video")
         assertWorkoutSessionIsLegible()
 
         tapFirst(of: ["Finish Session", "Finish session"])
@@ -147,6 +149,7 @@ final class CMSNScreenSmokeTests: XCTestCase {
             "Workouts library never appeared. \(app.debugDescription)"
         )
         capture("workouts-library")
+        assertPlaceholderAbsent("Video")
 
         openTab("Settings")
         XCTAssertTrue(
@@ -158,6 +161,13 @@ final class CMSNScreenSmokeTests: XCTestCase {
             "Settings never appeared. \(app.debugDescription)"
         )
         capture("settings")
+
+        // Same fresh-install launch (`-CMSNResetFirstRun` is unchanged).
+        // Settings → CMSN+ is the existing paywall path. The shot has to
+        // show the locked display prices: Monthly $9.99 and Annual $59.99.
+        openCMSNPlus()
+        capturePaywall()
+        tap("Close")
 
         openTab("Run")
         XCTAssertTrue(
@@ -178,6 +188,72 @@ final class CMSNScreenSmokeTests: XCTestCase {
             "Build-a-Meal never appeared. \(app.debugDescription)"
         )
         capture("meal-builder")
+    }
+
+    /// Settings → CMSN+. The row's visible title stays "CMSN+".
+    private func openCMSNPlus() {
+        let identified = app.buttons["settings.cmsnPlus"]
+        let deadline = Date().addingTimeInterval(20)
+        nudgeForInterruptionMonitor()
+        while Date() < deadline {
+            dismissSystemPrompts(for: 0)
+            if identified.exists, identified.isHittable {
+                identified.tap()
+                return
+            }
+            let query = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "CMSN+"))
+            for index in 0..<query.count {
+                let button = query.element(boundBy: index)
+                if button.exists, button.isHittable {
+                    button.tap()
+                    return
+                }
+            }
+            app.swipeUp()
+        }
+        XCTFail("Could not open CMSN+. \(app.debugDescription)")
+    }
+
+    /// Waits for both plan rows, scrolls the annual price on screen if the
+    /// sheet is short, then records `paywall.png`. Prices are the button
+    /// labels (`Monthly, $9.99` / `Annual, $59.99`), which use the same
+    /// string the row draws.
+    private func capturePaywall() {
+        let monthly = app.buttons["paywall.monthly"]
+        let annual = app.buttons["paywall.annual"]
+        XCTAssertTrue(
+            waitForAny(timeout: 15) {
+                monthly.exists && annual.exists
+            },
+            "CMSN+ paywall never appeared. \(app.debugDescription)"
+        )
+        let deadline = Date().addingTimeInterval(8)
+        while Date() < deadline, !isFullyOnScreen(annual) {
+            app.swipeUp()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.35))
+        }
+        capture("paywall")
+        XCTAssertTrue(
+            monthly.label.contains("$9.99"),
+            "Monthly price label was \"\(monthly.label)\". The locked display price is $9.99."
+        )
+        XCTAssertTrue(
+            annual.label.contains("$59.99"),
+            "Annual price label was \"\(annual.label)\". The locked display price is $59.99."
+        )
+    }
+
+    private func isFullyOnScreen(_ element: XCUIElement) -> Bool {
+        guard element.exists, element.frame.width > 1, element.frame.height > 1 else { return false }
+        return element.frame.minY >= 0 && element.frame.maxY <= app.frame.maxY + 1
+    }
+
+    /// These strings were visible slot labels on the media, not product copy.
+    private func assertPlaceholderAbsent(_ label: String) {
+        XCTAssertFalse(
+            app.staticTexts[label].exists,
+            "Placeholder \"\(label)\" is still on screen. \(app.debugDescription)"
+        )
     }
 
     /// Identifier first. The visible label stays "Get Started" so an older
