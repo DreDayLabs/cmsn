@@ -46,17 +46,43 @@ In Xcode:
 
 `CMSNApp/Resources/Configuration.storekit` is a local StoreKit test
 configuration with the CMSN+ monthly ($9.99) and annual ($59.99) products
-and a 7-day free trial, matching the pricing in
-`brand/08-app-strategy.md`. To use it:
+and a 7-day free introductory trial (`P1W`, one free period). The product
+IDs are the ones in `StoreKitManager.swift`:
 
-1. Xcode → Product → Scheme → Edit Scheme → Run → Options →
-   **StoreKit Configuration** → select `Configuration.storekit`.
-2. Run the app; `PaywallView` will list both products and purchases will go
-   through Xcode's local StoreKit test environment (no real App Store
-   account or money involved).
+- `com.earnyourcmsn.app.plus.monthly`
+- `com.earnyourcmsn.app.plus.annual`
 
-The real products (`com.earnyourcmsn.app.plus.monthly` /
-`.plus.annual`) still need to be created in App Store Connect before this
+The CMSNApp, CMSNAppTests, and CMSNScreenshots schemes already select this
+file for Run, so ⌘R in the Simulator uses it. No App Store Connect account
+and no charge. `scripts/wire-storekit-test-action.py` (run by XcodeGen)
+also selects it on the CMSNScreenshots Test action, which is how that
+harness launches the app. Unit tests do not set it on their Test action:
+`SKTestSession` loads this same file from the test bundle, and a second
+scheme selection stops the session from starting.
+
+`CMSNAppTests/StoreKitPurchaseFlowTests` loads the file with `SKTestSession`
+and covers buy (trial unlocks CMSN+), restore after a fresh manager, expiry
+and cancellation locking CMSN+ again, and a failed or cancelled purchase
+that clears the purchasing flag and sets a short error.
+
+On a wiped simulator:
+
+```bash
+cd ios/CMSNApp
+xcodebuild test \
+  -project CMSNApp.xcodeproj \
+  -scheme CMSNApp \
+  -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
+  -only-testing:CMSNAppTests/StoreKitPurchaseFlowTests
+```
+
+The CMSNScreenshots harness still passes `-CMSNResetFirstRun`. After the
+main captures it relaunches with `-CMSNScreenshotSubscribed` (Debug only)
+and writes `settings-subscribed.png` with the CMSN+ row Active. The page
+videos are in the app target, not Git LFS, so `GIT_LFS_SKIP_SMUDGE` is not
+required for that shot.
+
+The real products still need to be created in App Store Connect before this
 ships — the product IDs in `StoreKitManager.swift` must match exactly.
 
 ## Running tests

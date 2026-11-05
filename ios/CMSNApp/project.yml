@@ -6,6 +6,10 @@ options:
     watchOS: "10.0"
   createIntermediateGroups: true
   generateEmptyDirectories: true
+  # XcodeGen writes StoreKit configuration on Run only. This copies it
+  # onto the CMSNScreenshots Test action. Unit-test schemes stay unset
+  # so SKTestSession can own the configuration.
+  postGenCommand: python3 scripts/wire-storekit-test-action.py
 
 settings:
   base:
@@ -161,6 +165,10 @@ targets:
     platform: iOS
     sources:
       - path: CMSNAppTests
+      # Same file the app bundles, copied into the test bundle so
+      # SKTestSession can open it without the host app.
+      - path: CMSNApp/Resources/Configuration.storekit
+        buildPhase: resources
     dependencies:
       - target: CMSNApp
         embed: false
@@ -172,10 +180,11 @@ targets:
       testTargets:
         - CMSNAppTests
       gatherCoverageData: true
+      storeKitConfiguration: CMSNApp/Resources/Configuration.storekit
 
-  # Screenshot harness only. Kept off the CMSNApp scheme so the unsigned
-  # unit-test step (CODE_SIGNING_ALLOWED=NO) does not have to install a
-  # UI-test runner. CI runs it from the CMSNScreenshots scheme.
+  # Screenshot harness only. Kept off the CMSNApp scheme so the unit-test
+  # step does not have to install a UI-test runner. CI runs it from the
+  # CMSNScreenshots scheme.
   CMSNAppUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -204,6 +213,7 @@ schemes:
         CMSNAppTests: [test]
     run:
       config: Debug
+      storeKitConfiguration: CMSNApp/Resources/Configuration.storekit
     test:
       config: Debug
       targets:
@@ -221,6 +231,7 @@ schemes:
     run:
       config: Debug
       debugEnabled: false
+      storeKitConfiguration: CMSNApp/Resources/Configuration.storekit
     test:
       config: Debug
       debugEnabled: false

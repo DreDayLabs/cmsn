@@ -7,7 +7,6 @@ import StoreKit
 struct PaywallView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
-    @State private var isPurchasing = false
 
     var body: some View {
         ZStack {
@@ -71,13 +70,26 @@ struct PaywallView: View {
                 accessibilityID: "paywall.annual"
             )
 
+            if appState.storeKitManager.isPurchasing {
+                ProgressView()
+                    .controlSize(.small)
+                    .tint(CMSNColor.Semantic.textPrimary)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel("Purchasing")
+                    .accessibilityIdentifier("paywall.purchasing")
+            }
+
             Button("Restore Purchases") {
                 Task { await appState.storeKitManager.restorePurchases() }
             }
             .buttonStyle(.cmsnGhost)
+            .disabled(appState.storeKitManager.isPurchasing)
 
             if let error = appState.storeKitManager.lastError {
-                Text(error).font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.destructive)
+                Text(error)
+                    .font(CMSNTypography.bodyQuiet())
+                    .foregroundStyle(CMSNColor.Semantic.destructive)
+                    .accessibilityIdentifier("paywall.error")
             }
         }
     }
@@ -86,12 +98,8 @@ struct PaywallView: View {
         let product = appState.storeKitManager.products.first { $0.id == productID }
         let price = CMSNPlusDisplayPrice.resolve(storePrice: product?.displayPrice, fallback: fallbackPrice)
         return Button {
-            guard let product else { return }
-            Task {
-                isPurchasing = true
-                await appState.storeKitManager.purchase(product)
-                isPurchasing = false
-            }
+            guard let product, !appState.storeKitManager.isPurchasing else { return }
+            Task { await appState.storeKitManager.purchase(product) }
         } label: {
             HStack {
                 Text(title)
@@ -100,7 +108,7 @@ struct PaywallView: View {
             }
         }
         .buttonStyle(.cmsnPrimary)
-        .disabled(isPurchasing)
+        .disabled(appState.storeKitManager.isPurchasing)
         .accessibilityIdentifier(accessibilityID)
         .accessibilityLabel("\(title), \(price)")
     }

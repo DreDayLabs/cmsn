@@ -1,11 +1,10 @@
+import StoreKit
 import XCTest
 @testable import CMSNApp
 
-/// StoreKit 2's live purchase/entitlement flow needs a `.storekit`
-/// configuration attached to the running scheme (`SKTestSession`) to
-/// exercise meaningfully, which this test target doesn't assume is present
-/// in every environment. These tests stick to what's safe to assert without
-/// that: product ID configuration and the manager's default state.
+/// Product IDs, locked display prices, and the screenshot launch argument.
+/// Live buy / restore / expire / cancel runs in `StoreKitPurchaseFlowTests`
+/// against `Configuration.storekit`.
 @MainActor
 final class StoreKitManagerTests: XCTestCase {
     func testProductIdentifiersAreDistinct() {
@@ -33,11 +32,40 @@ final class StoreKitManagerTests: XCTestCase {
         )
     }
 
+    func testScreenshotSubscribedArgument() {
+        XCTAssertEqual(StoreKitManager.screenshotSubscribedArgument, "-CMSNScreenshotSubscribed")
+        XCTAssertFalse(StoreKitManager.prefersSubscribedScreenshot([]))
+        XCTAssertFalse(StoreKitManager.prefersSubscribedScreenshot(["-CMSNResetFirstRun"]))
+        XCTAssertTrue(
+            StoreKitManager.prefersSubscribedScreenshot([StoreKitManager.screenshotSubscribedArgument])
+        )
+    }
+
+    func testPurchaseErrorCopyStaysClean() {
+        XCTAssertEqual(
+            StoreKitManager.purchaseErrorMessage(for: SKError(.paymentCancelled)),
+            "Purchase cancelled."
+        )
+        XCTAssertEqual(
+            StoreKitManager.purchaseErrorMessage(for: StoreKitError.userCancelled),
+            "Purchase cancelled."
+        )
+        XCTAssertEqual(
+            StoreKitManager.purchaseErrorMessage(for: BlankError()),
+            "Purchase failed."
+        )
+    }
+
     func testManagerStartsUnsubscribedBeforeAnyEntitlementCheck() {
         // A fresh manager must never default to "subscribed" — that would
         // silently unlock CMSN+ gating for every user before any real
         // entitlement check has run.
         let manager = StoreKitManager()
         XCTAssertFalse(manager.isSubscribed)
+        XCTAssertFalse(manager.isPurchasing)
     }
+}
+
+private struct BlankError: LocalizedError {
+    var errorDescription: String? { "  " }
 }

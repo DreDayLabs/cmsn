@@ -35,8 +35,14 @@ enum CMSNPlusDisplayPrice {
 @Observable
 @MainActor
 final class StoreKitManager {
+    /// Debug-only launch argument for the screenshot harness. Production
+    /// and Release builds ignore it. The UI test duplicates this string
+    /// because the two targets do not share a module.
+    static let screenshotSubscribedArgument = "-CMSNScreenshotSubscribed"
+
     private(set) var products: [Product] = []
     private(set) var isSubscribed: Bool = false
+    private(set) var isPurchasing: Bool = false
     private(set) var lastError: String?
 
     // nonisolated(unsafe): only `deinit` (always nonisolated) needs to
@@ -44,12 +50,31 @@ final class StoreKitManager {
     // safe to call from any context.
     private nonisolated(unsafe) var transactionListenerTask: Task<Void, Never>?
 
-    init() {
+    /// `autoStart` is false in StoreKit tests that need a manager with no
+    /// in-flight entitlement refresh. The app always uses the default.
+    init(autoStart: Bool = true) {
+        if Self.prefersSubscribedScreenshot() {
+            isSubscribed = true
+        }
+        guard autoStart else { return }
         transactionListenerTask = listenForTransactions()
         Task {
             await loadProducts()
             await refreshEntitlements()
         }
+    }
+
+    /// True only for a Debug process launched with
+    /// `-CMSNScreenshotSubscribed`. Release builds cannot be flipped on.
+    static func prefersSubscribedScreenshot(
+        _ arguments: [String] = ProcessInfo.processInfo.arguments
+    ) -> Bool {
+        #if DEBUG
+        return arguments.contains(screenshotSubscribedArgument)
+        #else
+        _ = arguments
+        return false
+        #endif
     }
 
     deinit {
@@ -65,6 +90,9 @@ final class StoreKitManager {
     }
 
     func purchase(_ product: Product) async {
+        isPurchasing = true
+        defer { isPurchasing = false }
+        lastError = nil
         do {
             let result = try await product.purchase()
             switch result {
@@ -76,23 +104,46 @@ final class StoreKitManager {
                     lastError = "Purchase could not be verified."
                 }
             case .userCancelled:
-                break
+                lastError = "Purchase cancelled."
             case .pending:
                 lastError = "Purchase is pending approval."
             @unknown default:
-                break
+                lastError = "Purchase failed."
             }
         } catch {
-            lastError = "Purchase failed: \(error.localizedDescription)"
+            lastError = Self.purchaseErrorMessage(for: error)
         }
     }
 
+    /// Shown on the paywall. Cancellation is its own sentence so a dismissed
+    /// sheet does not look like a failed charge.
+    static func purchaseErrorMessage(for error: Error) -> String {
+        if let storeError = error as? StoreKitError, case .userCancelled = storeError {
+            return "Purchase cancelled."
+        }
+        if let skError = error as? SKError, skError.code == .paymentCancelled {
+            return "Purchase cancelled."
+        }
+        let description = error.localizedDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+        if description.isEmpty {
+            return "Purchase failed."
+        }
+        return "Purchase failed: \(description)"
+    }
+
     func restorePurchases() async {
+        lastError = nil
         do {
             try await AppStore.sync()
-            await refreshEntitlements()
         } catch {
+            // Local StoreKit testing can throw from sync even when the
+            // entitlement is already in `Transaction.currentEntitlements`.
+            // Remember the failure, then still read the local store.
             lastError = "Restore failed: \(error.localizedDescription)"
+        }
+        await refreshEntitlements()
+        if isSubscribed {
+            lastError = nil
         }
     }
 
@@ -100,6 +151,10 @@ final class StoreKitManager {
     /// is the single source of truth every feature-gate should read from
     /// (`appState.storeKitManager.isSubscribed`) rather than re-deriving it.
     func refreshEntitlements() async {
+        if Self.prefersSubscribedScreenshot() {
+            isSubscribed = true
+            return
+        }
         var subscribed = false
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result, CMSNProductID.all.contains(transaction.productID) {

@@ -237,12 +237,16 @@ jobs:
         working-directory: ios/CMSNApp
         run: |
           set -o pipefail
+          # Ad-hoc signature so SKTestSession can write its local StoreKit
+          # container. An unsigned host fails that with SKInternalErrorDomain
+          # Code=3. This is not a development-team signature and not a charge.
           xcodebuild test \
             -project CMSNApp.xcodeproj \
             -scheme CMSNApp \
             -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
             -skipMacroValidation \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY=- \
             CODE_SIGNING_REQUIRED=NO \
             | tee test.log
 
