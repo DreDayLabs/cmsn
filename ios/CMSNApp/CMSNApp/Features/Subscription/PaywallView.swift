@@ -1,10 +1,10 @@
 import SwiftUI
 import StoreKit
 
-/// The CMSN+ paywall. Pricing/positioning per `brand/08-app-strategy.md`:
-/// $9.99/mo or $59.99/yr against Fitbod's $15.99/$95.99 — framed here as a
-/// value comparison, not just a lower price, per the "can't win by being a
-/// cheaper clone" doctrine.
+/// The CMSN+ paywall. Monthly is $9.99. Annual $59.99 is a placeholder
+/// until the founder confirms it (`CMSNPlusDisplayPrice.annualIsPlaceholder`).
+/// Both are display strings. They are not App Store Connect products.
+/// Positioning against Fitbod's $15.99/$95.99 is in `brand/08-app-strategy.md`.
 struct PaywallView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
@@ -59,27 +59,23 @@ struct PaywallView: View {
 
     private var productButtons: some View {
         VStack(spacing: 12) {
+            planButton(
+                title: "Monthly",
+                productID: CMSNProductID.monthly,
+                fallbackPrice: CMSNPlusDisplayPrice.monthly,
+                accessibilityID: "paywall.monthly"
+            )
+            planButton(
+                title: "Annual",
+                productID: CMSNProductID.annual,
+                fallbackPrice: CMSNPlusDisplayPrice.annual,
+                accessibilityID: "paywall.annual"
+            )
+
             if appState.storeKitManager.products.isEmpty {
-                Text("Products load from App Store Connect once CMSN+ is configured there — this screen is fully wired, just waiting on real product IDs.")
+                Text("These are the CMSN+ prices. Subscribing starts once the App Store products are available. Nothing is billed from this screen until then.")
                     .font(CMSNTypography.bodyQuiet())
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
-            }
-            ForEach(appState.storeKitManager.products) { product in
-                Button {
-                    Task {
-                        isPurchasing = true
-                        await appState.storeKitManager.purchase(product)
-                        isPurchasing = false
-                    }
-                } label: {
-                    HStack {
-                        Text(product.displayName)
-                        Spacer()
-                        Text(product.displayPrice)
-                    }
-                }
-                .buttonStyle(.cmsnPrimary)
-                .disabled(isPurchasing)
             }
 
             Button("Restore Purchases") {
@@ -93,8 +89,31 @@ struct PaywallView: View {
         }
     }
 
+    private func planButton(title: String, productID: String, fallbackPrice: String, accessibilityID: String) -> some View {
+        let product = appState.storeKitManager.products.first { $0.id == productID }
+        let price = CMSNPlusDisplayPrice.resolve(storePrice: product?.displayPrice, fallback: fallbackPrice)
+        return Button {
+            guard let product else { return }
+            Task {
+                isPurchasing = true
+                await appState.storeKitManager.purchase(product)
+                isPurchasing = false
+            }
+        } label: {
+            HStack {
+                Text(title)
+                Spacer()
+                Text(price)
+            }
+        }
+        .buttonStyle(.cmsnPrimary)
+        .disabled(isPurchasing)
+        .accessibilityIdentifier(accessibilityID)
+        .accessibilityLabel("\(title), \(price)")
+    }
+
     private var footer: some View {
-        Text("7-day free trial, then billed monthly or annually. Cancel anytime in Settings.")
+        Text("7-day free trial, then \(CMSNPlusDisplayPrice.monthly) a month or \(CMSNPlusDisplayPrice.annual) a year. Cancel anytime in Settings.")
             .font(CMSNTypography.bodyQuiet())
             .foregroundStyle(CMSNColor.Semantic.textSecondary)
     }

@@ -12,6 +12,24 @@ enum CMSNProductID {
     static let all: [String] = [monthly, annual]
 }
 
+/// Prices drawn on the paywall. These are display strings, not App Store
+/// Connect products. Monthly is the confirmed CMSN+ price. Annual is a
+/// placeholder until the founder confirms it — do not create or edit the
+/// App Store product from `annual`.
+enum CMSNPlusDisplayPrice {
+    static let monthly = "$9.99"
+    static let annual = "$59.99"
+    static let annualIsPlaceholder = true
+
+    /// StoreKit's localized price wins once a product is actually loaded.
+    /// Until then the paywall shows the configured display string.
+    static func resolve(storePrice: String?, fallback: String) -> String {
+        guard let storePrice else { return fallback }
+        let trimmed = storePrice.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? fallback : trimmed
+    }
+}
+
 /// V0's StoreKit 2 scaffolding: local product loading, purchase, restore,
 /// and entitlement state — wired against `Resources/Configuration.storekit`
 /// for local testing. The full CMSN+ feature set this gates (unlimited

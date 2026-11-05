@@ -136,6 +136,27 @@ enum StoreQuarantineError: Error, Equatable, LocalizedError {
 }
 
 enum CMSNModelContainerFactory {
+    /// Passed by `CMSNScreenSmokeTests` so a simulator that already finished
+    /// onboarding still opens on the welcome CTA. Production launches never
+    /// set this. Matching string lives in the UI test; the two targets do
+    /// not share a module.
+    static let resetFirstRunArgument = "-CMSNResetFirstRun"
+
+    static func shouldResetPersistentStore(
+        arguments: [String] = ProcessInfo.processInfo.arguments
+    ) -> Bool {
+        arguments.contains(resetFirstRunArgument)
+    }
+
+    /// Deletes the store and its SQLite sidecars. Used only for the
+    /// screenshot harness. A missing file is not an error.
+    static func resetPersistentStore(at storeURL: URL, fileManager: FileManager = .default) {
+        let journal = URL(fileURLWithPath: storeURL.path + "-journal")
+        for url in relatedStoreURLs(for: storeURL) + [journal] where fileManager.fileExists(atPath: url.path) {
+            try? fileManager.removeItem(at: url)
+        }
+    }
+
     /// The app's real, on-disk container. Kept as a single source of truth
     /// so `CMSNAppApp` and any future export/backup tooling agree on schema
     /// + migration plan.
@@ -152,7 +173,11 @@ enum CMSNModelContainerFactory {
     /// original weight. V3 to V4 only adds run and club tables. V4 to V5
     /// adds the restrictive-diet preference table and leaves `Athlete` alone.
     static func makeDefault() throws -> ModelContainer {
-        let container = try open(defaultPersistentConfiguration())
+        let configuration = defaultPersistentConfiguration()
+        if shouldResetPersistentStore() {
+            resetPersistentStore(at: configuration.url)
+        }
+        let container = try open(configuration)
         do {
             try WeightHistorySeeder.seedIfUnmarked(in: ModelContext(container))
         } catch {

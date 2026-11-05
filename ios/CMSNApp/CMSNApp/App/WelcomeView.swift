@@ -1,5 +1,21 @@
 import SwiftUI
 
+/// True once the cold-launch film has finished. Defaults to true so
+/// previews and any presentation outside `WelcomeView` animate immediately.
+/// `WelcomeView` sets this to false while the splash is covering `RootView`:
+/// that view is mounted at opacity 0, and a delayed entrance started then
+/// never lands in the accessibility tree.
+struct CMSNSplashFinishedKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+extension EnvironmentValues {
+    var cmsnSplashFinished: Bool {
+        get { self[CMSNSplashFinishedKey.self] }
+        set { self[CMSNSplashFinishedKey.self] = newValue }
+    }
+}
+
 /// The cold-launch welcome/loading screen. Wraps `RootView` rather than
 /// gating it behind a separate navigation state — `RootView` mounts
 /// immediately underneath (so its SwiftData query is already warm by the
@@ -19,6 +35,7 @@ struct WelcomeView: View {
         ZStack {
             RootView()
                 .opacity(isFinished ? 1 : 0)
+                .environment(\.cmsnSplashFinished, isFinished)
 
             if !isFinished {
                 splash

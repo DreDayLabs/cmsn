@@ -7,10 +7,17 @@ import SwiftUI
 struct NarrativeWelcomeView: View {
     let onContinue: () -> Void
 
+    /// The cold-launch splash mounts this view at opacity 0. Starting the
+    /// entrance then drops the delayed `showCTA` update, so "Get Started"
+    /// stays at opacity 0 after the film fades and never appears to
+    /// VoiceOver or the screenshot harness.
+    @Environment(\.cmsnSplashFinished) private var splashFinished
+
     @State private var showMark = false
     @State private var showHeadline = false
     @State private var showSub = false
     @State private var showCTA = false
+    @State private var didStartSequence = false
 
     var body: some View {
         ZStack {
@@ -23,7 +30,13 @@ struct NarrativeWelcomeView: View {
             )
             content
         }
-        .onAppear(perform: runSequence)
+        .onAppear(perform: runSequenceIfNeeded)
+        .onChange(of: splashFinished) { _, _ in
+            runSequenceIfNeeded()
+        }
+        .task(id: splashFinished) {
+            runSequenceIfNeeded()
+        }
     }
 
     private var content: some View {
@@ -61,13 +74,29 @@ struct NarrativeWelcomeView: View {
             // chest mark reads clear above it.
             Spacer().frame(maxHeight: 56)
 
-            Button("Get Started", action: onContinue)
-                .buttonStyle(.cmsnPrimary)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 24)
-                .opacity(showCTA ? 1 : 0)
-                .offset(y: showCTA ? 0 : 14)
+            // Inserted only once it should be visible. An opacity-0 button
+            // is omitted from the accessibility tree, which is why the
+            // screenshot harness reported that this CTA never appeared.
+            ZStack {
+                if showCTA {
+                    Button("Get Started", action: onContinue)
+                        .buttonStyle(.cmsnPrimary)
+                        .accessibilityIdentifier("welcome.getStarted")
+                        .accessibilityLabel("Get Started")
+                        .transition(.opacity.combined(with: .offset(y: 14)))
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+            .animation(.easeOut(duration: 0.6), value: showCTA)
         }
+    }
+
+    private func runSequenceIfNeeded() {
+        guard splashFinished, !didStartSequence else { return }
+        didStartSequence = true
+        runSequence()
     }
 
     private func runSequence() {
@@ -75,6 +104,13 @@ struct NarrativeWelcomeView: View {
         withAnimation(.easeOut(duration: 0.6).delay(0.35)) { showHeadline = true }
         withAnimation(.easeOut(duration: 0.6).delay(0.6)) { showSub = true }
         withAnimation(.easeOut(duration: 0.6).delay(0.85)) { showCTA = true }
+        // If the delayed animation is discarded, still insert the CTA.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            showMark = true
+            showHeadline = true
+            showSub = true
+            showCTA = true
+        }
     }
 }
 

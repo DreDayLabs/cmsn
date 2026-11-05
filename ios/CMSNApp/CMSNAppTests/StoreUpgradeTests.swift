@@ -53,6 +53,32 @@ final class StoreUpgradeTests: XCTestCase {
         XCTAssertEqual(try ModelContext(reopened).fetchCount(FetchDescriptor<WeightEntry>()), 1)
     }
 
+    func testResetArgumentIsOptIn() {
+        XCTAssertEqual(CMSNModelContainerFactory.resetFirstRunArgument, "-CMSNResetFirstRun")
+        XCTAssertFalse(CMSNModelContainerFactory.shouldResetPersistentStore(arguments: []))
+        XCTAssertFalse(CMSNModelContainerFactory.shouldResetPersistentStore(arguments: ["-AppleLanguages", "(en)"]))
+        XCTAssertTrue(
+            CMSNModelContainerFactory.shouldResetPersistentStore(
+                arguments: ["CMSNApp", "-CMSNResetFirstRun"]
+            )
+        )
+    }
+
+    func testResetRemovesStoreSidecars() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("cmsn-reset-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = root.appendingPathComponent("default.store")
+        try Data("store".utf8).write(to: store)
+        try Data("wal".utf8).write(to: URL(fileURLWithPath: store.path + "-wal"))
+        try Data("journal".utf8).write(to: URL(fileURLWithPath: store.path + "-journal"))
+        CMSNModelContainerFactory.resetPersistentStore(at: store)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: store.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: store.path + "-wal"))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: store.path + "-journal"))
+    }
+
     func testBackupCopiesWithoutMoving() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("cmsn-backup-\(UUID().uuidString)", isDirectory: true)
