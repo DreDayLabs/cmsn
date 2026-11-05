@@ -214,24 +214,39 @@ final class CMSNScreenSmokeTests: XCTestCase {
         XCTFail("Could not open CMSN+. \(app.debugDescription)")
     }
 
-    /// Waits for both plan rows, scrolls the annual price on screen if the
-    /// sheet is short, then records `paywall.png`. Prices are the button
-    /// labels (`Monthly, $9.99` / `Annual, $59.99`), which use the same
-    /// string the row draws.
+    /// Waits for both plan rows, scrolls until the locked prices and the
+    /// subscription disclosure share the frame, then records `paywall.png`.
+    /// Prices are the button labels (`Monthly, $9.99` / `Annual, $59.99`),
+    /// which use the same string the row draws.
     private func capturePaywall() {
         let monthly = app.buttons["paywall.monthly"]
         let annual = app.buttons["paywall.annual"]
+        let disclosure = app.staticTexts["paywall.disclosure"]
+        let trial = app.staticTexts["paywall.trial"]
         XCTAssertTrue(
             waitForAny(timeout: 15) {
-                monthly.exists && annual.exists
+                monthly.exists && annual.exists && disclosure.exists && trial.exists
+                    && (self.paywallLink("paywall.terms").exists && self.paywallLink("paywall.privacy").exists)
             },
             "CMSN+ paywall never appeared. \(app.debugDescription)"
         )
-        let deadline = Date().addingTimeInterval(8)
-        while Date() < deadline, !isFullyOnScreen(annual) {
-            app.swipeUp()
+        let deadline = Date().addingTimeInterval(12)
+        while Date() < deadline {
+            let terms = paywallLink("paywall.terms")
+            let privacy = paywallLink("paywall.privacy")
+            if isFullyOnScreen(monthly)
+                && paywallLegalIsOnScreen(annual: annual, trial: trial, disclosure: disclosure, terms: terms, privacy: privacy) {
+                break
+            }
+            // Another drag would push the $9.99 row off the top of paywall.png.
+            if monthly.frame.height > 1, monthly.frame.minY < 24 {
+                break
+            }
+            nudgePaywallUp()
             RunLoop.current.run(until: Date().addingTimeInterval(0.35))
         }
+        let terms = paywallLink("paywall.terms")
+        let privacy = paywallLink("paywall.privacy")
         capture("paywall")
         XCTAssertTrue(
             monthly.label.contains("$9.99"),
@@ -241,6 +256,66 @@ final class CMSNScreenSmokeTests: XCTestCase {
             annual.label.contains("$59.99"),
             "Annual price label was \"\(annual.label)\". The locked display price is $59.99."
         )
+        XCTAssertTrue(
+            isFullyOnScreen(monthly) && isFullyOnScreen(annual),
+            "Prices were not both on screen for paywall.png. monthly=\(monthly.frame) annual=\(annual.frame)"
+        )
+        XCTAssertTrue(
+            trial.label.contains("7-day free trial"),
+            "Trial line was \"\(trial.label)\"."
+        )
+        XCTAssertTrue(
+            disclosure.label.contains("auto-renewing subscription"),
+            "Subscription disclosure was \"\(disclosure.label)\"."
+        )
+        XCTAssertTrue(
+            disclosure.label.contains("Subscriptions"),
+            "Cancel path missing from \"\(disclosure.label)\"."
+        )
+        XCTAssertFalse(
+            app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Nothing is billed")).firstMatch.exists,
+            "Pre-launch billing disclaimer is still on the paywall. \(app.debugDescription)"
+        )
+        XCTAssertTrue(terms.exists, "Terms of Use link missing. \(app.debugDescription)")
+        XCTAssertTrue(privacy.exists, "Privacy Policy link missing. \(app.debugDescription)")
+        XCTAssertTrue(
+            isFullyOnScreen(disclosure) && isFullyOnScreen(terms) && isFullyOnScreen(privacy),
+            "Subscription terms were not fully on screen for paywall.png. disclosure=\(disclosure.frame) terms=\(terms.frame) privacy=\(privacy.frame)"
+        )
+    }
+
+    private func paywallLegalIsOnScreen(
+        annual: XCUIElement,
+        trial: XCUIElement,
+        disclosure: XCUIElement,
+        terms: XCUIElement,
+        privacy: XCUIElement
+    ) -> Bool {
+        isFullyOnScreen(annual)
+            && isFullyOnScreen(trial)
+            && isFullyOnScreen(disclosure)
+            && isFullyOnScreen(terms)
+            && isFullyOnScreen(privacy)
+    }
+
+    /// A short drag. A full swipe can push the $9.99 row off before the
+    /// terms line is in frame.
+    private func nudgePaywallUp() {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.72))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.58))
+        start.press(forDuration: 0.05, thenDragTo: end)
+    }
+
+    /// SwiftUI `Link` is a link on current iOS and a button on some earlier
+    /// accessibility trees. Either identifier is the paywall footer link.
+    /// Re-query each time; resolving before the sheet exists sticks the
+    /// lookup on an empty button query.
+    private func paywallLink(_ identifier: String) -> XCUIElement {
+        let link = app.links[identifier]
+        if link.exists { return link }
+        let button = app.buttons[identifier]
+        if button.exists { return button }
+        return link
     }
 
     private func isFullyOnScreen(_ element: XCUIElement) -> Bool {

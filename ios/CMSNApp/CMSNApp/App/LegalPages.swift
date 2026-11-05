@@ -6,6 +6,10 @@ import SwiftUI
 enum LegalLinks {
     static let privacy = URL(string: "https://earnyourcmsn.com/privacy")!
     static let support = URL(string: "https://earnyourcmsn.com/support")!
+    /// Same host and path shape as privacy and support. No Terms page is
+    /// published yet — earnyourcmsn.com/terms 404s. Point this at the live
+    /// CMSN terms document before App Store review.
+    static let terms = URL(string: "https://earnyourcmsn.com/terms")!
 }
 
 /// In-app privacy policy (works offline). Each page also links to its
