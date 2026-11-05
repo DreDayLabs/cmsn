@@ -144,8 +144,9 @@ Not code bugs — decisions or business actions this audit can't make unilateral
 - **Real StoreKit product IDs don't exist in App Store Connect yet.**
   `com.earnyourcmsn.app.plus.monthly` / `.plus.annual` are consistent everywhere in code
   (this is correct, intentional V0 scope per the README and strategy doc) but until they're
-  created in ASC, `Product.products(for:)` returns empty in production and the paywall
-  permanently shows its "not configured yet" state. Business/App Store Connect task, not
+  created in ASC, `Product.products(for:)` returns empty in production and the purchase
+  buttons do nothing. The paywall still shows the locked $9.99 / $59.99 prices, the
+  7-day trial line, and the auto-renew disclosure. Business/App Store Connect task, not
   code.
 - **StoreKit entitlement validation is 100% on-device**, with no server-side receipt
   check — explicit, documented V0/V1 scope (`brand/08-app-strategy.md`: real backend

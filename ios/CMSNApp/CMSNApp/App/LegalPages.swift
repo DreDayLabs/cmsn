@@ -6,6 +6,9 @@ import SwiftUI
 enum LegalLinks {
     static let privacy = URL(string: "https://earnyourcmsn.com/privacy")!
     static let support = URL(string: "https://earnyourcmsn.com/support")!
+    /// Apple's standard Licensed Application EULA. App Review accepts this
+    /// link. Swap it for a CMSN terms page when one is published.
+    static let terms = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
 }
 
 /// In-app privacy policy (works offline). Each page also links to its
