@@ -98,7 +98,8 @@ struct EducationLibraryView: View {
     }
 
     private var programHero: some View {
-        CMSNVideoHero(height: 360, badge: "Video", playsVideo: false) {
+        // The page film is the picture. "Video" was a slot label, not a title.
+        CMSNVideoHero(height: 360, badge: nil, playsVideo: false) {
             VStack(alignment: .leading, spacing: 12) {
                 Text(appState.activeProgram.name)
                     .font(.system(size: 15, weight: .medium))

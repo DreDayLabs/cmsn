@@ -116,7 +116,8 @@ struct SettingsView: View {
                 settingsRow(
                     "CMSN+",
                     value: appState.storeKitManager.isSubscribed ? "Active" : "Not active",
-                    showsChevron: true
+                    showsChevron: true,
+                    identifier: "settings.cmsnPlus"
                 ) { showingPaywall = true }
                 divider
                 settingsRow("Restore Purchases", value: restoring ? "Restoring…" : "") {
@@ -237,11 +238,12 @@ struct SettingsView: View {
         .contentShape(Rectangle())
     }
 
-    private func settingsRow(_ label: String, value: String, showsChevron: Bool = false, destructive: Bool = false, action: (() -> Void)? = nil) -> some View {
+    private func settingsRow(_ label: String, value: String, showsChevron: Bool = false, destructive: Bool = false, identifier: String? = nil, action: (() -> Void)? = nil) -> some View {
         Group {
             if let action {
                 Button(action: action) { rowLabel(label, value: value, showsChevron: showsChevron, destructive: destructive) }
                     .buttonStyle(.plain)
+                    .cmsnIdentifier(identifier)
             } else {
                 rowLabel(label, value: value, showsChevron: showsChevron, destructive: destructive)
             }
@@ -269,5 +271,16 @@ struct SettingsView: View {
         AccountDataService.eraseEverything(context: modelContext)
         // RootView's @Query sees zero athletes and returns to first-run
         // onboarding on its own — no navigation needed here.
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func cmsnIdentifier(_ identifier: String?) -> some View {
+        if let identifier {
+            accessibilityIdentifier(identifier)
+        } else {
+            self
+        }
     }
 }
