@@ -573,7 +573,7 @@ struct TrainingDayAdjustment: Equatable {
         [
             "No training is logged today, so today's targets are unchanged: about \(whole(baseline.calorieEstimate)) kcal, \(whole(baseline.carbGrams)) g carbohydrate, \(whole(baseline.proteinGrams)) g protein, and \(whole(baseline.fatGrams)) g fat",
             "Nothing was added for a workout",
-            "This baseline is Mifflin–St Jeor rest burn times a PLACEHOLDER activity factor of 1.2"
+            "This baseline is Mifflin–St Jeor rest burn times an uncited activity factor of 1.2"
         ]
     }
 
@@ -581,7 +581,7 @@ struct TrainingDayAdjustment: Equatable {
         [
             "A session was logged today, but no sets were completed, so no training energy was added",
             "Today's targets stay unchanged at the non-exercise baseline: about \(whole(baseline.calorieEstimate)) kcal, \(whole(baseline.carbGrams)) g carbohydrate, \(whole(baseline.proteinGrams)) g protein, and \(whole(baseline.fatGrams)) g fat",
-            "That baseline is Mifflin–St Jeor rest burn times a PLACEHOLDER activity factor of 1.2"
+            "That baseline is Mifflin–St Jeor rest burn times an uncited activity factor of 1.2"
         ]
     }
 
@@ -594,17 +594,17 @@ struct TrainingDayAdjustment: Equatable {
     ) -> [String] {
         let opener: String
         if durationMissing && !activityUncited, let activityLabel {
-            opener = "You logged \(activityLabel) today, but the session has no finish time, so its energy is a PLACEHOLDER of \(whole(missingDurationHoursPlaceholder)) kcal and was not added"
+            opener = "You logged \(activityLabel) today, but the session has no finish time, so workout energy was not added"
         } else if activityUncited && minutes > 0 {
             let what = activityLabel.map { " of \($0)" } ?? ""
-            opener = "You logged \(minutes) min\(what), but that activity has no energy value in the sources this screen uses, so it adds a PLACEHOLDER of 0 kcal"
+            opener = "You logged \(minutes) min\(what), but that activity has no energy value in the sources this screen uses, so it adds 0 kcal"
         } else {
-            opener = "You logged training today, but this screen could not use a cited duration and activity, so workout energy is a PLACEHOLDER of 0 kcal and was not added"
+            opener = "You logged training today, but this screen could not use a cited duration and activity, so workout energy was not added"
         }
         return [
             opener,
             "Today's targets stay at the non-exercise baseline: about \(whole(baseline.calorieEstimate)) kcal, \(whole(baseline.carbGrams)) g carbohydrate, \(whole(baseline.proteinGrams)) g protein, and \(whole(baseline.fatGrams)) g fat",
-            "That baseline is Mifflin–St Jeor rest burn times a PLACEHOLDER activity factor of 1.2"
+            "That baseline is Mifflin–St Jeor rest burn times an uncited activity factor of 1.2"
         ]
     }
 
@@ -638,7 +638,7 @@ struct TrainingDayAdjustment: Equatable {
 
         var metSentence = "Net METs from the 2024 Adult Compendium (\(codePhrase(codes: codes, mets: mets))) leave out resting energy already counted by the Mifflin–St Jeor baseline"
         if durationMissing || activityUncited {
-            metSentence += ", and another logged session has no cited duration or activity, so that part stays a PLACEHOLDER of 0 kcal"
+            metSentence += ", and another logged session has no cited duration or activity, so that part adds 0 kcal"
         }
 
         let range = load.gramsPerKilogram.map { "\(trim($0.lowerBound))–\(trim($0.upperBound)) g/kg" } ?? ""

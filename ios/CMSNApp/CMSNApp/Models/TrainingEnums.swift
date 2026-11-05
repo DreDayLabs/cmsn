@@ -152,6 +152,14 @@ enum GoalType: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// `clothingSizeGoal` stays in the raw value so a stored profile still
+    /// decodes. It is not offered. Clothing is not part of this app.
+    var isOfferedInProfile: Bool { self != .clothingSizeGoal }
+
+    static var offeredInProfile: [GoalType] {
+        allCases.filter(\.isOfferedInProfile)
+    }
+
     var displayName: String {
         switch self {
         case .strength: return "Strength"
@@ -161,7 +169,7 @@ enum GoalType: String, Codable, CaseIterable, Identifiable {
         case .endurance: return "Endurance"
         case .mobility: return "Mobility"
         case .generalFitness: return "General Fitness"
-        case .clothingSizeGoal: return "Clothing-Size Goal"
+        case .clothingSizeGoal: return ""
         case .eventPrep: return "Event Prep"
         case .consistency: return "Consistency"
         case .returnToTraining: return "Return to Training"

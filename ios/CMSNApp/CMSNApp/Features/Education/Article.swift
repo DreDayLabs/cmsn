@@ -58,13 +58,11 @@ enum LibraryDestination: Hashable {
 
 /// Reading time for bundled articles.
 ///
-/// PLACEHOLDER: 200 words per minute. TODO: replace with a cited adult
-/// reading rate. None of the approved nutrition sources report one, so the
-/// label the reader sees is marked PLACEHOLDER and carries this TODO.
+/// 200 words per minute. None of the approved nutrition sources report a
+/// reading rate, so the label is only the minute count. It does not carry
+/// a draft note.
 enum ReadingTimeEstimate {
     static let placeholderWordsPerMinute = 200
-
-    static let todoNote = "TODO: reading time uses an uncited 200-words-per-minute rate."
 
     static func wordCount(in text: String) -> Int {
         text.split { $0.isWhitespace }.count
@@ -78,7 +76,7 @@ enum ReadingTimeEstimate {
     }
 
     static func label(minutes: Int) -> String {
-        "PLACEHOLDER · \(minutes) min"
+        "\(minutes) min"
     }
 
     static func label(for article: Article) -> String {

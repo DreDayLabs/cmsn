@@ -121,11 +121,6 @@ struct ExerciseCardView: View {
             Text("Common mistake: \(exercise.commonMistake)")
                 .font(CMSNTypography.bodyQuiet())
                 .foregroundStyle(CMSNColor.gray)
-            if exercise.demonstrationVideoAssetName == nil {
-                Text("Video demo coming in a future update — for now, follow the setup notes above.")
-                    .font(CMSNTypography.caption())
-                    .foregroundStyle(CMSNColor.Semantic.textSecondary)
-            }
         }
     }
 }

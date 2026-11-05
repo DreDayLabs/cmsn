@@ -24,11 +24,14 @@
 	  definition nothing above is collected. Re-audit before adding any
 	  analytics, crash reporter, account, or sync backend.
 
-	  NSPrivacyAccessedAPITypes: app code does not call file-timestamp,
-	  system-boot-time, disk-space, or active-keyboard APIs (audited
-	  2026-11-03). UserDefaults is declared with CA92.1 (app-only access)
-	  defensively, so a future @AppStorage or a linked dependency cannot
-	  trip ITMS-91053 at upload. System frameworks ship their own manifests.
+	  NSPrivacyAccessedAPITypes re-audited 2026-11-05 for the watch target.
+	  Watch code does not call file-timestamp APIs (stat, getattrlist,
+	  NSFileCreationDate, NSURLContentModificationDateKey, and the related
+	  keys), system boot time, disk space, or active keyboards. FileManager
+	  only creates and deletes the pending-run file, which is not a
+	  timestamp API. Those categories are not declared. CA92.1 stays from
+	  the previous manifest: this app's own defaults only, no app group.
+	  It is not a new reason. System frameworks ship their own manifests.
 	-->
 	<key>NSPrivacyTracking</key>
 	<false/>

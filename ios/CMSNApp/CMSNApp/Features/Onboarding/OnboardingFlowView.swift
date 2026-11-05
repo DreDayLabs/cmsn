@@ -36,7 +36,7 @@ struct OnboardingFlowView: View {
                 preferredSessionLengthMinutes: existing.preferredSessionLengthMinutes,
                 preferredStyles: Set(existing.preferredStyles),
                 equipmentProfile: existing.equipmentProfile,
-                goalTypes: Set(existing.goalTypes),
+                goalTypes: Set(existing.goalTypes.filter(\.isOfferedInProfile)),
                 limitations: existing.limitations,
                 unitPreference: existing.unitPreference,
                 coachingTone: existing.coachingTone
@@ -92,7 +92,7 @@ struct OnboardingFlowView: View {
         athlete.preferredSessionLengthMinutes = draft.preferredSessionLengthMinutes
         athlete.preferredStyles = Array(draft.preferredStyles)
         athlete.equipmentProfile = draft.equipmentProfile
-        athlete.goalTypes = Array(draft.goalTypes)
+        athlete.goalTypes = Array(draft.goalTypes.filter(\.isOfferedInProfile))
         athlete.limitations = draft.limitations
         athlete.unitPreference = draft.unitPreference
         athlete.coachingTone = draft.coachingTone

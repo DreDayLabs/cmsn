@@ -51,7 +51,6 @@ struct RunHomeView: View {
                         level
                         recent
                         links
-                        clubHold
                     }
                     .padding(24)
                 }
@@ -250,21 +249,6 @@ struct RunHomeView: View {
             .buttonStyle(.plain)
         }
         .cmsnCard()
-    }
-
-    /// Reserved Phase 2 slot. Text only — not a button, and it does not navigate.
-    private var clubHold: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            EyebrowLabel(text: "Run Club")
-            Text("Not in this release.")
-                .font(CMSNTypography.bodyQuiet())
-                .foregroundStyle(CMSNColor.Semantic.textSecondary)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .cmsnCard()
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Run Club. Not in this release.")
     }
 
     private func healthBanner(_ run: Run) -> some View {
