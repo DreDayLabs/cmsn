@@ -278,6 +278,16 @@ final class CMSNScreenSmokeTests: XCTestCase {
         )
         XCTAssertTrue(terms.exists, "Terms of Use link missing. \(app.debugDescription)")
         XCTAssertTrue(privacy.exists, "Privacy Policy link missing. \(app.debugDescription)")
+        XCTAssertEqual(
+            terms.value as? String,
+            "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+            "Terms link was \"\(terms.value ?? "nil")\"."
+        )
+        XCTAssertEqual(
+            privacy.value as? String,
+            "https://earnyourcmsn.com/privacy",
+            "Privacy link was \"\(privacy.value ?? "nil")\"."
+        )
         XCTAssertTrue(
             isFullyOnScreen(disclosure) && isFullyOnScreen(terms) && isFullyOnScreen(privacy),
             "Subscription terms were not fully on screen for paywall.png. disclosure=\(disclosure.frame) terms=\(terms.frame) privacy=\(privacy.frame)"

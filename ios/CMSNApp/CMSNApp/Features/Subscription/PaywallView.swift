@@ -140,5 +140,6 @@ struct PaywallView: View {
         }
         .tint(CMSNColor.Semantic.textPrimary)
         .accessibilityIdentifier(identifier)
+        .accessibilityValue(url.absoluteString)
     }
 }
