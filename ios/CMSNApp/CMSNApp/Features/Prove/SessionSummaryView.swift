@@ -2,11 +2,10 @@ import SwiftData
 import SwiftUI
 
 /// Prove. Shows what actually happened — planned vs. completed, PRs,
-/// score movement, protein and calories still open today, a recovery
-/// recommendation, and an optional (never mandatory) apparel-feedback
-/// prompt. Partial sessions are presented
-/// exactly as honestly and positively as complete ones — no "you failed to
-/// finish" framing anywhere in this screen.
+/// score movement, protein and calories still open today, and a recovery
+/// recommendation. Partial sessions are presented exactly as honestly
+/// and positively as complete ones — no "you failed to finish" framing
+/// anywhere in this screen. Clothing feedback is not offered.
 struct SessionSummaryView: View {
     let session: WorkoutSession
     let scoreBreakdown: ScoreBreakdown
@@ -15,7 +14,6 @@ struct SessionSummaryView: View {
     @Query(sort: \NutritionLog.date, order: .reverse) private var nutritionLogs: [NutritionLog]
     @Query(sort: \WorkoutSession.date, order: .reverse) private var workoutSessions: [WorkoutSession]
     @Environment(AppState.self) private var appState
-    @State private var showingApparelFeedback = false
     @State private var shareImage: UIImage?
 
     private var totalSetsAttempted: Int {
@@ -38,12 +36,6 @@ struct SessionSummaryView: View {
                     scoreSection
                     recoveryRecommendation
                     shareSection
-
-                    Button("Log how your gear performed") {
-                        showingApparelFeedback = true
-                    }
-                    .buttonStyle(.cmsnGhost)
-                    .accessibilityLabel("Log How Your Gear Performed")
                 }
                 .padding(20)
             }
@@ -59,9 +51,6 @@ struct SessionSummaryView: View {
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(CMSNColor.Semantic.textPrimary)
             }
-        }
-        .sheet(isPresented: $showingApparelFeedback) {
-            ApparelFeedbackView(session: session)
         }
         .task(id: targetSyncID) {
             let targets = adjustment.adjusted

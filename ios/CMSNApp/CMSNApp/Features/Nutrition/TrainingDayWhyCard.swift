@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// One line on why today's targets moved, with the sourced note behind More.
-/// The collapsed line never leads with the activity-factor placeholder.
+/// The collapsed line never leads with the uncited activity factor.
 /// `articleID` is the education-library slug (`fuel-after-training`).
 struct TrainingDayWhyCard: View {
     let adjustment: TrainingDayAdjustment
@@ -59,10 +59,11 @@ struct TrainingDayWhyCard: View {
         return "Today's targets include the training you logged."
     }
 
-    /// Sentences that explain the day without the uncited activity-factor note.
+    /// The uncited activity-factor sentence stays behind this card.
+    /// Draft words are kept out of these strings by AppReviewCopyRegressionTests.
     private var visibleSentences: [String] {
-        adjustment.explanationSentences.filter {
-            !$0.localizedCaseInsensitiveContains("PLACEHOLDER")
+        adjustment.explanationSentences.filter { sentence in
+            !sentence.lowercased().contains("uncited activity factor")
         }
     }
 }

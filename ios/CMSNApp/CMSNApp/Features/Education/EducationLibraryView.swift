@@ -325,9 +325,6 @@ struct ArticleReaderView: View {
                         Text(ReadingTimeEstimate.label(for: article))
                             .font(CMSNTypography.caption())
                             .foregroundStyle(CMSNColor.Semantic.textSecondary)
-                        Text(ReadingTimeEstimate.todoNote)
-                            .font(CMSNTypography.caption())
-                            .foregroundStyle(CMSNColor.Semantic.textSecondary)
                     }
 
                     ForEach(article.sections) { section in

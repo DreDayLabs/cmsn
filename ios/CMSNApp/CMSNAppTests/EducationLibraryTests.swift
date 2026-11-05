@@ -104,11 +104,10 @@ final class EducationLibraryTests: XCTestCase {
             XCTAssertEqual(article.readingTimeMinutes, minutes, article.id)
             XCTAssertGreaterThan(minutes, 0, article.id)
             let label = ReadingTimeEstimate.label(for: article)
-            XCTAssertTrue(label.contains("PLACEHOLDER"), article.id)
-            XCTAssertTrue(label.contains("\(minutes)"), article.id)
+            XCTAssertFalse(label.localizedCaseInsensitiveContains("PLACEHOLDER"), article.id)
+            XCTAssertFalse(label.localizedCaseInsensitiveContains("TODO"), article.id)
+            XCTAssertEqual(label, "\(minutes) min", article.id)
         }
-        XCTAssertTrue(ReadingTimeEstimate.todoNote.contains("TODO"))
-        XCTAssertTrue(ReadingTimeEstimate.todoNote.contains("200"))
     }
 
     func testSourceLinesMatchCitations() {

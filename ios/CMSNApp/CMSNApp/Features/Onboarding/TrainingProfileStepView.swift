@@ -90,7 +90,7 @@ struct TrainingProfileStepView: View {
     }
 
     private var goalToggleGrid: some View {
-        FlowToggleGrid(items: GoalType.allCases, isOn: { draft.goalTypes.contains($0) }, label: \.displayName) { goal in
+        FlowToggleGrid(items: GoalType.offeredInProfile, isOn: { draft.goalTypes.contains($0) }, label: \.displayName) { goal in
             if draft.goalTypes.contains(goal) { draft.goalTypes.remove(goal) } else { draft.goalTypes.insert(goal) }
         }
     }

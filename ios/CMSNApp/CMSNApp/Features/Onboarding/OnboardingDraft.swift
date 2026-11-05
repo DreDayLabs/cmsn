@@ -42,7 +42,7 @@ struct OnboardingDraft {
             preferredSessionLengthMinutes: preferredSessionLengthMinutes,
             preferredStyles: Array(preferredStyles),
             equipmentProfile: equipmentProfile,
-            goalTypes: Array(goalTypes),
+            goalTypes: Array(goalTypes.filter(\.isOfferedInProfile)),
             limitations: limitations,
             unitPreference: unitPreference,
             coachingTone: coachingTone,

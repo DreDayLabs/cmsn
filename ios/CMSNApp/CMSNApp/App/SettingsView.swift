@@ -101,7 +101,7 @@ struct SettingsView: View {
                 divider
                 settingsRow("Equipment", value: athlete.equipmentProfile.displayName)
                 divider
-                settingsRow("Goals", value: athlete.goalTypes.map(\.displayName).joined(separator: ", "))
+                settingsRow("Goals", value: athlete.goalTypes.filter(\.isOfferedInProfile).map(\.displayName).filter { !$0.isEmpty }.joined(separator: ", "))
             }
             .cmsnCard()
         }
@@ -179,6 +179,12 @@ struct SettingsView: View {
                     rowLabel("Privacy Policy", value: "", showsChevron: true)
                 }
                 .buttonStyle(.plain)
+                divider
+                Link(destination: LegalLinks.terms) {
+                    rowLabel("Terms of Use", value: "", showsChevron: true)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("settings.terms")
                 divider
                 NavigationLink { SupportPageView() } label: {
                     rowLabel("Support", value: "", showsChevron: true)
