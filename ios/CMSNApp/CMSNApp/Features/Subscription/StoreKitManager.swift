@@ -56,12 +56,25 @@ final class StoreKitManager {
         if Self.prefersSubscribedScreenshot() {
             isSubscribed = true
         }
-        guard autoStart else { return }
+        // The test host launches this manager before the test builds an
+        // SKTestSession. A product request in that window comes back empty
+        // and StoreKit keeps serving that empty result. Tests call
+        // loadProducts() themselves after the session exists.
+        guard autoStart, !Self.isRunningInsideTestHost else { return }
         transactionListenerTask = listenForTransactions()
         Task {
             await loadProducts()
             await refreshEntitlements()
         }
+    }
+
+    /// True when this process is the unit-test host. The screenshot app
+    /// is a separate process and does not load XCTest.
+    static var isRunningInsideTestHost: Bool {
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            return true
+        }
+        return NSClassFromString("XCTestCase") != nil
     }
 
     /// True only for a Debug process launched with

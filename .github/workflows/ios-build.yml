@@ -240,10 +240,11 @@ jobs:
           # Ad-hoc signature so SKTestSession can write its local StoreKit
           # container. An unsigned host fails that with SKInternalErrorDomain
           # Code=3. This is not a development-team signature and not a charge.
+          # iOS 26.5 does not connect SKTestSession (FB22500243). 26.6 does.
           xcodebuild test \
             -project CMSNApp.xcodeproj \
             -scheme CMSNApp \
-            -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.6,arch=arm64' \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=YES \
             CODE_SIGN_IDENTITY=- \

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Copy the Run action's StoreKit configuration onto the screenshot Test action.
+"""Point every shared scheme's Run and Test actions at Configuration.storekit.
 
-XcodeGen writes storeKitConfiguration only on LaunchAction. CMSNScreenshots
-launches the app from TestAction, so that scheme needs the same file there.
-
-Unit-test schemes are not patched. Those tests open the file with
-SKTestSession, and a scheme Test action selection stops that session.
-Idempotent.
+The scheme file is three directories below ios/CMSNApp
+(xcodeproj/xcshareddata/xcschemes). Xcode resolves the identifier from
+that file. XcodeGen's default "../../" prefix does not reach
+CMSNApp/Resources/Configuration.storekit. This rewrites the reference
+and copies it onto the Test action, which is what Cmd+U and
+`xcodebuild test` use. Idempotent.
 """
 
 from pathlib import Path
@@ -14,14 +14,26 @@ import re
 import sys
 from typing import Optional
 
-SCHEMES = Path(__file__).resolve().parents[1] / "CMSNApp.xcodeproj" / "xcshareddata" / "xcschemes"
-# Only the UI-test scheme. Unit tests load the file through SKTestSession.
-PATCH_TEST_ACTION = {"CMSNScreenshots.xcscheme"}
+ROOT = Path(__file__).resolve().parents[1]
+SCHEMES = ROOT / "CMSNApp.xcodeproj" / "xcshareddata" / "xcschemes"
+STOREKIT = (ROOT / "CMSNApp" / "Resources" / "Configuration.storekit").resolve()
+# Relative to each xcscheme file.
+IDENTIFIER = "../../../CMSNApp/Resources/Configuration.storekit"
+PATCH = {
+    "CMSNApp.xcscheme",
+    "CMSNAppTests.xcscheme",
+    "CMSNScreenshots.xcscheme",
+}
 ELEMENT = re.compile(
     r"[ \t]*<StoreKitConfigurationFileReference\b.*?</StoreKitConfigurationFileReference>\n?",
     re.DOTALL,
 )
 ACTION = re.compile(r"(<(LaunchAction|TestAction)\b[^>]*>)(.*?)(</\2>)", re.DOTALL)
+SNIPPET = (
+    "      <StoreKitConfigurationFileReference\n"
+    f'         identifier = "{IDENTIFIER}">\n'
+    "      </StoreKitConfigurationFileReference>\n"
+)
 
 
 def element_in(body: str) -> Optional[str]:
@@ -29,39 +41,42 @@ def element_in(body: str) -> Optional[str]:
     return match.group(0) if match else None
 
 
-def patch(text: str, scheme_name: str) -> str:
+def with_reference(text: str, action_name: str, scheme_name: str) -> str:
     actions = list(ACTION.finditer(text))
-    launch = next((match for match in actions if match.group(2) == "LaunchAction"), None)
-    test = next((match for match in actions if match.group(2) == "TestAction"), None)
-    if launch is None or test is None:
-        sys.exit(f"{scheme_name}: missing LaunchAction or TestAction")
-    snippet = element_in(launch.group(3))
-    if snippet is None:
-        sys.exit(f"{scheme_name}: Run action has no StoreKit configuration")
-    if element_in(test.group(3)):
+    match = next((item for item in actions if item.group(2) == action_name), None)
+    if match is None:
+        sys.exit(f"{scheme_name}: missing {action_name}")
+    current = element_in(match.group(3))
+    if current and IDENTIFIER in current and 'identifier = "%s"' % IDENTIFIER in current:
         return text
-    # Keep the newline that already follows the opening tag.
-    body = test.group(3)
+    body = ELEMENT.sub("", match.group(3))
     if not body.startswith("\n"):
         body = "\n" + body
-    indented = snippet if snippet.endswith("\n") else snippet + "\n"
-    replacement = test.group(1) + "\n" + indented + body.lstrip("\n") + test.group(4)
-    return text[: test.start()] + replacement + text[test.end() :]
+    replacement = match.group(1) + "\n" + SNIPPET + body.lstrip("\n") + match.group(4)
+    return text[: match.start()] + replacement + text[match.end() :]
 
 
 def main() -> None:
+    if not STOREKIT.is_file():
+        sys.exit(f"Missing StoreKit configuration: {STOREKIT}")
     if not SCHEMES.is_dir():
         sys.exit(f"Missing schemes directory: {SCHEMES}")
     for scheme in sorted(SCHEMES.glob("*.xcscheme")):
-        if scheme.name not in PATCH_TEST_ACTION:
+        if scheme.name not in PATCH:
             continue
         original = scheme.read_text()
-        updated = patch(original, scheme.name)
+        updated = with_reference(original, "LaunchAction", scheme.name)
+        updated = with_reference(updated, "TestAction", scheme.name)
+        resolved = (scheme.parent / IDENTIFIER).resolve()
+        if resolved != STOREKIT:
+            sys.exit(
+                f"{scheme.name}: {IDENTIFIER} resolves to {resolved}, expected {STOREKIT}"
+            )
         if updated != original:
             scheme.write_text(updated)
-            print(f"Wired StoreKit configuration into {scheme.name} Test action")
+            print(f"StoreKit configuration path set on {scheme.name}")
         else:
-            print(f"{scheme.name} Test action already references StoreKit")
+            print(f"{scheme.name} already points at {IDENTIFIER}")
 
 
 if __name__ == "__main__":

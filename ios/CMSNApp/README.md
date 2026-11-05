@@ -52,13 +52,16 @@ IDs are the ones in `StoreKitManager.swift`:
 - `com.earnyourcmsn.app.plus.monthly`
 - `com.earnyourcmsn.app.plus.annual`
 
-The CMSNApp, CMSNAppTests, and CMSNScreenshots schemes already select this
-file for Run, so ⌘R in the Simulator uses it. No App Store Connect account
-and no charge. `scripts/wire-storekit-test-action.py` (run by XcodeGen)
-also selects it on the CMSNScreenshots Test action, which is how that
-harness launches the app. Unit tests do not set it on their Test action:
-`SKTestSession` loads this same file from the test bundle, and a second
-scheme selection stops the session from starting.
+The CMSNApp, CMSNAppTests, and CMSNScreenshots schemes select this file
+for Run and for Test. The identifier is
+`../../../CMSNApp/Resources/Configuration.storekit`, the path from the
+shared `.xcscheme` to `CMSNApp/Resources/Configuration.storekit`. No App
+Store Connect account and no charge. `SKTestSession` loads the same file
+from the test bundle by the name `Configuration`.
+
+On the iOS 26.5 simulator, `SKTestSession` does not connect and
+`Product.products` stays empty. That is fixed in the iOS 26.6 simulator
+(FB22500243). Re-run this suite on an iPhone 17 whose runtime is iOS 26.6.
 
 `CMSNAppTests/StoreKitPurchaseFlowTests` loads the file with `SKTestSession`
 and covers buy (trial unlocks CMSN+), restore after a fresh manager, expiry
@@ -72,7 +75,7 @@ cd ios/CMSNApp
 xcodebuild test \
   -project CMSNApp.xcodeproj \
   -scheme CMSNApp \
-  -destination 'platform=iOS Simulator,name=iPhone 17,arch=arm64' \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.6,arch=arm64' \
   -only-testing:CMSNAppTests/StoreKitPurchaseFlowTests
 ```
 

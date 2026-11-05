@@ -6,9 +6,9 @@ import XCTest
 /// Local StoreKit proof for CMSN+. Uses `Configuration.storekit` through
 /// `SKTestSession` — no App Store Connect account and no charge.
 ///
-/// The Run action of the CMSNApp scheme points at the same file for a
-/// Simulator ⌘R. These tests load the file themselves and do not use a
-/// purchase dialog.
+/// Run and Test both reference Configuration.storekit with a path that
+/// resolves from the .xcscheme file. These tests still open an
+/// SKTestSession themselves and do not use a purchase dialog.
 @MainActor
 final class StoreKitPurchaseFlowTests: XCTestCase {
     private var session: SKTestSession?
@@ -44,7 +44,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     func testBuyingTheTrialUnlocksCMSNPlus() async throws {
-        let session = try openSession()
+        let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
         let annual = try await loadProduct(CMSNProductID.annual, manager: manager)
@@ -71,7 +71,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     func testRestoreBringsBackEntitlementAfterReset() async throws {
-        let session = try openSession()
+        let session = try await openSession()
         session.clearTransactions()
         _ = try await session.buyProduct(identifier: CMSNProductID.monthly, options: [])
 
@@ -89,7 +89,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     func testExpiryAndCancellationLockCMSNPlus() async throws {
-        let session = try openSession()
+        let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
 
@@ -118,7 +118,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     func testFailedPurchaseShowsCleanErrorWithoutStuckPurchasing() async throws {
-        let session = try openSession()
+        let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
         try await session.setSimulatedError(
@@ -136,7 +136,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     func testCancelledPurchaseShowsCleanErrorWithoutStuckPurchasing() async throws {
-        let session = try openSession()
+        let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
@@ -150,17 +150,27 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
 
     // MARK: - Session
 
-    private func openSession() throws -> SKTestSession {
+    private func openSession() async throws -> SKTestSession {
         let url = try XCTUnwrap(
             Self.configurationURL(),
             "Configuration.storekit is missing from the test bundle and the app bundle."
         )
-        let session = try SKTestSession(contentsOf: url)
+        // configurationFileNamed is the path StoreKit Test uses to hand the
+        // host a real file. contentsOf is the fallback when the test bundle
+        // name lookup misses the copied resource.
+        let session: SKTestSession
+        do {
+            session = try SKTestSession(configurationFileNamed: "Configuration")
+        } catch {
+            session = try SKTestSession(contentsOf: url)
+        }
         session.disableDialogs = true
         session.askToBuyEnabled = false
-        session.resetToDefaultState()
         session.clearTransactions()
         self.session = session
+        // iOS 26 needs a beat after the session attaches before the first
+        // Product.products request. A request that lands earlier stays empty.
+        try await Task.sleep(nanoseconds: 500_000_000)
         return session
     }
 
@@ -175,15 +185,36 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     private func loadProduct(_ id: String, manager: StoreKitManager) async throws -> Product {
-        let deadline = Date().addingTimeInterval(8)
+        let deadline = Date().addingTimeInterval(20)
+        var directIDs: [String] = []
+        var directError: String?
         while Date() < deadline {
             if let product = manager.products.first(where: { $0.id == id }) {
                 return product
             }
+            do {
+                let fetched = try await Product.products(for: CMSNProductID.all)
+                directIDs = fetched.map(\.id).sorted()
+            } catch {
+                directError = error.localizedDescription
+            }
             await manager.loadProducts()
-            try await Task.sleep(nanoseconds: 150_000_000)
+            if let product = manager.products.first(where: { $0.id == id }) {
+                return product
+            }
+            try await Task.sleep(nanoseconds: 250_000_000)
         }
-        XCTFail("\(id) did not load. \(manager.lastError ?? "no error")")
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        XCTFail(
+            """
+            \(id) did not load.
+            configuration: \(Self.configurationURL()?.path ?? "missing")
+            Product.products ids: \(directIDs)
+            Product.products error: \(directError ?? "none")
+            manager error: \(manager.lastError ?? "none")
+            iOS \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)
+            """
+        )
         throw LoadError.missingProduct
     }
 
