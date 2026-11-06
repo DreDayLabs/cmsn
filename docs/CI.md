@@ -60,3 +60,11 @@ Manual runs use the workflow file on the default branch. In the Actions tab: iOS
 The machine needs Xcode 26.6 installed at `/Applications/Xcode_26.6.app`. The workflow installs XcodeGen 2.46.0 with Mint. `sudo xcode-select` has to work without a password prompt. The same steps then run there at no GitHub-hosted macOS charge. If the machine is offline, `build-and-test` stays queued until it connects or a newer run cancels it. A queued self-hosted job does not consume hosted macOS minutes.
 
 This repository is public. `pull_request` runs the workflow from the pull request, and `xcodebuild` compiles that pull request's code. Once `MAC_RUNNER` is set, those runs execute on the Mini, including fork pull requests whose workflows are allowed to run. Require approval for workflows from outside collaborators (Settings → Actions → General → Fork pull request workflows) and do not approve a fork workflow that changes `.github/workflows` or points `runs-on` at the Mini.
+
+## Checkout
+
+A fresh clone needs `GIT_LFS_SKIP_SMUDGE=1`. The LFS quota rejects a smudge of `media/higgsfield` and `public/videos`. The page videos inside the iOS app target are ordinary git files.
+
+## StoreKit signing on iOS 18.6
+
+The unit-test step passes `CODE_SIGN_IDENTITY=-` because hosted CI has no team certificate. That ad-hoc identity hangs `SKTestSession` on the iOS 18.6 command line. A passing run on that runtime uses normal Apple Development signing. Tailor owns signing. A hang under `CODE_SIGN_IDENTITY=-` on iOS 18.6 is the signing caveat, not a failed purchase assertion.

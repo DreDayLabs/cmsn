@@ -237,9 +237,13 @@ jobs:
         working-directory: ios/CMSNApp
         run: |
           set -o pipefail
-          # Ad-hoc signature so SKTestSession can write its local StoreKit
-          # container. An unsigned host fails that with SKInternalErrorDomain
-          # Code=3. This is not a development-team signature and not a charge.
+          # Ad-hoc identity so SKTestSession can write its local StoreKit
+          # container on hosted CI, which has no team certificate. An unsigned
+          # host fails that with SKInternalErrorDomain Code=3. This is not a
+          # development-team signature and not a charge.
+          # CODE_SIGN_IDENTITY=- hangs SKTestSession on the iOS 18.6 CLI.
+          # A passing run on that runtime needs normal Apple Development
+          # signing. Do not read a hang under this identity as a product failure.
           # iOS 26.5 does not connect SKTestSession (FB22500243). The purchase
           # tests XCTSkip on that runtime instead of failing the job. They
           # still assert on every other runtime this destination resolves.

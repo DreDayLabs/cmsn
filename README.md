@@ -24,6 +24,8 @@ Read `docs/consolidation/2026-09-14.md` for branch provenance, validation and fo
 
 Website: `npm ci`, `npm run dev`. Checks: `npm run lint`, `npm run build`.
 
-App: open `ios/CMSNApp/CMSNApp.xcodeproj`. Configuration changes belong in `project.yml`; regenerate with XcodeGen 2.46.0 and commit the synchronized project/plists. Xcode 26.6 is the tested toolchain; iOS deployment target remains 17. The GitHub iOS build does not start a Mac runner on every push or pull request; see `docs/CI.md`.
+App: open `ios/CMSNApp/CMSNApp.xcodeproj`. Configuration changes belong in `project.yml`; regenerate with XcodeGen 2.46.0 and commit the synchronized project/plists. Xcode 26.6 is the tested toolchain; iOS deployment target remains 17. The iOS and Watch marketing version is `1.0` (build `2`). The GitHub iOS build does not start a Mac runner on every push or pull request; see `docs/CI.md`.
+
+A fresh clone needs `GIT_LFS_SKIP_SMUDGE=1`. The LFS quota blocks smudge of the media masters.
 
 Creative masters live in the CMSN Creative Cloud workspace. Purchased Opus vector masters (`Opus Flat Mens Activewear File.ai` and `Opus Flat Womens Activewear File.ai`) are kept off this public repo and stored only in Dre's private local library or Creative Cloud. No separate clothing repo.

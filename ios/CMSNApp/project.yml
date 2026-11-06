@@ -19,11 +19,13 @@ settings:
   base:
     SWIFT_VERSION: "5.9"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
-    MARKETING_VERSION: "0.1.0"
+    # Matches App Store Connect versionString 1.0. Build number stays 2.
+    MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "2"
     # Thought Garden Labs LLC. This is the only place the team id is set;
-    # targets inherit it. Unsigned simulator CI still passes
-    # CODE_SIGNING_ALLOWED=NO and does not sign.
+    # targets inherit it. The watch build step passes
+    # CODE_SIGNING_ALLOWED=NO. iOS 18.6 StoreKit runs need Apple Development
+    # signing; CODE_SIGN_IDENTITY=- hangs SKTestSession on that CLI.
     DEVELOPMENT_TEAM: G2MXBX48PD
     ENABLE_PREVIEWS: YES
     # Standard-practice settings, kept even though none of them turned out

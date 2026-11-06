@@ -28,14 +28,17 @@ In Xcode:
 1. Select the `CMSNApp` scheme and an iOS 17+ simulator.
 2. **Signing:** `DEVELOPMENT_TEAM` in `project.yml` under `settings.base` is
    `G2MXBX48PD` (Thought Garden Labs LLC). The `CMSNApp` target uses
-   automatic signing. The bundle id stays `com.earnyourcmsn.app`. Unsigned
-   simulator CI passes `CODE_SIGNING_ALLOWED=NO` and does not sign.
+   automatic signing. The bundle id stays `com.earnyourcmsn.app`. The watch
+   build step passes `CODE_SIGNING_ALLOWED=NO`. The unit-test step passes
+   `CODE_SIGN_IDENTITY=-` for hosted CI. That ad-hoc identity hangs
+   `SKTestSession` on the iOS 18.6 CLI. Purchase tests on that runtime need
+   normal Apple Development signing.
 3. Camera and calendar usage strings are in the generated Info.plist.
    HealthKit is declared for the phone and the watch
    (`CMSNApp.entitlements` and `CMSNWatchApp.entitlements`). Enable the
    HealthKit capability on App IDs `com.earnyourcmsn.app` and
    `com.earnyourcmsn.app.watchkitapp` in the Apple developer portal before
-   a signed device or TestFlight build. Unsigned CI sets
+   a signed device or TestFlight build. The watch build step sets
    `CODE_SIGNING_ALLOWED=NO` and can compile without that portal switch.
    StoreKit 2 needs no entitlement key. EventKit needs no capability, only
    the calendar usage strings. Location, motion, and Bluetooth usage
@@ -59,39 +62,49 @@ shared `.xcscheme` to `CMSNApp/Resources/Configuration.storekit`. No App
 Store Connect account and no charge. `SKTestSession` loads the same file
 from the test bundle by the name `Configuration`.
 
-HOLD on `StoreKitPurchaseFlowTests`. A merge needs every test green.
-`XCTSkip` on the iOS 26.5 simulator does not prove purchases work.
-`SKTestSession` does not connect there (FB22500243, fixed in the iOS 26.6
-simulator). That 26.6 runtime is not downloadable yet, and no
-26.4-or-older runtime is installed. Do not gate this suite on 26.5.
-Re-run the full assertions when an iOS 26.6 or 26.4-or-older simulator
-is available. This app stays an iOS target. There is no Catalyst scheme.
+`CMSNAppTests/StoreKitPurchaseFlowTests` is six tests. It loads the file
+with `SKTestSession` and covers buy (trial unlocks CMSN+), restore after a
+fresh manager, expiry and cancellation locking CMSN+ again, and a failed or
+cancelled purchase that clears the purchasing flag and sets a short error.
+This app stays an iOS target. There is no Catalyst scheme.
 
-`CMSNAppTests/StoreKitPurchaseFlowTests` loads the file with `SKTestSession`
-and covers buy (trial unlocks CMSN+), restore after a fresh manager, expiry
-and cancellation locking CMSN+ again, and a failed or cancelled purchase
-that clears the purchasing flag and sets a short error.
+On 6 Nov 2026, before pull request #31 merged as `a777587`, the iOS 18.6
+simulator reported `CMSNAppTests` 222/222, including these six. The current
+test sources contain 222 `func test` methods, six of them in this class.
+That is the run the old hold was waiting on. This tree was not re-run here.
+GitHub Actions run
+[42229926250](https://github.com/DreDayLabs/cmsn/actions/runs/42229926250)
+on `a777587` did not execute it: mac preflight hit a billing lock and
+`build-and-test` was skipped.
 
-On a wiped simulator once iOS 26.6 or 26.4-or-older is installed. Do not
-substitute `OS=26.5`. That runtime skips and is not the gate:
+The iOS 26.5 simulator still skips the purchase tests when products do not
+load (`XCTSkip`, FB22500243). A skip is not a pass. It is not a merge hold
+after the iOS 18.6 result. `CODE_SIGN_IDENTITY=-` hangs `SKTestSession` on
+the iOS 18.6 command line. Repeat that run with normal Apple Development
+signing, and do not pass the ad-hoc identity:
 
 ```bash
 cd ios/CMSNApp
 xcodebuild test \
   -project CMSNApp.xcodeproj \
   -scheme CMSNApp \
-  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.4,arch=arm64' \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=18.6,arch=arm64' \
   -only-testing:CMSNAppTests/StoreKitPurchaseFlowTests
 ```
 
 The CMSNScreenshots harness still passes `-CMSNResetFirstRun`. After the
 main captures it relaunches with `-CMSNScreenshotSubscribed` (Debug only)
 and writes `settings-subscribed.png` with the CMSN+ row Active. The page
-videos are in the app target, not Git LFS, so `GIT_LFS_SKIP_SMUDGE` is not
-required for that shot.
+videos are in the app target, not Git LFS. A fresh clone of the repository
+still needs `GIT_LFS_SKIP_SMUDGE=1`, because the LFS quota blocks smudge of
+`media/higgsfield` and `public/videos`. Screenshots captured before
+marketing version 1.0 are not submission assets. A submission set has to be
+captured from this main, with that provenance recorded.
 
-The real products still need to be created in App Store Connect before this
-ships — the product IDs in `StoreKitManager.swift` must match exactly.
+App Store Connect already has both product IDs (GET snapshot 2026-11-06
+6:28 PM EST). Both subscriptions were `MISSING_METADATA`, and both review
+screenshots were null. Prices and the introductory offer were not in that
+snapshot. The IDs in `StoreKitManager.swift` must stay exact.
 
 ## Running tests
 

@@ -244,7 +244,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     private static let ios26_5SkipMessage = """
-    HOLD. Skipping StoreKitPurchaseFlowTests does not prove purchases work and does not make the suite green. SKTestSession does not connect on the iOS 26.5 simulator (FB22500243, fixed in the iOS 26.6 simulator). Do not gate this suite on iOS 26.5. Re-run the full assertions, not this skip, when an iOS 26.6 or 26.4-or-older simulator runtime is available.
+    Skipping StoreKitPurchaseFlowTests on the iOS 26.5 simulator does not prove purchases. SKTestSession does not connect there (FB22500243, fixed in the iOS 26.6 simulator). The full CMSNAppTests suite, including these tests, passed on the iOS 18.6 simulator on Nov 6, 2026. A 26.5 skip is still not a pass.
     """
 
     private func loadProduct(_ id: String, manager: StoreKitManager) async throws -> Product {
