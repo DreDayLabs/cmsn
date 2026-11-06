@@ -44,6 +44,9 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       codeCoverageEnabled = "YES"
       onlyGenerateCoverageForSpecifiedTargets = "NO">
+      <StoreKitConfigurationFileReference
+         identifier = "../../../CMSNApp/Resources/Configuration.storekit">
+      </StoreKitConfigurationFileReference>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -91,6 +94,9 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
       </CommandLineArguments>
+      <StoreKitConfigurationFileReference
+         identifier = "../../../CMSNApp/Resources/Configuration.storekit">
+      </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

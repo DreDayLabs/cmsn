@@ -9,6 +9,9 @@ import XCTest
 /// video is on screen.
 ///
 /// Launch passes `-CMSNResetFirstRun` (see `CMSNModelContainerFactory`).
+/// After the main captures, the app relaunches with
+/// `-CMSNScreenshotSubscribed` (see `StoreKitManager`) and writes
+/// `settings-subscribed.png`. App videos ship in the target, not Git LFS.
 /// A simulator that already finished onboarding would open on Today, and
 /// the welcome CTA would never exist. The splash also covers that CTA
 /// for 3.8s, so the shot of the film is taken before the button is required.
@@ -188,6 +191,51 @@ final class CMSNScreenSmokeTests: XCTestCase {
             "Build-a-Meal never appeared. \(app.debugDescription)"
         )
         capture("meal-builder")
+        captureSubscribedSettings()
+    }
+
+    /// Second launch of the same install. The store from the first launch
+    /// stays; the screenshot argument only flips the CMSN+ row to Active.
+    private func captureSubscribedSettings() {
+        app.terminate()
+        app.launchArguments.removeAll { $0 == "-CMSNResetFirstRun" }
+        if !app.launchArguments.contains("-CMSNScreenshotSubscribed") {
+            app.launchArguments.append("-CMSNScreenshotSubscribed")
+        }
+        launchApp()
+        dismissSystemPrompts(for: 6)
+        XCTAssertTrue(
+            waitForAny(timeout: 30) {
+                self.app.tabBars.buttons["Today"].exists
+                    || self.app.tabBars.buttons["Settings"].exists
+                    || self.app.buttons["today.primaryAction"].exists
+                    || self.app.staticTexts["Prepare · Perform · Prove"].exists
+            },
+            "Subscribed relaunch did not reach the main app. \(app.debugDescription)"
+        )
+        openTab("Settings")
+        let plus = app.buttons["settings.cmsnPlus"]
+        let status = app.staticTexts["settings.cmsnPlus.status"]
+        XCTAssertTrue(
+            plus.waitForExistence(timeout: 20),
+            "CMSN+ row missing on the subscribed Settings shot. \(app.debugDescription)"
+        )
+        let deadline = Date().addingTimeInterval(12)
+        while Date() < deadline {
+            if isFullyOnScreen(plus) { break }
+            app.swipeUp()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.35))
+        }
+        let value = plus.value as? String
+        let statusLabel = status.exists ? status.label : ""
+        let showsActive = value == "Active"
+            || statusLabel == "Active"
+            || (plus.label.contains("Active") && !plus.label.contains("Not active"))
+        XCTAssertTrue(
+            showsActive,
+            "Settings should show CMSN+ active. label=\"\(plus.label)\" value=\"\(value ?? "nil")\" status=\"\(statusLabel)\"."
+        )
+        capture("settings-subscribed")
     }
 
     /// Settings → CMSN+. The row's visible title stays "CMSN+".

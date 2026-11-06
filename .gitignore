@@ -52,7 +52,9 @@ next-env.d.ts
 **/xcuserdata/
 **/*.xcuserstate
 **/DerivedData/
-*.xcresult/
+*.xcresult
+**/__pycache__/
+*.pyc/
 
 # Purchased third-party vector masters stay out of this public repo.
 # Dre's licensed copies live only in his private local library or Creative Cloud.

@@ -117,7 +117,8 @@ struct SettingsView: View {
                     "CMSN+",
                     value: appState.storeKitManager.isSubscribed ? "Active" : "Not active",
                     showsChevron: true,
-                    identifier: "settings.cmsnPlus"
+                    identifier: "settings.cmsnPlus",
+                    valueIdentifier: "settings.cmsnPlus.status"
                 ) { showingPaywall = true }
                 divider
                 settingsRow("Restore Purchases", value: restoring ? "Restoring…" : "") {
@@ -222,7 +223,7 @@ struct SettingsView: View {
         Rectangle().fill(CMSNColor.Semantic.divider).frame(height: 1).padding(.leading, 16)
     }
 
-    private func rowLabel(_ label: String, value: String, showsChevron: Bool = false, destructive: Bool = false) -> some View {
+    private func rowLabel(_ label: String, value: String, showsChevron: Bool = false, destructive: Bool = false, valueIdentifier: String? = nil) -> some View {
         HStack {
             Text(label)
                 .font(CMSNTypography.body())
@@ -233,6 +234,7 @@ struct SettingsView: View {
                     .font(CMSNTypography.bodyQuiet())
                     .foregroundStyle(CMSNColor.Semantic.textSecondary)
                     .lineLimit(1)
+                    .cmsnIdentifier(valueIdentifier)
             }
             if showsChevron {
                 Text("›")
@@ -244,14 +246,17 @@ struct SettingsView: View {
         .contentShape(Rectangle())
     }
 
-    private func settingsRow(_ label: String, value: String, showsChevron: Bool = false, destructive: Bool = false, identifier: String? = nil, action: (() -> Void)? = nil) -> some View {
+    private func settingsRow(_ label: String, value: String, showsChevron: Bool = false, destructive: Bool = false, identifier: String? = nil, valueIdentifier: String? = nil, action: (() -> Void)? = nil) -> some View {
         Group {
             if let action {
-                Button(action: action) { rowLabel(label, value: value, showsChevron: showsChevron, destructive: destructive) }
-                    .buttonStyle(.plain)
-                    .cmsnIdentifier(identifier)
+                Button(action: action) {
+                    rowLabel(label, value: value, showsChevron: showsChevron, destructive: destructive, valueIdentifier: valueIdentifier)
+                }
+                .buttonStyle(.plain)
+                .cmsnIdentifier(identifier)
+                .cmsnAccessibilityValue(valueIdentifier == nil ? nil : value)
             } else {
-                rowLabel(label, value: value, showsChevron: showsChevron, destructive: destructive)
+                rowLabel(label, value: value, showsChevron: showsChevron, destructive: destructive, valueIdentifier: valueIdentifier)
             }
         }
     }
@@ -285,6 +290,15 @@ private extension View {
     func cmsnIdentifier(_ identifier: String?) -> some View {
         if let identifier {
             accessibilityIdentifier(identifier)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func cmsnAccessibilityValue(_ value: String?) -> some View {
+        if let value {
+            accessibilityValue(value)
         } else {
             self
         }

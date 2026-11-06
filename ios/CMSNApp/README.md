@@ -46,17 +46,51 @@ In Xcode:
 
 `CMSNApp/Resources/Configuration.storekit` is a local StoreKit test
 configuration with the CMSN+ monthly ($9.99) and annual ($59.99) products
-and a 7-day free trial, matching the pricing in
-`brand/08-app-strategy.md`. To use it:
+and a 7-day free introductory trial (`P1W`, one free period). The product
+IDs are the ones in `StoreKitManager.swift`:
 
-1. Xcode → Product → Scheme → Edit Scheme → Run → Options →
-   **StoreKit Configuration** → select `Configuration.storekit`.
-2. Run the app; `PaywallView` will list both products and purchases will go
-   through Xcode's local StoreKit test environment (no real App Store
-   account or money involved).
+- `com.earnyourcmsn.app.plus.monthly`
+- `com.earnyourcmsn.app.plus.annual`
 
-The real products (`com.earnyourcmsn.app.plus.monthly` /
-`.plus.annual`) still need to be created in App Store Connect before this
+The CMSNApp, CMSNAppTests, and CMSNScreenshots schemes select this file
+for Run and for Test. The identifier is
+`../../../CMSNApp/Resources/Configuration.storekit`, the path from the
+shared `.xcscheme` to `CMSNApp/Resources/Configuration.storekit`. No App
+Store Connect account and no charge. `SKTestSession` loads the same file
+from the test bundle by the name `Configuration`.
+
+HOLD on `StoreKitPurchaseFlowTests`. A merge needs every test green.
+`XCTSkip` on the iOS 26.5 simulator does not prove purchases work.
+`SKTestSession` does not connect there (FB22500243, fixed in the iOS 26.6
+simulator). That 26.6 runtime is not downloadable yet, and no
+26.4-or-older runtime is installed. Do not gate this suite on 26.5.
+Re-run the full assertions when an iOS 26.6 or 26.4-or-older simulator
+is available. This app stays an iOS target. There is no Catalyst scheme.
+
+`CMSNAppTests/StoreKitPurchaseFlowTests` loads the file with `SKTestSession`
+and covers buy (trial unlocks CMSN+), restore after a fresh manager, expiry
+and cancellation locking CMSN+ again, and a failed or cancelled purchase
+that clears the purchasing flag and sets a short error.
+
+On a wiped simulator once iOS 26.6 or 26.4-or-older is installed. Do not
+substitute `OS=26.5`. That runtime skips and is not the gate:
+
+```bash
+cd ios/CMSNApp
+xcodebuild test \
+  -project CMSNApp.xcodeproj \
+  -scheme CMSNApp \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.4,arch=arm64' \
+  -only-testing:CMSNAppTests/StoreKitPurchaseFlowTests
+```
+
+The CMSNScreenshots harness still passes `-CMSNResetFirstRun`. After the
+main captures it relaunches with `-CMSNScreenshotSubscribed` (Debug only)
+and writes `settings-subscribed.png` with the CMSN+ row Active. The page
+videos are in the app target, not Git LFS, so `GIT_LFS_SKIP_SMUDGE` is not
+required for that shot.
+
+The real products still need to be created in App Store Connect before this
 ships — the product IDs in `StoreKitManager.swift` must match exactly.
 
 ## Running tests
