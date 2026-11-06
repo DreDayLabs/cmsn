@@ -75,8 +75,8 @@ struct ProgramResolver {
     func resolveToday(program: TrainingProgram, athlete: Athlete, lastCompletedDayIndex: Int?) -> ResolvedProgramDay {
         let context = ResolutionContext(athlete: athlete)
 
-        if let overrideFocus = calendarService.todaysOverrideFocus() {
-            let overrideEvent = calendarService.todaysOverrideEvent()
+        if let overrideFocus = calendarService.todaysOverrideFocus(userOptedIn: athlete.calendarAuthorized) {
+            let overrideEvent = calendarService.todaysOverrideEvent(userOptedIn: athlete.calendarAuthorized)
             let day = program.days.first(where: { $0.focus == overrideFocus }) ?? adHocDay(for: overrideFocus)
             var resolved = resolve(day: day, context: context)
             resolved.isCalendarOverride = true

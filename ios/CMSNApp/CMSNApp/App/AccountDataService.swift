@@ -152,37 +152,51 @@ enum AccountDataService {
 
     // MARK: Erase (offboarding)
 
-    /// Deletes every stored record. Irreversible; the confirmation lives in
-    /// the UI, not here. After this, `RootView` sees no athlete and returns
-    /// to the first-run narrative — the app behaves like a fresh install.
-    static func eraseEverything(context: ModelContext) {
+    /// Shown in Settings when the erase cannot be saved. Support and the
+    /// privacy page use this same sentence.
+    static let deleteSaveFailedMessage = "Couldn't erase your data. Nothing was confirmed deleted."
+
+    /// Deletes every stored record. Irreversible once `save` succeeds; the
+    /// confirmation lives in the UI, not here. After a successful save,
+    /// `RootView` sees no athlete and returns to the first-run narrative.
+    /// A failed save rolls the context back and throws, so the rows stay.
+    static func eraseEverything(
+        context: ModelContext,
+        save: (ModelContext) throws -> Void = { try $0.save() },
+        rollback: (ModelContext) -> Void = { $0.rollback() }
+    ) throws {
         // Child rows first isn't strictly required (cascades cover it), but
         // being explicit means no orphan survives a future rule change.
-        try? context.delete(model: ChallengeEntry.self)
-        try? context.delete(model: Challenge.self)
-        try? context.delete(model: ClubMembership.self)
-        try? context.delete(model: RunClub.self)
-        try? context.delete(model: RunSplit.self)
-        try? context.delete(model: RunRoute.self)
-        try? context.delete(model: Run.self)
-        try? context.delete(model: RunShoe.self)
-        try? context.delete(model: RunSettings.self)
-        try? context.delete(model: ScoreEvent.self)
-        try? context.delete(model: ApparelFeedback.self)
-        try? context.delete(model: ReadinessCheck.self)
-        try? context.delete(model: LoggedSet.self)
-        try? context.delete(model: LoggedExercise.self)
-        try? context.delete(model: WorkoutSession.self)
-        try? context.delete(model: NutritionEntry.self)
-        try? context.delete(model: NutritionLog.self)
-        try? context.delete(model: SavedMealIngredient.self)
-        try? context.delete(model: SavedMeal.self)
-        try? context.delete(model: CustomSupplement.self)
-        try? context.delete(model: CustomExercise.self)
-        try? context.delete(model: WeightEntry.self)
-        try? context.delete(model: WeightHistorySeedMarker.self)
-        try? context.delete(model: NutritionDietPreference.self)
-        try? context.delete(model: Athlete.self)
-        try? context.save()
+        do {
+            try context.delete(model: ChallengeEntry.self)
+            try context.delete(model: Challenge.self)
+            try context.delete(model: ClubMembership.self)
+            try context.delete(model: RunClub.self)
+            try context.delete(model: RunSplit.self)
+            try context.delete(model: RunRoute.self)
+            try context.delete(model: Run.self)
+            try context.delete(model: RunShoe.self)
+            try context.delete(model: RunSettings.self)
+            try context.delete(model: ScoreEvent.self)
+            try context.delete(model: ApparelFeedback.self)
+            try context.delete(model: ReadinessCheck.self)
+            try context.delete(model: LoggedSet.self)
+            try context.delete(model: LoggedExercise.self)
+            try context.delete(model: WorkoutSession.self)
+            try context.delete(model: NutritionEntry.self)
+            try context.delete(model: NutritionLog.self)
+            try context.delete(model: SavedMealIngredient.self)
+            try context.delete(model: SavedMeal.self)
+            try context.delete(model: CustomSupplement.self)
+            try context.delete(model: CustomExercise.self)
+            try context.delete(model: WeightEntry.self)
+            try context.delete(model: WeightHistorySeedMarker.self)
+            try context.delete(model: NutritionDietPreference.self)
+            try context.delete(model: Athlete.self)
+            try save(context)
+        } catch {
+            rollback(context)
+            throw error
+        }
     }
 }
