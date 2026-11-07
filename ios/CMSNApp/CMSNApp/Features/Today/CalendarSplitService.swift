@@ -1,5 +1,6 @@
 import EventKit
 import Foundation
+import Observation
 
 /// Reads today's Calendar for a scheduled workout (e.g. an event titled
 /// "Leg Day") so a rescheduled or manually-planned day overrides the default
@@ -11,14 +12,22 @@ import Foundation
 /// plus the matched event's identifier. Notes, attendees, and event writes
 /// are not used.
 @MainActor
+@Observable
 final class CalendarSplitService {
     private let eventStore = EKEventStore()
+
+    /// EventKit's authorization is not an observable property. Settings reads
+    /// `authorizationState` while drawing the status line. This count changes
+    /// after a request returns so that read runs again. It does not change
+    /// the user's opt-in.
+    private(set) var authorizationEpoch = 0
 
     enum AuthorizationState: Equatable {
         case notDetermined, authorized, denied
     }
 
     var authorizationState: AuthorizationState {
+        _ = authorizationEpoch
         switch EKEventStore.authorizationStatus(for: .event) {
         case .notDetermined: return .notDetermined
         case .fullAccess, .authorized: return .authorized
@@ -28,11 +37,19 @@ final class CalendarSplitService {
     }
 
     func requestAccess() async -> Bool {
+        let granted: Bool
         do {
-            return try await eventStore.requestFullAccessToEvents()
+            granted = try await eventStore.requestFullAccessToEvents()
         } catch {
-            return false
+            granted = false
         }
+        publishAuthorizationObservation()
+        return granted
+    }
+
+    /// Makes the next status read use the current EventKit result.
+    func publishAuthorizationObservation() {
+        authorizationEpoch += 1
     }
 
     /// Scans today's calendar events for a title matching a known

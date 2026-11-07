@@ -39,6 +39,20 @@ final class PrivacyReliabilityTests: XCTestCase {
         XCTAssertFalse(
             CalendarAccessPolicy.shouldRequestPermission(userOptedIn: true, authorization: .denied)
         )
+        XCTAssertEqual(
+            CalendarAccessPolicy.statusLine(userOptedIn: true, authorization: .denied),
+            "Blocked. iOS is not allowing calendar access."
+        )
+        XCTAssertEqual(
+            CalendarAccessPolicy.statusLine(userOptedIn: true, authorization: .notDetermined),
+            "On. iOS has not asked yet."
+        )
+        let service = CalendarSplitService()
+        let before = service.authorizationEpoch
+        let beforeStatus = service.authorizationState
+        service.publishAuthorizationObservation()
+        XCTAssertEqual(service.authorizationEpoch, before + 1)
+        XCTAssertEqual(service.authorizationState, beforeStatus)
     }
 
     func testAuthorizedOptInReadsTitlesOnly() {
@@ -64,6 +78,27 @@ final class PrivacyReliabilityTests: XCTestCase {
         let settings = try String(contentsOf: repoFile("ios/CMSNApp/CMSNApp/App/SettingsView.swift"), encoding: .utf8)
         XCTAssertTrue(settings.contains("requestAccess"))
         XCTAssertTrue(settings.contains("shouldRequestPermission"))
+        XCTAssertTrue(settings.contains("authorizationState"))
+        XCTAssertFalse(settings.contains("calendarAuthorized = false"))
+        let serviceSource = try String(
+            contentsOf: repoFile("ios/CMSNApp/CMSNApp/Features/Today/CalendarSplitService.swift"),
+            encoding: .utf8
+        )
+        guard let requestStart = serviceSource.range(of: "func requestAccess()"),
+              let requestEnd = serviceSource.range(of: "func publishAuthorizationObservation()") else {
+            XCTFail("requestAccess does not publish an authorization observation.")
+            return
+        }
+        let requestBody = serviceSource[requestStart.lowerBound..<requestEnd.lowerBound]
+        XCTAssertTrue(requestBody.contains("publishAuthorizationObservation()"))
+        XCTAssertFalse(requestBody.contains("calendarAuthorized"))
+        guard let stateStart = serviceSource.range(of: "var authorizationState"),
+              let stateEnd = serviceSource.range(of: "func requestAccess()") else {
+            XCTFail("authorizationState does not read the observation count.")
+            return
+        }
+        let stateBody = serviceSource[stateStart.lowerBound..<stateEnd.lowerBound]
+        XCTAssertTrue(stateBody.contains("authorizationEpoch"))
     }
 
     func testFailedEraseSaveRollsBackAndThrows() throws {
