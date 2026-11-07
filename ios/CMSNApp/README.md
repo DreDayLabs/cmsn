@@ -33,9 +33,8 @@ In Xcode:
    `CODE_SIGN_IDENTITY=-` for hosted CI. That is an ad-hoc signature with
    no team. At `6950582`, iPhone 16 on iOS 18.6 ran
    `StoreKitPurchaseFlowTests` 7/7 under that ad-hoc signature, with no
-   skip and no hang. The same ad-hoc identity on iOS 26.5 logged
-   `SKInternalErrorDomain` Code=3 and the purchase call did not finish
-   before a 600s kill. A device install and a signed archive are a
+   skip and no hang. That 7 is how many methods that tree discovered.
+   A device install and a signed archive are a
    separate gate: they need a provisioning profile for
    `com.earnyourcmsn.app` and `com.earnyourcmsn.app.watchkitapp`. Ad-hoc
    with `TeamIdentifier` unset is not that profile.
@@ -66,34 +65,45 @@ for Run and for Test. The identifier is
 `../../../CMSNApp/Resources/Configuration.storekit`, the path from the
 shared `.xcscheme` to `CMSNApp/Resources/Configuration.storekit`. No App
 Store Connect account and no charge. `SKTestSession` loads the same file
-from the test bundle by the name `Configuration`.
+from the test bundle by the name `Configuration`. This app stays an iOS
+target. There is no Catalyst scheme.
 
-`CMSNAppTests/StoreKitPurchaseFlowTests` is six tests. It loads the file
-with `SKTestSession` and covers buy (trial unlocks CMSN+), restore after a
-fresh manager, expiry and cancellation locking CMSN+ again, and a failed or
-cancelled purchase that clears the purchasing flag and sets a short error.
-This app stays an iOS target. There is no Catalyst scheme.
+`StoreKitPurchaseFlowTests` has eight class-level test methods: the local
+file, the 7-day period check, the completion-gate timeout, buy, restore,
+expiry, a failed purchase, and a cancelled purchase. A `func test` nested
+inside another method is not one of them. XCTest did not discover
+`testCompletionGateSeesFinishAndTimesOut` at `351cc35` because the `for`
+in `testSevenDayTrialAcceptsOnlyEquivalentPeriods` had no closing brace,
+so the gate method was inside the trial method. That class run was 6/7,
+exit 65, 77 seconds, no hang. `testRestoreBringsBackEntitlementAfterReset`
+failed in `waitUntil` with `isSubscribed` false. The same method passed
+when selected alone. An isolated pass is not a pass of the class.
+
+These runs stay separate. They are not one signing failure.
+
+- `77ef95f`, iOS 26.5 simulator `6E241A20-3408-48C5-8B6F-DE4D07BCE21A`, `CODE_SIGNING_ALLOWED=NO`. `SKTestSession` logged `SKInternalErrorDomain` Code=3 for saving the configuration, setting two values, and deleting transactions. The trial asserts then failed (Day / 7 versus Week / 1). `product.purchase` returned. The test recorded `Purchase cancelled.` and `isSubscribed` false. The case ended in 86 seconds. This log does not show a 600 second kill.
+- `77ef95f`, same simulator, `CODE_SIGN_IDENTITY=-` (`codesign --sign -`). The same Code=3 lines and the same Day / 7 mismatch are in that log. The file ends during the purchase, with no purchase result and no 600 second kill.
+- `6950582`, iPhone 16 / iOS 18.6, ad-hoc, `TeamIdentifier` unset. Reported 7/7, the strict period test 1/1, exit 0, no skip, no hang. That report does not include Code=3.
+- `351cc35`, independent Mac. Reported 6/7, exit 65, 77 seconds, no hang, restore as above. That report does not include Code=3 or a signature.
+
+Compile warnings left unchanged, from the `77ef95f` build: `RunSensors.swift:159` (`RunSpeechService.synthesizer` is `AVSpeechSynthesizer` and is non-Sendable) and `StoreKitManager.swift:51` (`nonisolated(unsafe)` has no effect on `transactionListenerTask`).
 
 On 6 Nov 2026, before pull request #31 merged as `a777587`, the iOS 18.6
-simulator reported `CMSNAppTests` 222/222, including these six. The current
-test sources contain 222 `func test` methods, six of them in this class.
-That is the run the old hold was waiting on. This tree was not re-run here.
-GitHub Actions run
+simulator reported `CMSNAppTests` 222/222, including the six purchase tests
+in that tree. GitHub Actions run
 [42229926250](https://github.com/DreDayLabs/cmsn/actions/runs/42229926250)
 on `a777587` did not execute it: mac preflight hit a billing lock and
 `build-and-test` was skipped.
 
 The iOS 26.5 simulator still skips the purchase tests when products do not
-load (`XCTSkip`, FB22500243). A skip is not a pass. On the 2026-11-06
-iOS 26.5 run, products did load: the trial was reported as seven days, and
-both unsigned and ad-hoc (`CODE_SIGN_IDENTITY=-`) logged
-`SKInternalErrorDomain` Code=3 before `product.purchase` failed to finish
-and the run was killed at 600s. That is not the iOS 18.6 result. At
-`6950582`, iPhone 16 / iOS 18.6, ad-hoc with `TeamIdentifier` unset, ran
-the strict period test 1/1 and the full `StoreKitPurchaseFlowTests` 7/7,
-exit 0, no skips, no hang. Do not read that simulator pass as a signed
+load (`XCTSkip`, FB22500243). A skip is not a pass. A 26.5 skip is not the
+iOS 18.6 result. Do not read the iOS 18.6 simulator pass as a signed
 archive. No provisioning profile for `com.earnyourcmsn.app` or the watch
 id was present for that check, and a signed archive was not attempted.
+
+This tree has not been run here. Linux has no `xcodebuild`. A pass of this
+class is two back-to-back runs of all eight methods, 8/8 and exit 0 each
+time. Selecting only restore is not that run.
 
 ```bash
 cd ios/CMSNApp
@@ -104,6 +114,16 @@ xcodebuild test \
   -destination 'platform=iOS Simulator,id=SIMULATOR_UDID' \
   -only-testing:CMSNAppTests/StoreKitPurchaseFlowTests
 ```
+
+Run that command a second time on the same simulator. Both results have to
+list these eight names: `testLocalStoreKitFileMatchesLockedProducts`,
+`testSevenDayTrialAcceptsOnlyEquivalentPeriods`,
+`testCompletionGateSeesFinishAndTimesOut`,
+`testBuyingTheTrialUnlocksCMSNPlus`,
+`testRestoreBringsBackEntitlementAfterReset`,
+`testExpiryAndCancellationLockCMSNPlus`,
+`testFailedPurchaseShowsCleanErrorWithoutStuckPurchasing`,
+`testCancelledPurchaseShowsCleanErrorWithoutStuckPurchasing`.
 
 The CMSNScreenshots harness still passes `-CMSNResetFirstRun`. After the
 main captures it relaunches with `-CMSNScreenshotSubscribed` (Debug only)

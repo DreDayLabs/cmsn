@@ -16,15 +16,28 @@ import XCTest
 /// not load, and still run the full assertions when they do.
 @MainActor
 final class StoreKitPurchaseFlowTests: XCTestCase {
-    private var session: SKTestSession?
+    /// One session for every method. XCTest builds a new instance per test,
+    /// so an instance property would not survive. A second `SKTestSession`
+    /// in the same process does not own the store the first one cleared.
+    /// At `351cc35` restore failed in the class (`isSubscribed` false from
+    /// `waitUntil`) and passed when that method was selected alone.
+    private static var sharedSession: SKTestSession?
+
+    private static let purchaseFlowTestNames = [
+        "testLocalStoreKitFileMatchesLockedProducts",
+        "testSevenDayTrialAcceptsOnlyEquivalentPeriods",
+        "testCompletionGateSeesFinishAndTimesOut",
+        "testBuyingTheTrialUnlocksCMSNPlus",
+        "testRestoreBringsBackEntitlementAfterReset",
+        "testExpiryAndCancellationLockCMSNPlus",
+        "testFailedPurchaseShowsCleanErrorWithoutStuckPurchasing",
+        "testCancelledPurchaseShowsCleanErrorWithoutStuckPurchasing",
+    ]
 
     override func tearDown() async throws {
-        let session = self.session
-        self.session = nil
-        // The 2026-11-06 logs show reset/clear returning SKInternalErrorDomain
-        // Code=3 in the same millisecond. They were not the 600s waiter.
-        if let session {
+        if let session = Self.sharedSession {
             session.disableDialogs = true
+            try? await session.setSimulatedError(nil, forAPI: .purchase)
             session.resetToDefaultState()
             session.clearTransactions()
         }
@@ -49,6 +62,12 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
             XCTAssertEqual(intro.subscriptionPeriod, "P1W")
             XCTAssertEqual(intro.numberOfPeriods, 1)
         }
+        let source = try String(contentsOf: URL(fileURLWithPath: #filePath), encoding: .utf8)
+        XCTAssertEqual(
+            Self.classLevelTestMethodNames(in: source),
+            Self.purchaseFlowTestNames,
+            "A test method nested in another test is not discovered. Counting func test with a regex still sees the nested one."
+        )
     }
 
     /// No SKTestSession. StoreKit may report the file's P1W as one week or as
@@ -67,10 +86,11 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
             (.year, 1),
         ]
         for (unit, value) in rejected {
-        XCTAssertFalse(
-            CMSNIntroductoryTrial.isSingleFreeSevenDays(unit: unit, value: value),
-            "\(unit) \(value) must not count as 7 days"
-        )
+            XCTAssertFalse(
+                CMSNIntroductoryTrial.isSingleFreeSevenDays(unit: unit, value: value),
+                "\(unit) \(value) must not count as 7 days"
+            )
+        }
     }
 
     func testCompletionGateSeesFinishAndTimesOut() async {
@@ -87,7 +107,6 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         let saw = await waiter.value
         XCTAssertTrue(saw)
     }
-    }
 
     func testBuyingTheTrialUnlocksCMSNPlus() async throws {
         let session = try await openSession()
@@ -98,10 +117,9 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
 
         assertLockedPrice(monthly, "9.99", periodUnit: .month)
         assertLockedPrice(annual, "59.99", periodUnit: .year)
-        // A failed trial check must not enter purchase(). On the 2026-11-06
-        // iOS 26.5 run the week-vs-7-days asserts failed and XCTest continued
-        // into product.purchase. That call returned "Purchase cancelled" after
-        // about 80s on the unsigned run. The suite was killed at 600s.
+        // A failed trial check must not enter purchase(). The 2026-11-06
+        // unsigned iOS 26.5 log failed the week-vs-7-days asserts and still
+        // entered product.purchase, which returned "Purchase cancelled."
         try assertSevenDayTrial(monthly)
         try assertSevenDayTrial(annual)
 
@@ -127,6 +145,8 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         let session = try await openSession()
         try await ensureStoreKitCatalog()
         session.clearTransactions()
+        let cleared = StoreKitManager(autoStart: false)
+        try await waitUntil(cleared, subscribed: false)
         try await buyProduct(CMSNProductID.monthly, session: session)
 
         let primed = StoreKitManager(autoStart: false)
@@ -208,27 +228,141 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     // MARK: - Session
 
     private func openSession() async throws -> SKTestSession {
-        let url = try XCTUnwrap(
-            Self.configurationURL(),
-            "Configuration.storekit is missing from the test bundle and the app bundle."
-        )
-        // configurationFileNamed is the path StoreKit Test uses to hand the
-        // host a real file. contentsOf is the fallback when the test bundle
-        // name lookup misses the copied resource.
         let session: SKTestSession
-        do {
-            session = try SKTestSession(configurationFileNamed: "Configuration")
-        } catch {
-            session = try SKTestSession(contentsOf: url)
+        if let existing = Self.sharedSession {
+            session = existing
+        } else {
+            let url = try XCTUnwrap(
+                Self.configurationURL(),
+                "Configuration.storekit is missing from the test bundle and the app bundle."
+            )
+            // configurationFileNamed is the path StoreKit Test uses to hand the
+            // host a real file. contentsOf is the fallback when the test bundle
+            // name lookup misses the copied resource.
+            do {
+                session = try SKTestSession(configurationFileNamed: "Configuration")
+            } catch {
+                session = try SKTestSession(contentsOf: url)
+            }
+            Self.sharedSession = session
         }
         session.disableDialogs = true
         session.askToBuyEnabled = false
+        session.resetToDefaultState()
         session.clearTransactions()
-        self.session = session
+        // Failed and cancelled tests set a purchase error on this session.
+        // The next method has to clear it or its buy never becomes an entitlement.
+        try await session.setSimulatedError(nil, forAPI: .purchase)
         // iOS 26 needs a beat after the session attaches before the first
         // Product.products request. A request that lands earlier stays empty.
         try await Task.sleep(nanoseconds: 500_000_000)
         return session
+    }
+
+    /// `func test…` whose brace depth is the class body. A method nested in
+    /// another test is omitted. This is the source shape, not XCTest's runtime list.
+    static func classLevelTestMethodNames(in source: String) -> [String] {
+        let marker = "final class StoreKitPurchaseFlowTests"
+        guard let header = source.range(of: marker),
+              let open = source[header.upperBound...].firstIndex(of: "{") else {
+            return []
+        }
+        var index = source.index(after: open)
+        var depth = 1
+        var names: [String] = []
+        var lineComment = false
+        var blockComment = false
+        var inString = false
+        var triple = false
+        while index < source.endIndex, depth > 0 {
+            let character = source[index]
+            let next = source.index(after: index)
+            if lineComment {
+                if character == "\n" { lineComment = false }
+                index = next
+                continue
+            }
+            if blockComment {
+                if character == "*", next < source.endIndex, source[next] == "/" {
+                    blockComment = false
+                    index = source.index(after: next)
+                    continue
+                }
+                index = next
+                continue
+            }
+            if triple {
+                if source[index...].hasPrefix("\"\"\"") {
+                    triple = false
+                    index = source.index(index, offsetBy: 3)
+                    continue
+                }
+                index = next
+                continue
+            }
+            if inString {
+                if character == "\\" {
+                    index = next < source.endIndex ? source.index(after: next) : source.endIndex
+                    continue
+                }
+                if character == "\"" { inString = false }
+                index = next
+                continue
+            }
+            if character == "/", next < source.endIndex, source[next] == "/" {
+                lineComment = true
+                index = source.index(after: next)
+                continue
+            }
+            if character == "/", next < source.endIndex, source[next] == "*" {
+                blockComment = true
+                index = source.index(after: next)
+                continue
+            }
+            if source[index...].hasPrefix("\"\"\"") {
+                triple = true
+                index = source.index(index, offsetBy: 3)
+                continue
+            }
+            if character == "\"" {
+                inString = true
+                index = next
+                continue
+            }
+            if character == "{" {
+                depth += 1
+                index = next
+                continue
+            }
+            if character == "}" {
+                depth -= 1
+                index = next
+                continue
+            }
+            if depth == 1, source[index...].hasPrefix("func test") {
+                var nameIndex = source.index(index, offsetBy: 5)
+                while nameIndex < source.endIndex, source[nameIndex].isWhitespace {
+                    nameIndex = source.index(after: nameIndex)
+                }
+                var end = nameIndex
+                while end < source.endIndex {
+                    let part = source[end]
+                    if part.isLetter || part.isNumber || part == "_" {
+                        end = source.index(after: end)
+                        continue
+                    }
+                    break
+                }
+                let name = String(source[nameIndex..<end])
+                if name.hasPrefix("test") {
+                    names.append(name)
+                }
+                index = end
+                continue
+            }
+            index = next
+        }
+        return names
     }
 
     private static func configurationURL() -> URL? {
@@ -359,9 +493,9 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         }
     }
 
-    /// `product.purchase` returned "Purchase cancelled" about 80s after
-    /// SKInternalErrorDomain Code=3 on the 2026-11-06 unsigned run, and the
-    /// ad-hoc log ended inside that call. The suite was killed at 600s.
+    /// The 2026-11-06 unsigned log (`CODE_SIGNING_ALLOWED=NO`) recorded
+    /// "Purchase cancelled." from this call. The ad-hoc log
+    /// (`CODE_SIGN_IDENTITY=-`) ends during the purchase and has no result.
     /// This bound fails the test instead of waiting out the runner. It cannot
     /// force StoreKit to return if that call ignores cancellation.
     private func finishPurchase(_ product: Product, manager: StoreKitManager) async throws {
