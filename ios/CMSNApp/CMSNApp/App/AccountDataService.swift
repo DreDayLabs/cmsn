@@ -159,44 +159,62 @@ enum AccountDataService {
     /// Deletes every stored record. Irreversible once `save` succeeds; the
     /// confirmation lives in the UI, not here. After a successful save,
     /// `RootView` sees no athlete and returns to the first-run narrative.
-    /// A failed save rolls the context back and throws, so the rows stay.
+    ///
+    /// Rows are deleted one object at a time with autosave off, then `save`
+    /// is the commit. `ModelContext.delete(model:)` is a batch delete.
+    /// On the in-memory container at `383a817`, that batch plus `rollback()`
+    /// still fetched zero athletes (`PrivacyReliabilityTests` line 83).
+    /// Pending per-object deletes are what `rollback()` can discard.
+    /// A failed save therefore leaves the last successful save in place.
+    /// That is the guarantee behind `deleteSaveFailedMessage`.
     static func eraseEverything(
         context: ModelContext,
         save: (ModelContext) throws -> Void = { try $0.save() },
         rollback: (ModelContext) -> Void = { $0.rollback() }
     ) throws {
+        let autosaveWasEnabled = context.autosaveEnabled
+        context.autosaveEnabled = false
+        defer { context.autosaveEnabled = autosaveWasEnabled }
         // Child rows first isn't strictly required (cascades cover it), but
         // being explicit means no orphan survives a future rule change.
         do {
-            try context.delete(model: ChallengeEntry.self)
-            try context.delete(model: Challenge.self)
-            try context.delete(model: ClubMembership.self)
-            try context.delete(model: RunClub.self)
-            try context.delete(model: RunSplit.self)
-            try context.delete(model: RunRoute.self)
-            try context.delete(model: Run.self)
-            try context.delete(model: RunShoe.self)
-            try context.delete(model: RunSettings.self)
-            try context.delete(model: ScoreEvent.self)
-            try context.delete(model: ApparelFeedback.self)
-            try context.delete(model: ReadinessCheck.self)
-            try context.delete(model: LoggedSet.self)
-            try context.delete(model: LoggedExercise.self)
-            try context.delete(model: WorkoutSession.self)
-            try context.delete(model: NutritionEntry.self)
-            try context.delete(model: NutritionLog.self)
-            try context.delete(model: SavedMealIngredient.self)
-            try context.delete(model: SavedMeal.self)
-            try context.delete(model: CustomSupplement.self)
-            try context.delete(model: CustomExercise.self)
-            try context.delete(model: WeightEntry.self)
-            try context.delete(model: WeightHistorySeedMarker.self)
-            try context.delete(model: NutritionDietPreference.self)
-            try context.delete(model: Athlete.self)
+            try deleteFetched(ChallengeEntry.self, in: context)
+            try deleteFetched(Challenge.self, in: context)
+            try deleteFetched(ClubMembership.self, in: context)
+            try deleteFetched(RunClub.self, in: context)
+            try deleteFetched(RunSplit.self, in: context)
+            try deleteFetched(RunRoute.self, in: context)
+            try deleteFetched(Run.self, in: context)
+            try deleteFetched(RunShoe.self, in: context)
+            try deleteFetched(RunSettings.self, in: context)
+            try deleteFetched(ScoreEvent.self, in: context)
+            try deleteFetched(ApparelFeedback.self, in: context)
+            try deleteFetched(ReadinessCheck.self, in: context)
+            try deleteFetched(LoggedSet.self, in: context)
+            try deleteFetched(LoggedExercise.self, in: context)
+            try deleteFetched(WorkoutSession.self, in: context)
+            try deleteFetched(NutritionEntry.self, in: context)
+            try deleteFetched(NutritionLog.self, in: context)
+            try deleteFetched(SavedMealIngredient.self, in: context)
+            try deleteFetched(SavedMeal.self, in: context)
+            try deleteFetched(CustomSupplement.self, in: context)
+            try deleteFetched(CustomExercise.self, in: context)
+            try deleteFetched(WeightEntry.self, in: context)
+            try deleteFetched(WeightHistorySeedMarker.self, in: context)
+            try deleteFetched(NutritionDietPreference.self, in: context)
+            try deleteFetched(Athlete.self, in: context)
             try save(context)
         } catch {
             rollback(context)
             throw error
+        }
+    }
+
+    /// Stages one `context.delete(_:)` per row. Not `delete(model:)`.
+    private static func deleteFetched<T: PersistentModel>(_ type: T.Type, in context: ModelContext) throws {
+        let rows = try context.fetch(FetchDescriptor<T>())
+        for row in rows {
+            context.delete(row)
         }
     }
 }

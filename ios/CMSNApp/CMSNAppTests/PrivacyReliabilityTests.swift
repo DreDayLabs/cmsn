@@ -87,6 +87,37 @@ final class PrivacyReliabilityTests: XCTestCase {
         )
     }
 
+    /// Induced save failure against a file-backed store. The same context and
+    /// a container opened again on that file must still hold the athlete.
+    /// This file has not been executed on the Mac yet. It does not describe
+    /// what the old batch `delete(model:)` path did to a sqlite file.
+    func testFailedEraseSaveLeavesOnDiskAthlete() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("cmsn-erase-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let storeURL = directory.appendingPathComponent("CMSN.store")
+        let configuration = CMSNModelContainerFactory.persistentConfiguration(storeURL: storeURL)
+        let id: UUID
+        do {
+            let container = try CMSNModelContainerFactory.open(configuration)
+            let context = container.mainContext
+            let athlete = Athlete(age: 30, heightCM: 180, weightKG: 90)
+            context.insert(athlete)
+            try context.save()
+            id = athlete.id
+            struct SaveFailed: Error {}
+            XCTAssertThrowsError(
+                try AccountDataService.eraseEverything(context: context, save: { _ in throw SaveFailed() })
+            )
+            let live = try context.fetch(FetchDescriptor<Athlete>())
+            XCTAssertEqual(live.map(\.id), [id])
+        }
+        let reopened = try CMSNModelContainerFactory.open(configuration)
+        let stored = try reopened.mainContext.fetch(FetchDescriptor<Athlete>())
+        XCTAssertEqual(stored.map(\.id), [id])
+    }
+
     func testSuccessfulEraseRemovesTheAthlete() throws {
         let container = CMSNModelContainerFactory.makeInMemory()
         let context = container.mainContext
