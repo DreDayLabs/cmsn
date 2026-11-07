@@ -205,6 +205,7 @@ struct SettingsView: View {
                 ))
                 .font(CMSNTypography.bodyQuiet())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                .accessibilityIdentifier("settings.calendarStatus")
             }
         }
         .tint(CMSNColor.offWhite)
