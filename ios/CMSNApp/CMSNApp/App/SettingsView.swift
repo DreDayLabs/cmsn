@@ -2,10 +2,10 @@ import SwiftUI
 import SwiftData
 
 /// Settings, structured around what App Store review expects to find:
-/// who you are, your subscription, your data rights (export + full
+/// who you are, your subscription, your data rights (partial export and
 /// erase), and the legal/support pages. The app is local-first — there is
-/// no login because there is no account; "Delete Everything" IS the
-/// offboarding, returning the app to a fresh-install state.
+/// no login because there is no account; "Delete Everything" is the
+/// offboarding once the save succeeds, returning the app to a fresh start.
 struct SettingsView: View {
     let athlete: Athlete
     @Environment(AppState.self) private var appState
@@ -17,6 +17,8 @@ struct SettingsView: View {
     @State private var exportURL: URL?
     @State private var exportError = false
     @State private var confirmingErase = false
+    @State private var deleteFailed = false
+    @State private var calendarSaveFailed = false
     @State private var restoring = false
 
     var body: some View {
@@ -148,6 +150,8 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             EyebrowLabel(text: "Your Data")
             VStack(spacing: 0) {
+                calendarRow
+                divider
                 if let exportURL {
                     ShareLink(item: exportURL) {
                         rowLabel("Export My Data", value: "Ready — tap to share", showsChevron: true)
@@ -164,10 +168,49 @@ struct SettingsView: View {
                 }
             }
             .cmsnCard()
-            Text("Everything lives on this device. Export gives you a readable copy; Delete Everything is permanent and returns the app to a fresh start.")
+            Text(LegalCopy.yourData)
                 .font(CMSNTypography.bodyQuiet())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            if deleteFailed {
+                Text(LegalCopy.deleteSaveFailedMessage)
+                    .font(CMSNTypography.body())
+                    .foregroundStyle(CMSNColor.Semantic.destructive)
+                    .accessibilityIdentifier("settings.deleteError")
+            }
+            if calendarSaveFailed {
+                Text("Couldn't save the calendar choice. It stays as it was.")
+                    .font(CMSNTypography.bodyQuiet())
+                    .foregroundStyle(CMSNColor.Semantic.destructive)
+                    .accessibilityIdentifier("settings.calendarSaveError")
+            }
         }
+    }
+
+    private var calendarRow: some View {
+        Toggle(isOn: Binding(
+            get: { athlete.calendarAuthorized },
+            set: { enabled in
+                let previous = athlete.calendarAuthorized
+                athlete.calendarAuthorized = enabled
+                Task { await persistCalendarOptIn(enabled, previous: previous) }
+            }
+        )) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Today's calendar")
+                    .font(CMSNTypography.body())
+                    .foregroundStyle(CMSNColor.Semantic.textPrimary)
+                Text(CalendarAccessPolicy.statusLine(
+                    userOptedIn: athlete.calendarAuthorized,
+                    authorization: appState.calendarService.authorizationState
+                ))
+                .font(CMSNTypography.bodyQuiet())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+                .accessibilityIdentifier("settings.calendarStatus")
+            }
+        }
+        .tint(CMSNColor.offWhite)
+        .padding(16)
+        .accessibilityIdentifier("settings.calendarOptIn")
     }
 
     // MARK: About / legal
@@ -279,9 +322,30 @@ struct SettingsView: View {
     }
 
     private func eraseEverything() {
-        AccountDataService.eraseEverything(context: modelContext)
-        // RootView's @Query sees zero athletes and returns to first-run
-        // onboarding on its own — no navigation needed here.
+        do {
+            try AccountDataService.eraseEverything(context: modelContext)
+            deleteFailed = false
+            // RootView's @Query sees zero athletes and returns to first-run
+            // onboarding on its own — no navigation needed here.
+        } catch {
+            deleteFailed = true
+        }
+    }
+
+    private func persistCalendarOptIn(_ enabled: Bool, previous: Bool) async {
+        do {
+            try modelContext.save()
+            calendarSaveFailed = false
+        } catch {
+            athlete.calendarAuthorized = previous
+            calendarSaveFailed = true
+            return
+        }
+        guard CalendarAccessPolicy.shouldRequestPermission(
+            userOptedIn: enabled,
+            authorization: appState.calendarService.authorizationState
+        ) else { return }
+        _ = await appState.calendarService.requestAccess()
     }
 }
 

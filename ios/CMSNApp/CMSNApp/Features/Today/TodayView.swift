@@ -18,7 +18,6 @@ struct TodayView: View {
     @State private var pendingDay: ResolvedProgramDay?
     @State private var pendingReadiness: ReadinessCheck?
     @State private var navigateToSession = false
-    @State private var calendarAuthorizationChecked = false
     @State private var showingRecoveryLog = false
 
     var body: some View {
@@ -45,7 +44,6 @@ struct TodayView: View {
             }
             .onAppear { resolveToday() }
             .task(id: targetSyncID) {
-                await primeCalendarIfNeeded()
                 resolveToday()
                 daysInactive = appState.workoutRepository.daysSinceLastLoggedWork()
                 syncTargets()
@@ -260,14 +258,6 @@ struct TodayView: View {
     private var targetSyncID: String {
         let targets = adjustment.adjusted
         return "\(targets.proteinGrams)-\(targets.carbGrams)-\(targets.fatGrams)-\(targets.calorieEstimate)"
-    }
-
-    private func primeCalendarIfNeeded() async {
-        guard !calendarAuthorizationChecked else { return }
-        calendarAuthorizationChecked = true
-        if appState.calendarService.authorizationState == .notDetermined {
-            _ = await appState.calendarService.requestAccess()
-        }
     }
 
     private func resolveToday() {
