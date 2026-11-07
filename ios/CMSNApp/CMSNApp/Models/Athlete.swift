@@ -50,6 +50,8 @@ final class Athlete {
     // Device/permission state
     var watchAvailable: Bool
     var healthKitAuthorized: Bool
+    /// User opt-in for reading today's calendar titles. Default false.
+    /// This is not the iOS authorization bit. EventKit status is read live.
     var calendarAuthorized: Bool
 
     // Preferences

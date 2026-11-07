@@ -60,3 +60,11 @@ Manual runs use the workflow file on the default branch. In the Actions tab: iOS
 The machine needs Xcode 26.6 installed at `/Applications/Xcode_26.6.app`. The workflow installs XcodeGen 2.46.0 with Mint. `sudo xcode-select` has to work without a password prompt. The same steps then run there at no GitHub-hosted macOS charge. If the machine is offline, `build-and-test` stays queued until it connects or a newer run cancels it. A queued self-hosted job does not consume hosted macOS minutes.
 
 This repository is public. `pull_request` runs the workflow from the pull request, and `xcodebuild` compiles that pull request's code. Once `MAC_RUNNER` is set, those runs execute on the Mini, including fork pull requests whose workflows are allowed to run. Require approval for workflows from outside collaborators (Settings → Actions → General → Fork pull request workflows) and do not approve a fork workflow that changes `.github/workflows` or points `runs-on` at the Mini.
+
+## Checkout
+
+A fresh clone needs `GIT_LFS_SKIP_SMUDGE=1`. The LFS quota rejects a smudge of `media/higgsfield` and `public/videos`. The page videos inside the iOS app target are ordinary git files.
+
+## StoreKit signing
+
+The unit-test step passes `CODE_SIGN_IDENTITY=-` because hosted CI has no team certificate. That is ad-hoc, `TeamIdentifier` unset. At `6950582`, iPhone 16 / iOS 18.6 ran `StoreKitPurchaseFlowTests` 7/7 that way, with no skip and no hang. That is the only reported iOS 18.6 pass of this class. The `77ef95f` iOS 26.5 logs are a different result: `CODE_SIGNING_ALLOWED=NO` recorded Code=3 at session setup, then a trial mismatch, then `Purchase cancelled.` in 86 seconds; the `CODE_SIGN_IDENTITY=-` log records the same Code=3 and trial mismatch and ends during the purchase with no result. At `54a7bb9` the same iOS 18.6 class was killed at 600 seconds, exit 142, on two runs. The purchase failure text named Code=3. The runtime log did not. None of those is a signed archive. A device install still needs provisioning profiles for `com.earnyourcmsn.app` and `com.earnyourcmsn.app.watchkitapp`. Tailor owns signing.

@@ -27,7 +27,7 @@ export function LegalPage({
             </section>
           ))}
         </div>
-        <p className="mt-12 text-sm text-white/50">Last updated October 2026</p>
+        <p className="mt-12 text-sm text-white/50">Last updated November 2026</p>
         <nav className="mt-6 flex gap-6 text-sm text-white/60">
           <Link href="/privacy" className="hover:text-white">Privacy</Link>
           <Link href="/support" className="hover:text-white">Support</Link>
