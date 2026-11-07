@@ -97,7 +97,9 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         XCTAssertFalse(manager.isPurchasing)
         XCTAssertNil(manager.lastError)
         try await waitUntil(manager, subscribed: true)
-        let transaction = try XCTUnwrap(try await currentTransaction(for: CMSNProductID.monthly))
+        // XCTUnwrap takes an autoclosure, so the await has to finish first.
+        let found = try await currentTransaction(for: CMSNProductID.monthly)
+        let transaction = try XCTUnwrap(found)
         if #available(iOS 17.2, *) {
             XCTAssertEqual(transaction.offer?.type, .introductory)
         } else {
