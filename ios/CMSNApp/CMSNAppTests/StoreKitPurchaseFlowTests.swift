@@ -36,10 +36,13 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
 
     override func tearDown() async throws {
         if let session = Self.sharedSession {
-            session.disableDialogs = true
-            try? await session.setSimulatedError(nil, forAPI: .purchase)
             session.resetToDefaultState()
             session.clearTransactions()
+            session.disableDialogs = true
+            session.askToBuyEnabled = false
+            try await within("tearDown setSimulatedError nil purchase", seconds: 10) {
+                try await session.setSimulatedError(nil, forAPI: .purchase)
+            }
         }
         try await super.tearDown()
     }
@@ -156,7 +159,9 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         let restored = StoreKitManager(autoStart: false)
         XCTAssertFalse(restored.isSubscribed)
         XCTAssertFalse(restored.isPurchasing)
-        await restored.restorePurchases()
+        try await within("restorePurchases", seconds: 30) {
+            await restored.restorePurchases()
+        }
         XCTAssertNil(restored.lastError)
         XCTAssertFalse(restored.isPurchasing)
         try await waitUntil(restored, subscribed: true)
@@ -246,13 +251,17 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
             }
             Self.sharedSession = session
         }
-        session.disableDialogs = true
-        session.askToBuyEnabled = false
         session.resetToDefaultState()
         session.clearTransactions()
-        // Failed and cancelled tests set a purchase error on this session.
-        // The next method has to clear it or its buy never becomes an entitlement.
-        try await session.setSimulatedError(nil, forAPI: .purchase)
+        // 54a7bb9 set disableDialogs before reset. Run 1 and run 2 on iOS 18.6
+        // then logged "Could not find a UI anchor" and the purchase did not
+        // return. The log does not say reset cleared the flag. The flag is
+        // written again after reset so it is the value in effect at purchase.
+        session.disableDialogs = true
+        session.askToBuyEnabled = false
+        try await within("setSimulatedError nil purchase", seconds: 10) {
+            try await session.setSimulatedError(nil, forAPI: .purchase)
+        }
         // iOS 26 needs a beat after the session attaches before the first
         // Product.products request. A request that lands earlier stays empty.
         try await Task.sleep(nanoseconds: 500_000_000)
@@ -383,11 +392,15 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         var errorText: String?
         while Date() < deadline {
             do {
-                let fetched = try await Product.products(for: CMSNProductID.all)
+                let fetched = try await within("Product.products", seconds: 10) {
+                    try await Product.products(for: CMSNProductID.all)
+                }
                 ids = fetched.map(\.id).sorted()
                 if Set(CMSNProductID.all).isSubset(of: Set(ids)) {
                     return
                 }
+            } catch LoadError.purchaseTimeout {
+                throw LoadError.purchaseTimeout
             } catch {
                 errorText = error.localizedDescription
             }
@@ -425,7 +438,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     private static let ios26_5SkipMessage = """
-    Skipping StoreKitPurchaseFlowTests on the iOS 26.5 simulator does not prove purchases. SKTestSession does not connect there (FB22500243, fixed in the iOS 26.6 simulator). The full CMSNAppTests suite, including these tests, passed on the iOS 18.6 simulator on Nov 6, 2026. A 26.5 skip is still not a pass.
+    Skipping StoreKitPurchaseFlowTests on the iOS 26.5 simulator does not prove purchases. SKTestSession does not connect there (FB22500243, fixed in the iOS 26.6 simulator). A skip is not a pass. An iOS 18.6 pass of this class was reported for head 6950582 only. Later heads are not that pass.
     """
 
     private func loadProduct(_ id: String, manager: StoreKitManager) async throws -> Product {
@@ -437,12 +450,18 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
                 return product
             }
             do {
-                let fetched = try await Product.products(for: CMSNProductID.all)
+                let fetched = try await within("Product.products", seconds: 10) {
+                    try await Product.products(for: CMSNProductID.all)
+                }
                 directIDs = fetched.map(\.id).sorted()
+            } catch LoadError.purchaseTimeout {
+                throw LoadError.purchaseTimeout
             } catch {
                 directError = error.localizedDescription
             }
-            await manager.loadProducts()
+            try await within("loadProducts", seconds: 10) {
+                await manager.loadProducts()
+            }
             if let product = manager.products.first(where: { $0.id == id }) {
                 return product
             }
@@ -493,55 +512,67 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         }
     }
 
-    /// The 2026-11-06 unsigned log (`CODE_SIGNING_ALLOWED=NO`) recorded
-    /// "Purchase cancelled." from this call. The ad-hoc log
-    /// (`CODE_SIGN_IDENTITY=-`) ends during the purchase and has no result.
-    /// This bound fails the test instead of waiting out the runner. It cannot
-    /// force StoreKit to return if that call ignores cancellation.
-    private func finishPurchase(_ product: Product, manager: StoreKitManager) async throws {
+    /// Fails if the call does not return. `task.cancel()` does not mean
+    /// StoreKit stopped. The call may still be running after this returns.
+    private func within<T>(
+        _ label: String,
+        seconds: TimeInterval,
+        _ operation: @escaping @MainActor () async throws -> T
+    ) async throws -> T {
         let gate = CompletionGate()
-        let task = Task { @MainActor in
-            await manager.purchase(product)
-            gate.finish()
+        let task = Task { @MainActor () throws -> T in
+            defer { gate.finish() }
+            return try await operation()
         }
-        if await gate.wait(seconds: 30) {
-            _ = await task.value
-            return
+        if await gate.wait(seconds: seconds) {
+            return try await task.value
         }
         task.cancel()
+        let version = ProcessInfo.processInfo.operatingSystemVersion
         XCTFail(
             """
-            purchase did not return within 30s for \(product.id). \
-            A stuck purchase is a failure. On iOS 26.5, SKTestSession logged \
-            SKInternalErrorDomain Code=3 before product.purchase blocked.
+            \(label) did not return within \(Int(seconds))s. \
+            iOS \(version.majorVersion).\(version.minorVersion).\(version.patchVersion). \
+            Cancelling the waiter does not stop the call.
             """
         )
         throw LoadError.purchaseTimeout
     }
 
+    /// The 2026-11-06 unsigned log (`CODE_SIGNING_ALLOWED=NO`) recorded
+    /// "Purchase cancelled." from this call. The ad-hoc log
+    /// (`CODE_SIGN_IDENTITY=-`) ends during the purchase and has no result.
+    /// On `54a7bb9` iOS 18.6 the same call did not return within 30s. The
+    /// failure text names the runtime it is running on.
+    private func finishPurchase(_ product: Product, manager: StoreKitManager) async throws {
+        try await within("purchase \(product.id)", seconds: 30) {
+            await manager.purchase(product)
+        }
+    }
+
     private func buyProduct(_ productID: String, session: SKTestSession) async throws {
-        let gate = CompletionGate()
-        let task = Task { @MainActor in
-            defer { gate.finish() }
+        try await within("buyProduct \(productID)", seconds: 30) {
             _ = try await session.buyProduct(identifier: productID, options: [])
         }
-        if await gate.wait(seconds: 30) {
-            try await task.value
-            return
-        }
-        task.cancel()
-        XCTFail("buyProduct did not return within 30s for \(productID).")
-        throw LoadError.purchaseTimeout
     }
 
     private func waitUntil(_ manager: StoreKitManager, subscribed: Bool) async throws {
         let deadline = Date().addingTimeInterval(6)
         while Date() < deadline {
-            await manager.refreshEntitlements()
+            try await within("refreshEntitlements", seconds: 6) {
+                await manager.refreshEntitlements()
+            }
             if manager.isSubscribed == subscribed { return }
             try await Task.sleep(nanoseconds: 200_000_000)
         }
-        XCTFail("Expected isSubscribed \(subscribed) but it was \(manager.isSubscribed). \(manager.lastError ?? "")")
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        XCTFail(
+            """
+            Expected isSubscribed \(subscribed) but it was \(manager.isSubscribed). \
+            \(manager.lastError ?? "") \
+            iOS \(version.majorVersion).\(version.minorVersion).\(version.patchVersion).
+            """
+        )
         throw LoadError.entitlementTimeout
     }
 
@@ -565,7 +596,14 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         }
         task.cancel()
         watcher.cancel()
-        XCTFail("Transaction.currentEntitlements did not finish within 6s for \(productID).")
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        XCTFail(
+            """
+            Transaction.currentEntitlements did not finish within 6s for \(productID). \
+            iOS \(version.majorVersion).\(version.minorVersion).\(version.patchVersion). \
+            Cancelling the waiter does not stop the call.
+            """
+        )
         throw LoadError.entitlementTimeout
     }
 }
