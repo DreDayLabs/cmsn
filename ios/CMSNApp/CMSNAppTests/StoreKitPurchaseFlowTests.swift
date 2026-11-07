@@ -67,11 +67,26 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
             (.year, 1),
         ]
         for (unit, value) in rejected {
-            XCTAssertFalse(
-                CMSNIntroductoryTrial.isSingleFreeSevenDays(unit: unit, value: value),
-                "\(unit) \(value) must not count as 7 days"
-            )
-        }
+        XCTAssertFalse(
+            CMSNIntroductoryTrial.isSingleFreeSevenDays(unit: unit, value: value),
+            "\(unit) \(value) must not count as 7 days"
+        )
+    }
+
+    func testCompletionGateSeesFinishAndTimesOut() async {
+        let gate = CompletionGate()
+        let started = Date()
+        let missed = await gate.wait(seconds: 0.25)
+        XCTAssertFalse(missed)
+        XCTAssertLessThan(Date().timeIntervalSince(started), 2)
+
+        let waiting = CompletionGate()
+        let waiter = Task { await waiting.wait(seconds: 2) }
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        waiting.finish()
+        let saw = await waiter.value
+        XCTAssertTrue(saw)
+    }
     }
 
     func testBuyingTheTrialUnlocksCMSNPlus() async throws {
@@ -454,24 +469,31 @@ private final class CompletionGate: @unchecked Sendable {
     private var done = false
 
     func finish() {
-        lock.lock()
-        done = true
-        lock.unlock()
+        setDone(true)
     }
 
     func wait(seconds: TimeInterval) async -> Bool {
         let deadline = Date().addingTimeInterval(seconds)
         while Date() < deadline {
-            lock.lock()
-            let finished = done
-            lock.unlock()
-            if finished { return true }
+            if isDone() { return true }
             try? await Task.sleep(nanoseconds: 100_000_000)
         }
+        return isDone()
+    }
+
+    /// Lock use stays in these synchronous methods. Swift 6 rejects
+    /// `NSLock.lock()` directly inside an async function, including across
+    /// a later `await`. The lock is not held while `wait` sleeps.
+    private func isDone() -> Bool {
         lock.lock()
-        let finished = done
-        lock.unlock()
-        return finished
+        defer { lock.unlock() }
+        return done
+    }
+
+    private func setDone(_ value: Bool) {
+        lock.lock()
+        defer { lock.unlock() }
+        done = value
     }
 }
 

@@ -24,8 +24,10 @@ settings:
     CURRENT_PROJECT_VERSION: "2"
     # Thought Garden Labs LLC. This is the only place the team id is set;
     # targets inherit it. The watch build step passes
-    # CODE_SIGNING_ALLOWED=NO. iOS 18.6 StoreKit runs need Apple Development
-    # signing; CODE_SIGN_IDENTITY=- hangs SKTestSession on that CLI.
+    # CODE_SIGNING_ALLOWED=NO. Simulator StoreKit at 6950582 passed 7/7
+    # on iPhone 16 / iOS 18.6 with ad-hoc CODE_SIGN_IDENTITY=- and no team.
+    # iOS 26.5 ad-hoc logged SKInternalErrorDomain Code=3. A signed device
+    # archive still needs provisioning profiles. Ad-hoc is not that archive.
     DEVELOPMENT_TEAM: G2MXBX48PD
     ENABLE_PREVIEWS: YES
     # Standard-practice settings, kept even though none of them turned out

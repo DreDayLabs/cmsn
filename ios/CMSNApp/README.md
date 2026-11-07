@@ -30,9 +30,15 @@ In Xcode:
    `G2MXBX48PD` (Thought Garden Labs LLC). The `CMSNApp` target uses
    automatic signing. The bundle id stays `com.earnyourcmsn.app`. The watch
    build step passes `CODE_SIGNING_ALLOWED=NO`. The unit-test step passes
-   `CODE_SIGN_IDENTITY=-` for hosted CI. That ad-hoc identity hangs
-   `SKTestSession` on the iOS 18.6 CLI. Purchase tests on that runtime need
-   normal Apple Development signing.
+   `CODE_SIGN_IDENTITY=-` for hosted CI. That is an ad-hoc signature with
+   no team. At `6950582`, iPhone 16 on iOS 18.6 ran
+   `StoreKitPurchaseFlowTests` 7/7 under that ad-hoc signature, with no
+   skip and no hang. The same ad-hoc identity on iOS 26.5 logged
+   `SKInternalErrorDomain` Code=3 and the purchase call did not finish
+   before a 600s kill. A device install and a signed archive are a
+   separate gate: they need a provisioning profile for
+   `com.earnyourcmsn.app` and `com.earnyourcmsn.app.watchkitapp`. Ad-hoc
+   with `TeamIdentifier` unset is not that profile.
 3. Camera and calendar usage strings are in the generated Info.plist.
    HealthKit is declared for the phone and the watch
    (`CMSNApp.entitlements` and `CMSNWatchApp.entitlements`). Enable the
@@ -78,17 +84,24 @@ on `a777587` did not execute it: mac preflight hit a billing lock and
 `build-and-test` was skipped.
 
 The iOS 26.5 simulator still skips the purchase tests when products do not
-load (`XCTSkip`, FB22500243). A skip is not a pass. It is not a merge hold
-after the iOS 18.6 result. `CODE_SIGN_IDENTITY=-` hangs `SKTestSession` on
-the iOS 18.6 command line. Repeat that run with normal Apple Development
-signing, and do not pass the ad-hoc identity:
+load (`XCTSkip`, FB22500243). A skip is not a pass. On the 2026-11-06
+iOS 26.5 run, products did load: the trial was reported as seven days, and
+both unsigned and ad-hoc (`CODE_SIGN_IDENTITY=-`) logged
+`SKInternalErrorDomain` Code=3 before `product.purchase` failed to finish
+and the run was killed at 600s. That is not the iOS 18.6 result. At
+`6950582`, iPhone 16 / iOS 18.6, ad-hoc with `TeamIdentifier` unset, ran
+the strict period test 1/1 and the full `StoreKitPurchaseFlowTests` 7/7,
+exit 0, no skips, no hang. Do not read that simulator pass as a signed
+archive. No provisioning profile for `com.earnyourcmsn.app` or the watch
+id was present for that check, and a signed archive was not attempted.
 
 ```bash
 cd ios/CMSNApp
+xcrun simctl list devices available
 xcodebuild test \
   -project CMSNApp.xcodeproj \
   -scheme CMSNApp \
-  -destination 'platform=iOS Simulator,name=iPhone 17,OS=18.6,arch=arm64' \
+  -destination 'platform=iOS Simulator,id=SIMULATOR_UDID' \
   -only-testing:CMSNAppTests/StoreKitPurchaseFlowTests
 ```
 

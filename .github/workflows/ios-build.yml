@@ -241,12 +241,13 @@ jobs:
           # container on hosted CI, which has no team certificate. An unsigned
           # host fails that with SKInternalErrorDomain Code=3. This is not a
           # development-team signature and not a charge.
-          # CODE_SIGN_IDENTITY=- hangs SKTestSession on the iOS 18.6 CLI.
-          # A passing run on that runtime needs normal Apple Development
-          # signing. Do not read a hang under this identity as a product failure.
-          # iOS 26.5 does not connect SKTestSession (FB22500243). The purchase
-          # tests XCTSkip on that runtime instead of failing the job. They
-          # still assert on every other runtime this destination resolves.
+          # iPhone 16 / iOS 18.6 at 6950582 passed StoreKitPurchaseFlowTests
+          # 7/7 with this ad-hoc identity (TeamIdentifier unset). The same
+          # identity on iOS 26.5 logged Code=3 and the purchase did not finish
+          # before a 600s kill. A signed device archive is a separate gate.
+          # iOS 26.5 does not connect SKTestSession when the catalog stays
+          # empty (FB22500243). The purchase tests XCTSkip only in that case.
+          # They still assert when products load.
           xcodebuild test \
             -project CMSNApp.xcodeproj \
             -scheme CMSNApp \

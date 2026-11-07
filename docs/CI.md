@@ -65,6 +65,6 @@ This repository is public. `pull_request` runs the workflow from the pull reques
 
 A fresh clone needs `GIT_LFS_SKIP_SMUDGE=1`. The LFS quota rejects a smudge of `media/higgsfield` and `public/videos`. The page videos inside the iOS app target are ordinary git files.
 
-## StoreKit signing on iOS 18.6
+## StoreKit signing
 
-The unit-test step passes `CODE_SIGN_IDENTITY=-` because hosted CI has no team certificate. That ad-hoc identity hangs `SKTestSession` on the iOS 18.6 command line. A passing run on that runtime uses normal Apple Development signing. Tailor owns signing. A hang under `CODE_SIGN_IDENTITY=-` on iOS 18.6 is the signing caveat, not a failed purchase assertion.
+The unit-test step passes `CODE_SIGN_IDENTITY=-` because hosted CI has no team certificate. That is ad-hoc, `TeamIdentifier` unset. At `6950582`, iPhone 16 / iOS 18.6 ran `StoreKitPurchaseFlowTests` 7/7 that way, with no skip and no hang. On iOS 26.5 the same ad-hoc identity logged `SKInternalErrorDomain` Code=3 and the purchase call did not finish before a 600s kill. A device install and a signed archive still need provisioning profiles for `com.earnyourcmsn.app` and `com.earnyourcmsn.app.watchkitapp`. The simulator pass is not that archive. Tailor owns signing.
