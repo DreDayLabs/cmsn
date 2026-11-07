@@ -35,46 +35,26 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     ]
 
     override func tearDown() async throws {
-        let diagnostic = await probeSessionAfterCleanup()
+        await probeSessionAfterCleanup()
         try await super.tearDown()
-        if let diagnostic {
-            throw diagnostic
-        }
     }
 
-    /// Reset, clear, and the documented nil disable always run. A failed
-    /// read is kept and rethrown after cleanup so it is not skipped.
-    private func probeSessionAfterCleanup() async -> Error? {
-        guard let session = Self.sharedSession else { return nil }
-        var diagnostic: Error?
+    /// Every cleanup step runs. A snapshot or nil-cleanup failure is recorded
+    /// on its own and is not thrown, so it does not replace the test's error.
+    private func probeSessionAfterCleanup() async {
+        guard let session = Self.sharedSession else { return }
         session.resetToDefaultState()
-        diagnostic = await keeping(diagnostic) {
-            try await self.logSessionProbe("teardown after reset", session: session)
-        }
+        await recordSnapshot("teardown after reset", session: session)
         session.clearTransactions()
-        diagnostic = await keeping(diagnostic) {
-            try await self.logSessionProbe("teardown after clear", session: session)
-        }
+        await recordSnapshot("teardown after clear", session: session)
         session.disableDialogs = true
         session.askToBuyEnabled = false
-        diagnostic = await keeping(diagnostic) {
+        await recordCleanupStep("tearDown setSimulatedError nil purchase") {
             try await self.within("tearDown setSimulatedError nil purchase", seconds: 10) {
                 try await session.setSimulatedError(nil, forAPI: .purchase)
             }
         }
-        diagnostic = await keeping(diagnostic) {
-            try await self.logSessionProbe("teardown after nil", session: session)
-        }
-        return diagnostic
-    }
-
-    private func keeping(_ first: Error?, _ work: () async throws -> Void) async -> Error? {
-        do {
-            try await work()
-            return first
-        } catch {
-            return first ?? error
-        }
+        await recordSnapshot("teardown after nil", session: session)
     }
 
     func testLocalStoreKitFileMatchesLockedProducts() throws {
@@ -203,12 +183,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         try await ensureStoreKitCatalog()
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
 
-        var diagnostic: Error?
-        do {
-            try await logSessionProbe("before expiry Product.purchase", session: session)
-        } catch {
-            diagnostic = error
-        }
+        await recordSnapshot("before expiry Product.purchase", session: session)
         try await finishPurchase(monthly, manager: manager)
         try await waitUntil(manager, subscribed: true)
         try session.expireSubscription(productIdentifier: CMSNProductID.monthly)
@@ -231,9 +206,6 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         try session.refundTransaction(identifier: refundable.identifier)
         try await waitUntil(manager, subscribed: false)
         XCTAssertFalse(manager.isPurchasing)
-        if let diagnostic {
-            throw diagnostic
-        }
     }
 
     func testFailedPurchaseShowsCleanErrorWithoutStuckPurchasing() async throws {
@@ -261,7 +233,6 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         try await ensureStoreKitCatalog()
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
-        var diagnostic: Error?
         do {
             let observed = try await within(
                 "simulatedError(.purchase) after userCancelled injection",
@@ -269,15 +240,17 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
             ) {
                 await session.simulatedError(forAPI: .purchase)
             }
+            let line = sessionProbeLine("after cancel injection", failure: observed, session: session)
+            print(line)
             let expected: StoreKitPurchaseAPI.Failure? = .generic(.userCancelled)
-            XCTAssertEqual(
-                observed,
-                expected,
-                "positive control did not observe the injected .generic(.userCancelled) purchase error. observed=\(String(describing: observed))"
-            )
-            logSessionProbeLine("after cancel injection", failure: observed, session: session)
+            if observed != expected {
+                let message = "positive control did not observe the injected .generic(.userCancelled) purchase error. observed=\(String(describing: observed))"
+                print("CMSN-SK after cancel injection \(message)")
+                attachSnapshot("after cancel injection", "\(message)\n\(line)")
+                XCTFail(message)
+            }
         } catch {
-            diagnostic = error
+            noteSnapshotFailure("after cancel injection", error: error, session: session)
         }
 
         XCTAssertFalse(manager.isPurchasing)
@@ -285,9 +258,6 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         XCTAssertFalse(manager.isPurchasing, "The purchasing flag stayed on after a cancelled purchase.")
         XCTAssertFalse(manager.isSubscribed)
         XCTAssertEqual(manager.lastError, "Purchase cancelled.")
-        if let diagnostic {
-            throw diagnostic
-        }
     }
 
     // MARK: - Session
@@ -596,28 +566,65 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     }
 
     /// Local test-session fields only. No receipt, account, or device payload.
-    /// `simulatedError(forAPI:)` is the StoreKit Test getter paired with
-    /// `setSimulatedError`. The read is bounded by `within`.
-    private func logSessionProbe(_ boundary: String, session: SKTestSession) async throws {
-        let failure = try await within("simulatedError(.purchase) \(boundary)", seconds: 10) {
-            await session.simulatedError(forAPI: .purchase)
+    /// The getter read is bounded by `within`. A failure is logged, attached,
+    /// and left recorded by XCTest. It is not thrown.
+    private func recordSnapshot(_ boundary: String, session: SKTestSession) async {
+        do {
+            let failure = try await within("simulatedError(.purchase) \(boundary)", seconds: 10) {
+                await session.simulatedError(forAPI: .purchase)
+            }
+            print(sessionProbeLine(boundary, failure: failure, session: session))
+        } catch {
+            noteSnapshotFailure(boundary, error: error, session: session)
         }
-        logSessionProbeLine(boundary, failure: failure, session: session)
     }
 
-    private func logSessionProbeLine(
+    private func noteSnapshotFailure(_ boundary: String, error: Error, session: SKTestSession) {
+        let message = "CMSN-SK \(boundary) snapshot failed: \(error) \(transactionSummary(session))"
+        print(message)
+        attachSnapshot(boundary, message)
+        if case LoadError.purchaseTimeout = error {
+            return
+        }
+        XCTFail(message)
+    }
+
+    private func recordCleanupStep(_ label: String, _ work: () async throws -> Void) async {
+        do {
+            try await work()
+        } catch {
+            let message = "CMSN-SK \(label) cleanup failed: \(error)"
+            print(message)
+            attachSnapshot(label, message)
+            if case LoadError.purchaseTimeout = error {
+                return
+            }
+            XCTFail(message)
+        }
+    }
+
+    private func attachSnapshot(_ name: String, _ body: String) {
+        let attachment = XCTAttachment(string: body)
+        attachment.name = "CMSN-SK \(name)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func sessionProbeLine(
         _ boundary: String,
         failure: StoreKitPurchaseAPI.Failure?,
         session: SKTestSession
-    ) {
+    ) -> String {
+        "CMSN-SK \(boundary) purchaseError=\(String(describing: failure)) \(transactionSummary(session))"
+    }
+
+    private func transactionSummary(_ session: SKTestSession) -> String {
         let rows = session.allTransactions().map { transaction -> String in
             let expires = transaction.expirationDate.map { String(describing: $0) } ?? "nil"
             let canceled = transaction.cancelDate == nil ? "nil" : "set"
             return "id=\(transaction.identifier) product=\(transaction.productIdentifier) state=\(transaction.state) expires=\(expires) autoRenew=\(transaction.autoRenewingEnabled) cancelDate=\(canceled)"
         }
-        print(
-            "CMSN-SK \(boundary) purchaseError=\(String(describing: failure)) transactions=[\(rows.joined(separator: " | "))]"
-        )
+        return "transactions=[\(rows.joined(separator: " | "))]"
     }
 
     /// The 2026-11-06 unsigned log (`CODE_SIGNING_ALLOWED=NO`) recorded
