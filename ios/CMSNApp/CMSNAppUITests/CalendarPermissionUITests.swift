@@ -45,11 +45,42 @@ final class CalendarPermissionUITests: XCTestCase {
 
         openSettings()
         XCTAssertTrue(waitForStatus(offLine), "Settings did not show the off line. \(app.debugDescription)")
-        let toggle = calendarSwitch()
-        XCTAssertEqual(toggle.value as? String, "0", "Today's calendar was not off. value=\(toggle.value ?? "nil")")
+        var events: [String] = []
+        defer { attachCalendarEvents(events) }
 
+        guard let toggle = revealedInnerCalendarSwitch(events: &events) else { return }
+        let row = calendarSwitch()
+        let preValue = switchValue(toggle)
+        record(&events, "pre-value", "inner=\(preValue) row=\(switchValue(row)) \(frameNote("inner", toggle)) hittable=\(toggle.isHittable)")
+        record(&events, "pre-tree", row.debugDescription)
+        XCTAssertEqual(preValue, "0", "Today's calendar control was not off. value=\(preValue)")
+        XCTAssertTrue(toggle.exists, "Inner calendar switch is not in the accessibility tree.")
+        XCTAssertTrue(
+            toggle.isHittable,
+            "Inner calendar switch is not hittable. \(frameNote("inner", toggle)) \(bandNote())"
+        )
+        XCTAssertTrue(
+            frameIsUnobstructed(toggle.frame),
+            "Inner calendar switch is not fully in the viewport. \(frameNote("inner", toggle)) \(bandNote())"
+        )
+        guard toggle.exists, toggle.isHittable, frameIsUnobstructed(toggle.frame) else { return }
+
+        record(&events, "tap-element", "inner switch element, not the row title")
         toggle.tap()
+        record(&events, "alert-wait-start", "system calendar alert")
         let alert = waitForCalendarAlert()
+        let postValue = switchValue(toggle)
+        record(&events, "post-value", "inner=\(postValue) row=\(switchValue(row)) alert=\(alert.exists) \(frameNote("inner", toggle))")
+        record(&events, "post-tree", row.debugDescription)
+        if !alert.exists, postValue != "1" {
+            XCTFail(
+                """
+                Inner calendar switch stayed \(postValue) and no system calendar alert appeared. \
+                Activation was not observed. This does not establish a request defect. \
+                \(row.debugDescription)
+                """
+            )
+        }
         XCTAssertTrue(alert.exists, "Settings opt-in did not present a system calendar alert. \(springboard.debugDescription) \(app.debugDescription)")
         let deny = dontAllowButton(in: alert)
         XCTAssertTrue(deny.exists, "The system calendar alert had no Don't Allow button. \(alert.debugDescription)")
@@ -65,8 +96,9 @@ final class CalendarPermissionUITests: XCTestCase {
             "After Don't Allow, Settings did not show the blocked line. \(app.debugDescription)"
         )
 
-        let stillOn = calendarSwitch()
-        if (stillOn.value as? String) == "1" {
+        if switchValue(calendarSwitch()) == "1" {
+            guard let stillOn = revealedInnerCalendarSwitch(events: &events) else { return }
+            record(&events, "tap-element-off", "inner switch element")
             stillOn.tap()
         }
         XCTAssertTrue(waitForStatus(offLine), "Turning the switch off did not show the off line. \(app.debugDescription)")
@@ -179,6 +211,106 @@ final class CalendarPermissionUITests: XCTestCase {
         }
         XCTFail("Today's calendar switch was not on screen. \(app.debugDescription)")
         return toggle
+    }
+
+    /// The identified switch is the whole row, including the title. The control
+    /// is the descendant switch. Scroll until that row sits between the
+    /// navigation bar and the tab bar, then return the control.
+    private func revealedInnerCalendarSwitch(events: inout [String]) -> XCUIElement? {
+        let row = app.switches["settings.calendarOptIn"]
+        let deadline = Date().addingTimeInterval(15)
+        while Date() < deadline, !row.exists {
+            nudgeSettingsContent()
+        }
+        let inner = row.switches.firstMatch
+        var nudges = 0
+        while nudges < 8 {
+            if row.exists, controlIsUnobstructed(inner, in: row), rowIsUnobstructed(row) {
+                record(
+                    &events,
+                    "target-resolved",
+                    "\(frameNote("row", row)) \(frameNote("inner", inner)) hittable=\(inner.isHittable) \(bandNote())"
+                )
+                return inner
+            }
+            nudgeSettingsContent()
+            nudges += 1
+        }
+        let detail = "rowExists=\(row.exists) \(frameNote("row", row)) innerExists=\(inner.exists) \(frameNote("inner", inner)) hittable=\(inner.exists && inner.isHittable) \(bandNote())"
+        record(&events, "target-unresolvable", detail)
+        XCTFail("Calendar switch target is unresolvable. The inner switch was not fully visible and hittable above the tab bar. \(detail)")
+        return nil
+    }
+
+    private func rowIsUnobstructed(_ row: XCUIElement) -> Bool {
+        guard row.exists, frameIsUnobstructed(row.frame) else { return false }
+        return true
+    }
+
+    private func controlIsUnobstructed(_ inner: XCUIElement, in row: XCUIElement) -> Bool {
+        guard inner.exists, inner.isHittable, frameIsUnobstructed(inner.frame) else { return false }
+        guard row.exists, frameIsOnScreen(row.frame) else { return false }
+        return inner.frame.width + 1 < row.frame.width
+    }
+
+    private func frameIsUnobstructed(_ frame: CGRect) -> Bool {
+        guard frameIsOnScreen(frame), let band = visibleBand() else { return false }
+        return frame.minY >= band.top && frame.maxY <= band.bottom
+    }
+
+    private func frameIsOnScreen(_ frame: CGRect) -> Bool {
+        frame.width > 1
+            && frame.height > 1
+            && frame.minX.isFinite
+            && frame.minY.isFinite
+            && !frame.isNull
+            && !frame.isInfinite
+    }
+
+    private func visibleBand() -> (top: CGFloat, bottom: CGFloat)? {
+        let tabBar = app.tabBars.firstMatch
+        guard tabBar.exists, frameIsOnScreen(tabBar.frame) else { return nil }
+        let navigationBar = app.navigationBars.firstMatch
+        let top = navigationBar.exists ? navigationBar.frame.maxY : 0
+        return (top, tabBar.frame.minY)
+    }
+
+    /// Moves the settings list a short distance. This is not the switch tap.
+    private func nudgeSettingsContent() {
+        let scroll = app.scrollViews.firstMatch
+        let host = scroll.exists ? scroll : app
+        let start = host.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.70))
+        let end = host.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55))
+        start.press(forDuration: 0.05, thenDragTo: end)
+    }
+
+    private func switchValue(_ element: XCUIElement) -> String {
+        guard element.exists else { return "missing" }
+        if let text = element.value as? String { return text }
+        return String(describing: element.value ?? "nil")
+    }
+
+    private func frameNote(_ name: String, _ element: XCUIElement) -> String {
+        guard element.exists else { return "\(name)=missing" }
+        return "\(name)=\(element.frame)"
+    }
+
+    private func bandNote() -> String {
+        guard let band = visibleBand() else { return "band=missing" }
+        return "band=\(band.top)...\(band.bottom)"
+    }
+
+    private func record(_ events: inout [String], _ name: String, _ detail: String) {
+        let line = "CMSN-CAL \(events.count + 1) \(name) \(detail)"
+        events.append(line)
+        print(line)
+    }
+
+    private func attachCalendarEvents(_ events: [String]) {
+        let attachment = XCTAttachment(string: events.joined(separator: "\n"))
+        attachment.name = "CMSN-CAL event order"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     private func waitForStatus(_ line: String) -> Bool {
