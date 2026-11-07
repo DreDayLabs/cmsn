@@ -258,9 +258,6 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         // written again after reset so it is the value in effect at purchase.
         session.disableDialogs = true
         session.askToBuyEnabled = false
-        try await within("setSimulatedError nil purchase", seconds: 10) {
-            try await session.setSimulatedError(nil, forAPI: .purchase)
-        }
         // iOS 26 needs a beat after the session attaches before the first
         // Product.products request. A request that lands earlier stays empty.
         try await Task.sleep(nanoseconds: 500_000_000)
