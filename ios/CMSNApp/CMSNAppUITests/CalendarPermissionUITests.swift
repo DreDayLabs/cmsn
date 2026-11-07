@@ -144,11 +144,24 @@ final class CalendarPermissionUITests: XCTestCase {
                 return
             }
             let overflow = app.tabBars.buttons["More"]
+            let settingsText = app.tables.staticTexts["Settings"]
+            let settingsCell = app.tables.cells.containing(NSPredicate(format: "label == %@", "Settings")).firstMatch
+            if settingsCell.exists, settingsCell.isHittable {
+                settingsCell.tap()
+                return
+            }
+            if settingsText.exists, settingsText.isHittable {
+                settingsText.tap()
+                return
+            }
             if overflow.exists, overflow.isHittable {
                 overflow.tap()
-                let row = app.buttons["Settings"]
-                if row.waitForExistence(timeout: 2), row.isHittable {
-                    row.tap()
+                if settingsCell.waitForExistence(timeout: 2), settingsCell.isHittable {
+                    settingsCell.tap()
+                    return
+                }
+                if settingsText.waitForExistence(timeout: 2), settingsText.isHittable {
+                    settingsText.tap()
                     return
                 }
             }
