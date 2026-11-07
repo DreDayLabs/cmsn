@@ -19,12 +19,15 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     private var session: SKTestSession?
 
     override func tearDown() async throws {
+        let session = self.session
+        self.session = nil
+        // The 2026-11-06 logs show reset/clear returning SKInternalErrorDomain
+        // Code=3 in the same millisecond. They were not the 600s waiter.
         if let session {
             session.disableDialogs = true
             session.resetToDefaultState()
             session.clearTransactions()
         }
-        session = nil
         try await super.tearDown()
     }
 
@@ -48,6 +51,29 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         }
     }
 
+    /// No SKTestSession. StoreKit may report the file's P1W as one week or as
+    /// seven days. Both are a 7-day free trial. Other lengths fail.
+    func testSevenDayTrialAcceptsOnlyEquivalentPeriods() {
+        XCTAssertTrue(CMSNIntroductoryTrial.isSingleFreeSevenDays(unit: .week, value: 1))
+        XCTAssertTrue(CMSNIntroductoryTrial.isSingleFreeSevenDays(unit: .day, value: 7))
+        let rejected: [(Product.SubscriptionPeriod.Unit, Int)] = [
+            (.day, 0),
+            (.day, 1),
+            (.day, 6),
+            (.day, 8),
+            (.week, 0),
+            (.week, 2),
+            (.month, 1),
+            (.year, 1),
+        ]
+        for (unit, value) in rejected {
+            XCTAssertFalse(
+                CMSNIntroductoryTrial.isSingleFreeSevenDays(unit: unit, value: value),
+                "\(unit) \(value) must not count as 7 days"
+            )
+        }
+    }
+
     func testBuyingTheTrialUnlocksCMSNPlus() async throws {
         let session = try await openSession()
         let manager = StoreKitManager(autoStart: false)
@@ -57,17 +83,21 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
 
         assertLockedPrice(monthly, "9.99", periodUnit: .month)
         assertLockedPrice(annual, "59.99", periodUnit: .year)
-        assertSevenDayTrial(monthly)
-        assertSevenDayTrial(annual)
+        // A failed trial check must not enter purchase(). On the 2026-11-06
+        // iOS 26.5 run the week-vs-7-days asserts failed and XCTest continued
+        // into product.purchase. That call returned "Purchase cancelled" after
+        // about 80s on the unsigned run. The suite was killed at 600s.
+        try assertSevenDayTrial(monthly)
+        try assertSevenDayTrial(annual)
 
         XCTAssertFalse(manager.isSubscribed)
         XCTAssertFalse(manager.isPurchasing)
-        await manager.purchase(monthly)
+        try await finishPurchase(monthly, manager: manager)
 
         XCTAssertFalse(manager.isPurchasing)
         XCTAssertNil(manager.lastError)
         try await waitUntil(manager, subscribed: true)
-        let transaction = try await XCTUnwrapAsync(currentTransaction(for: CMSNProductID.monthly))
+        let transaction = try XCTUnwrap(try await currentTransaction(for: CMSNProductID.monthly))
         if #available(iOS 17.2, *) {
             XCTAssertEqual(transaction.offer?.type, .introductory)
         } else {
@@ -80,7 +110,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         let session = try await openSession()
         try await ensureStoreKitCatalog()
         session.clearTransactions()
-        _ = try await session.buyProduct(identifier: CMSNProductID.monthly, options: [])
+        try await buyProduct(CMSNProductID.monthly, session: session)
 
         let primed = StoreKitManager(autoStart: false)
         try await waitUntil(primed, subscribed: true)
@@ -101,12 +131,12 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         try await ensureStoreKitCatalog()
         let monthly = try await loadProduct(CMSNProductID.monthly, manager: manager)
 
-        await manager.purchase(monthly)
+        try await finishPurchase(monthly, manager: manager)
         try await waitUntil(manager, subscribed: true)
         try session.expireSubscription(productIdentifier: CMSNProductID.monthly)
         try await waitUntil(manager, subscribed: false)
 
-        _ = try await session.buyProduct(identifier: CMSNProductID.annual, options: [])
+        try await buyProduct(CMSNProductID.annual, session: session)
         try await waitUntil(manager, subscribed: true)
         let external = try XCTUnwrap(
             session.allTransactions().last { $0.productIdentifier == CMSNProductID.annual }
@@ -115,7 +145,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         try session.expireSubscription(productIdentifier: CMSNProductID.annual)
         try await waitUntil(manager, subscribed: false)
 
-        _ = try await session.buyProduct(identifier: CMSNProductID.monthly, options: [])
+        try await buyProduct(CMSNProductID.monthly, session: session)
         try await waitUntil(manager, subscribed: true)
         let refundable = try XCTUnwrap(
             session.allTransactions().last { $0.productIdentifier == CMSNProductID.monthly }
@@ -136,7 +166,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         )
 
         XCTAssertFalse(manager.isPurchasing)
-        await manager.purchase(monthly)
+        try await finishPurchase(monthly, manager: manager)
         XCTAssertFalse(manager.isPurchasing, "The purchasing flag stayed on after a failed purchase.")
         XCTAssertFalse(manager.isSubscribed)
         let message = try XCTUnwrap(manager.lastError)
@@ -152,7 +182,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
 
         XCTAssertFalse(manager.isPurchasing)
-        await manager.purchase(monthly)
+        try await finishPurchase(monthly, manager: manager)
         XCTAssertFalse(manager.isPurchasing, "The purchasing flag stayed on after a cancelled purchase.")
         XCTAssertFalse(manager.isSubscribed)
         XCTAssertEqual(manager.lastError, "Purchase cancelled.")
@@ -295,12 +325,62 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         XCTAssertEqual(product.subscription?.subscriptionPeriod.value, 1)
     }
 
-    private func assertSevenDayTrial(_ product: Product) {
+    /// Throws after recording the failure so a wrong period does not call purchase.
+    private func assertSevenDayTrial(_ product: Product) throws {
         let offer = product.subscription?.introductoryOffer
         XCTAssertEqual(offer?.paymentMode, .freeTrial, product.id)
-        XCTAssertEqual(offer?.period.unit, .week, product.id)
-        XCTAssertEqual(offer?.period.value, 1, product.id)
         XCTAssertEqual(offer?.periodCount, 1, product.id)
+        let unit = offer?.period.unit
+        let value = offer?.period.value ?? 0
+        let matches = unit.map { CMSNIntroductoryTrial.isSingleFreeSevenDays(unit: $0, value: value) } ?? false
+        XCTAssertTrue(
+            matches,
+            "\(product.id) introductory period \(String(describing: unit)) \(value) is not 7 days (one week or seven days)."
+        )
+        if offer?.paymentMode != .freeTrial || offer?.periodCount != 1 || !matches {
+            throw LoadError.trialMismatch
+        }
+    }
+
+    /// `product.purchase` returned "Purchase cancelled" about 80s after
+    /// SKInternalErrorDomain Code=3 on the 2026-11-06 unsigned run, and the
+    /// ad-hoc log ended inside that call. The suite was killed at 600s.
+    /// This bound fails the test instead of waiting out the runner. It cannot
+    /// force StoreKit to return if that call ignores cancellation.
+    private func finishPurchase(_ product: Product, manager: StoreKitManager) async throws {
+        let gate = CompletionGate()
+        let task = Task { @MainActor in
+            await manager.purchase(product)
+            gate.finish()
+        }
+        if await gate.wait(seconds: 30) {
+            _ = await task.value
+            return
+        }
+        task.cancel()
+        XCTFail(
+            """
+            purchase did not return within 30s for \(product.id). \
+            A stuck purchase is a failure. On iOS 26.5, SKTestSession logged \
+            SKInternalErrorDomain Code=3 before product.purchase blocked.
+            """
+        )
+        throw LoadError.purchaseTimeout
+    }
+
+    private func buyProduct(_ productID: String, session: SKTestSession) async throws {
+        let gate = CompletionGate()
+        let task = Task { @MainActor in
+            defer { gate.finish() }
+            _ = try await session.buyProduct(identifier: productID, options: [])
+        }
+        if await gate.wait(seconds: 30) {
+            try await task.value
+            return
+        }
+        task.cancel()
+        XCTFail("buyProduct did not return within 30s for \(productID).")
+        throw LoadError.purchaseTimeout
     }
 
     private func waitUntil(_ manager: StoreKitManager, subscribed: Bool) async throws {
@@ -314,28 +394,83 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         throw LoadError.entitlementTimeout
     }
 
-    private func currentTransaction(for productID: String) async -> Transaction? {
-        for await result in Transaction.currentEntitlements {
-            if case .verified(let transaction) = result, transaction.productID == productID {
-                return transaction
+    private func currentTransaction(for productID: String) async throws -> Transaction? {
+        let gate = CompletionGate()
+        let task = Task { () -> Transaction? in
+            for await result in Transaction.currentEntitlements {
+                if case .verified(let transaction) = result, transaction.productID == productID {
+                    return transaction
+                }
             }
+            return nil
         }
-        return nil
+        let watcher = Task {
+            let found = await task.value
+            gate.finish()
+            return found
+        }
+        if await gate.wait(seconds: 6) {
+            return await watcher.value
+        }
+        task.cancel()
+        watcher.cancel()
+        XCTFail("Transaction.currentEntitlements did not finish within 6s for \(productID).")
+        throw LoadError.entitlementTimeout
     }
-}
-
-private func XCTUnwrapAsync<T>(
-    _ value: T?,
-    _ message: String = "",
-    file: StaticString = #filePath,
-    line: UInt = #line
-) throws -> T {
-    try XCTUnwrap(value, message, file: file, line: line)
 }
 
 private enum LoadError: Error {
     case missingProduct
     case entitlementTimeout
+    case trialMismatch
+    case purchaseTimeout
+}
+
+/// One free introductory period of exactly seven days.
+/// `P1W` in Configuration.storekit is one week. StoreKit on iOS 26.5 reported
+/// that same offer as unit Day, value 7 (log lines for both product ids).
+enum CMSNIntroductoryTrial {
+    static func isSingleFreeSevenDays(unit: Product.SubscriptionPeriod.Unit, value: Int) -> Bool {
+        switch unit {
+        case .day:
+            return value == 7
+        case .week:
+            return value == 1
+        case .month, .year:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+}
+
+/// Set from a purchase task. `wait` returns without joining that task, so a
+/// StoreKit call that ignores cancellation does not keep the test method parked
+/// for the runner's 600s kill. The call itself can still outlive the test.
+private final class CompletionGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var done = false
+
+    func finish() {
+        lock.lock()
+        done = true
+        lock.unlock()
+    }
+
+    func wait(seconds: TimeInterval) async -> Bool {
+        let deadline = Date().addingTimeInterval(seconds)
+        while Date() < deadline {
+            lock.lock()
+            let finished = done
+            lock.unlock()
+            if finished { return true }
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+        lock.lock()
+        let finished = done
+        lock.unlock()
+        return finished
+    }
 }
 
 private struct StoreKitConfigurationFile: Decodable {
