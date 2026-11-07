@@ -251,7 +251,6 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
             }
             Self.sharedSession = session
         }
-        session.resetToDefaultState()
         session.clearTransactions()
         // 54a7bb9 set disableDialogs before reset. Run 1 and run 2 on iOS 18.6
         // then logged "Could not find a UI anchor" and the purchase did not
