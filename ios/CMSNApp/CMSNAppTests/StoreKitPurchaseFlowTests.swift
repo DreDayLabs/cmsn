@@ -39,8 +39,17 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         try await super.tearDown()
     }
 
-    /// Every cleanup step runs. A snapshot or nil-cleanup failure is recorded
+    /// Every cleanup step runs. A snapshot or cleanup failure is recorded
     /// on its own and is not thrown, so it does not replace the test's error.
+    ///
+    /// `setSimulatedError(nil, forAPI: .purchase)` runs only when the getter
+    /// still reports a purchase error after reset, and the getter must read nil
+    /// afterwards. On Xcode 26.6 / iOS 18.6 every authentic `Product.purchase`
+    /// made after that write had run in the process came back "Server canceled
+    /// the purchase" (AMSErrorDomain 305, empty failureType) while the getter
+    /// read nil: trial at 4c590ee and 70c20e5, expiry at 4c590ee, 825f588 and
+    /// 62d03a1. Purchases with no earlier write passed. Reset alone left the
+    /// getter nil after both injected errors.
     private func probeSessionAfterCleanup() async {
         guard let session = Self.sharedSession else { return }
         session.resetToDefaultState()
@@ -49,12 +58,23 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         await recordSnapshot("teardown after clear", session: session)
         session.disableDialogs = true
         session.askToBuyEnabled = false
-        await recordCleanupStep("tearDown setSimulatedError nil purchase") {
+        await recordCleanupStep("tearDown purchase error after reset") {
+            let remaining = try await self.within("simulatedError(.purchase) before nil", seconds: 10) {
+                await session.simulatedError(forAPI: .purchase)
+            }
+            guard remaining != nil else { return }
+            print("CMSN-SK teardown setSimulatedError nil ran. Reset left purchaseError=\(String(describing: remaining))")
             try await self.within("tearDown setSimulatedError nil purchase", seconds: 10) {
                 try await session.setSimulatedError(nil, forAPI: .purchase)
             }
+            let left = try await self.within("simulatedError(.purchase) after nil", seconds: 10) {
+                await session.simulatedError(forAPI: .purchase)
+            }
+            if left != nil {
+                XCTFail("Purchase error \(String(describing: left)) survived reset and setSimulatedError(nil).")
+            }
         }
-        await recordSnapshot("teardown after nil", session: session)
+        await recordSnapshot("teardown final", session: session)
     }
 
     func testLocalStoreKitFileMatchesLockedProducts() throws {
