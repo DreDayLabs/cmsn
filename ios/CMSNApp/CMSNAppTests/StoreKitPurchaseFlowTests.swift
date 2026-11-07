@@ -42,14 +42,17 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
     /// Every cleanup step runs. A snapshot or cleanup failure is recorded
     /// on its own and is not thrown, so it does not replace the test's error.
     ///
-    /// `setSimulatedError(nil, forAPI: .purchase)` runs only when the getter
-    /// still reports a purchase error after reset, and the getter must read nil
-    /// afterwards. On Xcode 26.6 / iOS 18.6 every authentic `Product.purchase`
-    /// made after that write had run in the process came back "Server canceled
-    /// the purchase" (AMSErrorDomain 305, empty failureType) while the getter
-    /// read nil: trial at 4c590ee and 70c20e5, expiry at 4c590ee, 825f588 and
-    /// 62d03a1. Purchases with no earlier write passed. Reset alone left the
-    /// getter nil after both injected errors.
+    /// `setSimulatedError(nil, forAPI: .purchase)` is skipped only when the
+    /// getter confirms nil after reset. If the read fails or times out, the
+    /// state is unknown and the nil clear and its post-check still run. Each
+    /// of the three steps records its own failure.
+    ///
+    /// Observed on Xcode 26.6 / iOS 18.6, not a confirmed cause: in the logged
+    /// runs, each authentic `Product.purchase` made after that nil write had
+    /// run in the process came back "Server canceled the purchase"
+    /// (AMSErrorDomain 305, empty failureType) while the getter read nil, and
+    /// purchases with no earlier write passed. Reset alone left the getter nil
+    /// after both injected errors.
     private func probeSessionAfterCleanup() async {
         guard let session = Self.sharedSession else { return }
         session.resetToDefaultState()
@@ -58,20 +61,31 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         await recordSnapshot("teardown after clear", session: session)
         session.disableDialogs = true
         session.askToBuyEnabled = false
-        await recordCleanupStep("tearDown purchase error after reset") {
+        var confirmedNil = false
+        await recordCleanupStep("tearDown simulatedError(.purchase) before nil") {
             let remaining = try await self.within("simulatedError(.purchase) before nil", seconds: 10) {
                 await session.simulatedError(forAPI: .purchase)
             }
-            guard remaining != nil else { return }
-            print("CMSN-SK teardown setSimulatedError nil ran. Reset left purchaseError=\(String(describing: remaining))")
-            try await self.within("tearDown setSimulatedError nil purchase", seconds: 10) {
-                try await session.setSimulatedError(nil, forAPI: .purchase)
+            if remaining == nil {
+                confirmedNil = true
+            } else {
+                print("CMSN-SK teardown reset left purchaseError=\(String(describing: remaining))")
             }
-            let left = try await self.within("simulatedError(.purchase) after nil", seconds: 10) {
-                await session.simulatedError(forAPI: .purchase)
+        }
+        if !confirmedNil {
+            print("CMSN-SK teardown setSimulatedError nil ran. Purchase error after reset was not confirmed nil.")
+            await recordCleanupStep("tearDown setSimulatedError nil purchase") {
+                try await self.within("tearDown setSimulatedError nil purchase", seconds: 10) {
+                    try await session.setSimulatedError(nil, forAPI: .purchase)
+                }
             }
-            if left != nil {
-                XCTFail("Purchase error \(String(describing: left)) survived reset and setSimulatedError(nil).")
+            await recordCleanupStep("tearDown simulatedError(.purchase) after nil") {
+                let left = try await self.within("simulatedError(.purchase) after nil", seconds: 10) {
+                    await session.simulatedError(forAPI: .purchase)
+                }
+                if left != nil {
+                    XCTFail("Purchase error \(String(describing: left)) survived reset and setSimulatedError(nil).")
+                }
             }
         }
         await recordSnapshot("teardown final", session: session)
