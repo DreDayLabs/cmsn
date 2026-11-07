@@ -118,6 +118,33 @@ final class PrivacyReliabilityTests: XCTestCase {
         XCTAssertEqual(stored.map(\.id), [id])
     }
 
+    /// On-disk store with one row of each relationship in the live graph.
+    /// A thrown save must leave those rows and their links after reopen.
+    func testFailedEraseSaveRetainsChildGraphOnDisk() throws {
+        let fixture = try OnDiskEraseFixture()
+        defer { fixture.remove() }
+        let ids = try fixture.seedChildGraph()
+        struct SaveFailed: Error {}
+        XCTAssertThrowsError(
+            try AccountDataService.eraseEverything(context: fixture.context, save: { _ in throw SaveFailed() })
+        )
+        try assertChildGraph(ids, in: fixture.context)
+        let reopened = try fixture.reopen()
+        try assertChildGraph(ids, in: reopened.mainContext)
+    }
+
+    /// A successful save of a complete erase must remove the same graph from
+    /// the file, not only the athlete row.
+    func testSuccessfulEraseRemovesChildGraphOnDisk() throws {
+        let fixture = try OnDiskEraseFixture()
+        defer { fixture.remove() }
+        _ = try fixture.seedChildGraph()
+        try AccountDataService.eraseEverything(context: fixture.context)
+        try assertChildGraphAbsent(in: fixture.context)
+        let reopened = try fixture.reopen()
+        try assertChildGraphAbsent(in: reopened.mainContext)
+    }
+
     func testSuccessfulEraseRemovesTheAthlete() throws {
         let container = CMSNModelContainerFactory.makeInMemory()
         let context = container.mainContext
@@ -203,6 +230,202 @@ final class PrivacyReliabilityTests: XCTestCase {
         }
         return file
     }
+}
+
+/// One of each parent and its child. Not every model the eraser deletes.
+private struct ChildGraphIDs: Equatable {
+    var athlete: UUID
+    var session: UUID
+    var exercise: UUID
+    var set: UUID
+    var readiness: UUID
+    var apparel: UUID
+    var nutritionLog: UUID
+    var nutritionEntry: UUID
+    var meal: UUID
+    var ingredient: UUID
+    var run: UUID
+    var split: UUID
+    var route: UUID
+}
+
+@MainActor
+private struct OnDiskEraseFixture {
+    var directory: URL
+    var storeURL: URL
+    var configuration: ModelConfiguration
+    var container: ModelContainer
+
+    var context: ModelContext { container.mainContext }
+
+    init() throws {
+        directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("cmsn-graph-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        storeURL = directory.appendingPathComponent("CMSN.store")
+        configuration = CMSNModelContainerFactory.persistentConfiguration(storeURL: storeURL)
+        container = try CMSNModelContainerFactory.open(configuration)
+    }
+
+    func remove() {
+        try? FileManager.default.removeItem(at: directory)
+    }
+
+    func reopen() throws -> ModelContainer {
+        try CMSNModelContainerFactory.open(configuration)
+    }
+
+    /// WorkoutSession → LoggedExercise → LoggedSet, plus readiness and apparel
+    /// on the session. NutritionLog → NutritionEntry. SavedMeal → ingredient.
+    /// Run → RunSplit and RunRoute.
+    func seedChildGraph() throws -> ChildGraphIDs {
+        let athlete = Athlete(age: 30, heightCM: 180, weightKG: 90)
+        let session = WorkoutSession(splitFocus: .fullBody, equipmentProfileUsed: .home)
+        let exercise = LoggedExercise(
+            exerciseID: "squat",
+            exerciseNameSnapshot: "Squat",
+            orderIndex: 0
+        )
+        let set = LoggedSet(
+            setIndex: 0,
+            plannedRepRangeLow: 6,
+            plannedRepRangeHigh: 8,
+            plannedWeightKG: 40,
+            isAttempted: true,
+            completedReps: 8,
+            completedWeightKG: 40
+        )
+        let readiness = ReadinessCheck(energyLevel: 4)
+        let apparel = ApparelFeedback(garmentName: "Short", sizeWorn: "L")
+        let log = NutritionLog(proteinGramsTarget: 120)
+        let entry = NutritionEntry(label: "Eggs", proteinGrams: 18)
+        let meal = SavedMeal(name: "Shake")
+        let ingredient = SavedMealIngredient(
+            name: "Milk",
+            portionDescription: "250 ml",
+            proteinGrams: 8,
+            carbGrams: 12,
+            fatGrams: 5,
+            calories: 120,
+            sortOrder: 0
+        )
+        let run = Run(athleteID: athlete.id, endedAt: Date(), environment: .outdoor, status: .ended)
+        let split = RunSplit(index: 0, distanceMeters: 1000, elapsedSeconds: 300, isPartial: false)
+        let route = RunRoute(samples: [
+            TrackPoint(
+                latitude: 12.345678,
+                longitude: -98.765432,
+                altitudeMeters: nil,
+                timestamp: Date(),
+                horizontalAccuracy: 5,
+                speedMetersPerSecond: 0
+            ),
+        ])
+
+        exercise.session = session
+        session.loggedExercises = [exercise]
+        set.exercise = exercise
+        exercise.loggedSets = [set]
+        readiness.session = session
+        session.readiness = readiness
+        apparel.session = session
+        session.apparelFeedback = apparel
+        entry.log = log
+        log.entries = [entry]
+        ingredient.meal = meal
+        meal.ingredients = [ingredient]
+        split.run = run
+        run.splits = [split]
+        route.run = run
+        run.route = route
+
+        context.insert(athlete)
+        context.insert(session)
+        context.insert(exercise)
+        context.insert(set)
+        context.insert(readiness)
+        context.insert(apparel)
+        context.insert(log)
+        context.insert(entry)
+        context.insert(meal)
+        context.insert(ingredient)
+        context.insert(run)
+        context.insert(split)
+        context.insert(route)
+        try context.save()
+        return ChildGraphIDs(
+            athlete: athlete.id,
+            session: session.id,
+            exercise: exercise.id,
+            set: set.id,
+            readiness: readiness.id,
+            apparel: apparel.id,
+            nutritionLog: log.id,
+            nutritionEntry: entry.id,
+            meal: meal.id,
+            ingredient: ingredient.id,
+            run: run.id,
+            split: split.id,
+            route: route.id
+        )
+    }
+}
+
+@MainActor
+private func assertChildGraph(_ ids: ChildGraphIDs, in context: ModelContext) throws {
+    let athletes = try context.fetch(FetchDescriptor<Athlete>())
+    let sessions = try context.fetch(FetchDescriptor<WorkoutSession>())
+    let exercises = try context.fetch(FetchDescriptor<LoggedExercise>())
+    let sets = try context.fetch(FetchDescriptor<LoggedSet>())
+    let readiness = try context.fetch(FetchDescriptor<ReadinessCheck>())
+    let apparel = try context.fetch(FetchDescriptor<ApparelFeedback>())
+    let logs = try context.fetch(FetchDescriptor<NutritionLog>())
+    let entries = try context.fetch(FetchDescriptor<NutritionEntry>())
+    let meals = try context.fetch(FetchDescriptor<SavedMeal>())
+    let ingredients = try context.fetch(FetchDescriptor<SavedMealIngredient>())
+    let runs = try context.fetch(FetchDescriptor<Run>())
+    let splits = try context.fetch(FetchDescriptor<RunSplit>())
+    let routes = try context.fetch(FetchDescriptor<RunRoute>())
+
+    XCTAssertEqual(athletes.map(\.id), [ids.athlete])
+    XCTAssertEqual(sessions.map(\.id), [ids.session])
+    XCTAssertEqual(exercises.map(\.id), [ids.exercise])
+    XCTAssertEqual(sets.map(\.id), [ids.set])
+    XCTAssertEqual(readiness.map(\.id), [ids.readiness])
+    XCTAssertEqual(apparel.map(\.id), [ids.apparel])
+    XCTAssertEqual(logs.map(\.id), [ids.nutritionLog])
+    XCTAssertEqual(entries.map(\.id), [ids.nutritionEntry])
+    XCTAssertEqual(meals.map(\.id), [ids.meal])
+    XCTAssertEqual(ingredients.map(\.id), [ids.ingredient])
+    XCTAssertEqual(runs.map(\.id), [ids.run])
+    XCTAssertEqual(splits.map(\.id), [ids.split])
+    XCTAssertEqual(routes.map(\.id), [ids.route])
+
+    XCTAssertEqual(exercises.first?.session?.id, ids.session)
+    XCTAssertEqual(sets.first?.exercise?.id, ids.exercise)
+    XCTAssertEqual(readiness.first?.session?.id, ids.session)
+    XCTAssertEqual(apparel.first?.session?.id, ids.session)
+    XCTAssertEqual(entries.first?.log?.id, ids.nutritionLog)
+    XCTAssertEqual(ingredients.first?.meal?.id, ids.meal)
+    XCTAssertEqual(splits.first?.run?.id, ids.run)
+    XCTAssertEqual(routes.first?.run?.id, ids.run)
+}
+
+@MainActor
+private func assertChildGraphAbsent(in context: ModelContext) throws {
+    XCTAssertEqual(try context.fetch(FetchDescriptor<Athlete>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<WorkoutSession>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<LoggedExercise>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<LoggedSet>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<ReadinessCheck>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<ApparelFeedback>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<NutritionLog>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<NutritionEntry>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<SavedMeal>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<SavedMealIngredient>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<Run>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<RunSplit>()).count, 0)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<RunRoute>()).count, 0)
 }
 
 private struct MissingRepoFile: Error {
