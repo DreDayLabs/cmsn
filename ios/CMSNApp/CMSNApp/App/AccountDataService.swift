@@ -153,8 +153,9 @@ enum AccountDataService {
     // MARK: Erase (offboarding)
 
     /// Shown in Settings when the erase cannot be saved. Support and the
-    /// privacy page use this same sentence.
-    static let deleteSaveFailedMessage = "Couldn't erase your data. Nothing was confirmed deleted."
+    /// privacy page use this same sentence. It is a string, so it is not
+    /// isolated to the main actor.
+    nonisolated static let deleteSaveFailedMessage = "Couldn't erase your data. Nothing was confirmed deleted."
 
     /// Deletes every stored record. Irreversible once `save` succeeds; the
     /// confirmation lives in the UI, not here. After a successful save,
