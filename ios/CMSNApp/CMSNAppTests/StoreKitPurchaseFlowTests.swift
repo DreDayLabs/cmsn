@@ -30,6 +30,7 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         "testBuyingTheTrialUnlocksCMSNPlus",
         "testRestoreBringsBackEntitlementAfterReset",
         "testExpiryAndCancellationLockCMSNPlus",
+        "testLifetimePurchaseRestoreAndRefund",
         "testFailedPurchaseShowsCleanErrorWithoutStuckPurchasing",
         "testCancelledPurchaseShowsCleanErrorWithoutStuckPurchasing",
     ]
@@ -194,9 +195,10 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         session.clearTransactions()
         let cleared = StoreKitManager(autoStart: false)
         try await waitUntil(cleared, subscribed: false)
-        try await buyProduct(CMSNProductID.monthly, session: session)
-
         let primed = StoreKitManager(autoStart: false)
+        let monthly = try await loadProduct(CMSNProductID.monthly, manager: primed)
+        try await finishPurchase(monthly, manager: primed)
+        XCTAssertNil(primed.lastError)
         try await waitUntil(primed, subscribed: true)
 
         // A new manager is the reset: nothing cached, the store still has the purchase.
@@ -240,6 +242,28 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
         try session.refundTransaction(identifier: refundable.identifier)
         try await waitUntil(manager, subscribed: false)
         XCTAssertFalse(manager.isPurchasing)
+    }
+
+    func testLifetimePurchaseRestoreAndRefund() async throws {
+        let session = try await openSession()
+        try await ensureStoreKitCatalog()
+        let manager = StoreKitManager(autoStart: false)
+        let lifetime = try await loadProduct(CMSNProductID.lifetime, manager: manager)
+        XCTAssertEqual(lifetime.type, .nonConsumable)
+        XCTAssertEqual(lifetime.price, Decimal(149))
+        XCTAssertNil(lifetime.subscription)
+        try await finishPurchase(lifetime, manager: manager)
+        XCTAssertNil(manager.lastError)
+        try await waitUntil(manager, subscribed: true)
+        let found = try await currentTransaction(for: CMSNProductID.lifetime)
+        let transaction = try XCTUnwrap(found)
+        XCTAssertNil(transaction.expirationDate)
+        let restored = StoreKitManager(autoStart: false)
+        await restored.restorePurchases()
+        try await waitUntil(restored, subscribed: true)
+        let refundable = try XCTUnwrap(session.allTransactions().last { $0.productIdentifier == CMSNProductID.lifetime })
+        try session.refundTransaction(identifier: refundable.identifier)
+        try await waitUntil(manager, subscribed: false)
     }
 
     func testFailedPurchaseShowsCleanErrorWithoutStuckPurchasing() async throws {

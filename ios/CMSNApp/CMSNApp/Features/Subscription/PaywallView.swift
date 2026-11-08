@@ -9,6 +9,10 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedProductID = CMSNProductID.monthly
 
+    private var selectedPlanName: String {
+        selectedProductID == CMSNProductID.lifetime ? "Lifetime" : (selectedProductID == CMSNProductID.monthly ? "Monthly" : "Annual")
+    }
+
     var body: some View {
         ZStack {
             CMSNColor.offBlack.ignoresSafeArea()
@@ -98,7 +102,9 @@ struct PaywallView: View {
                 accessibilityID: "paywall.annual"
             )
 
-            Button("Continue with \(selectedProductID == CMSNProductID.monthly ? "Monthly" : "Annual")") {
+            planButton(title: "Lifetime", productID: CMSNProductID.lifetime, fallbackPrice: CMSNPlusDisplayPrice.lifetime, accessibilityID: "paywall.lifetime")
+
+            Button("Continue with \(selectedPlanName)") {
                 guard let product = appState.storeKitManager.products.first(where: { $0.id == selectedProductID }) else { return }
                 Task { await appState.storeKitManager.purchase(product) }
             }
@@ -158,7 +164,7 @@ struct PaywallView: View {
     /// has loaded products, so this is not gated on `products.isEmpty`.
     private var footer: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("7-day free trial, then \(CMSNPlusDisplayPrice.monthly) a month or \(CMSNPlusDisplayPrice.annual) a year. Cancel anytime in Settings.")
+            Text(selectedProductID == CMSNProductID.lifetime ? "CMSN+ Lifetime: \(CMSNPlusDisplayPrice.lifetime), one payment. No subscription or renewal. Restore your purchase with the same Apple ID." : "7-day free trial, then \(CMSNPlusDisplayPrice.monthly) a month or \(CMSNPlusDisplayPrice.annual) a year. Cancel anytime in Settings.")
                 .font(CMSNTypography.bodyQuiet())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -166,7 +172,7 @@ struct PaywallView: View {
 
             Text("Your no-card first week begins after assessment. The App Store's 7-day subscription trial is separate and depends on eligibility.")
                 .font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.textSecondary)
-            Text("CMSN+ is an auto-renewing subscription. Payment is charged to your Apple ID at confirmation of purchase. It renews unless you cancel at least 24 hours before the current period ends, and your account is charged for renewal within 24 hours before that period ends. Manage or cancel in iPhone Settings → your name → Subscriptions. Any unused portion of the free trial is forfeited if you subscribe before it ends.")
+            Text("Monthly and Annual are auto-renewing subscriptions. Lifetime is a one-time non-consumable purchase and does not renew. Payment is charged to your Apple ID at confirmation of purchase. Subscriptions renew unless you cancel at least 24 hours before the current period ends, and your account is charged for subscription renewal within 24 hours before that period ends. Manage or cancel in iPhone Settings → your name → Subscriptions. Any unused portion of the free trial is forfeited if you subscribe before it ends.")
                 .font(CMSNTypography.bodyQuiet())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

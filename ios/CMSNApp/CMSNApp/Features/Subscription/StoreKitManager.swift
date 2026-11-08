@@ -4,12 +4,13 @@ import Observation
 import Network
 
 /// Product identifiers verified against App Store Connect. Locked prices:
-/// $9.99/mo and $59.99/yr. The 7-day free trial is configured in App
+/// $9.99/mo, $59.99/yr, and $149 lifetime. The 7-day free trial is configured in App
 /// Store Connect / the local `.storekit` file, not in Swift.
 enum CMSNProductID {
     static let monthly = "com.earnyourcmsn.app.plus.monthly"
     static let annual = "com.earnyourcmsn.app.plus.annual"
-    static let all: [String] = [monthly, annual]
+    static let lifetime = "com.earnyourcmsn.app.plus.lifetime"
+    static let all: [String] = [monthly, annual, lifetime]
 }
 
 /// Prices drawn on the paywall. These are display strings, not App Store
@@ -17,6 +18,7 @@ enum CMSNProductID {
 enum CMSNPlusDisplayPrice {
     static let monthly = "$9.99"
     static let annual = "$59.99"
+    static let lifetime = "$149"
 
     /// StoreKit's localized price wins once a product is actually loaded.
     /// Until then the paywall shows the configured display string.
@@ -192,7 +194,7 @@ final class StoreKitManager {
             }
         }
         guard generation == verificationGeneration else { return }
-        // Apple's currentEntitlements includes active subscriptions and grace.
+        // Apple currentEntitlements includes owned non-consumables and active subscriptions.
         if active {
             entitlement.applyVerifiedPaidAccess(true)
             return
