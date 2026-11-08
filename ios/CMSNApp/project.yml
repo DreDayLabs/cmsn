@@ -19,9 +19,9 @@ settings:
   base:
     SWIFT_VERSION: "5.9"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
-    # Matches App Store Connect versionString 1.0; build 3 fixes watch validation.
+    # Version 1.0 build 4 contains recovered CMSN+ gating; preserves build 3 watch fix.
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "3"
+    CURRENT_PROJECT_VERSION: "4"
     # Thought Garden Labs LLC. This is the only place the team id is set;
     # targets inherit it. The watch build step passes
     # CODE_SIGNING_ALLOWED=NO. Simulator StoreKit at 6950582 passed 7/7

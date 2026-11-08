@@ -17,3 +17,6 @@ Additional corrections: separate Monthly/Annual selection from purchase action, 
 - The requested 10-step signed archive/TestFlight verification matrix has NOT run. Simulator unit tests (including local StoreKit tests) are not a substitute. Step8 lifetime is unsupported; step10 exact fixture is unmet.
 - No new gated archive/upload or final screenshot capture has been certified. Version1.0/build3 remains source project configuration, not a claim of newly archived gated build. Increment before any new upload, never disturb accepted build3.
 - Website privacy source correction is not yet deployed.
+
+## Follow-up reconciliation
+Verified user Nov7 22:14 acceptance of recommendation to remove lifetime from first build. Monthly/Annual only is intentional; lifetime matrix step8 is not applicable, not a release blocker. Build4 candidate preparation proceeds. Exact paywall example mismatch is still not a pass.
