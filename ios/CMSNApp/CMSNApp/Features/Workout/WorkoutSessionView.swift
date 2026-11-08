@@ -12,10 +12,16 @@ struct WorkoutSessionView: View {
     /// Passed through from `TodayView` so "return after inactivity" scoring
     /// reflects the gap that existed *before* this session, not zero.
     var daysInactiveAtStart: Int? = nil
+    var manualMode: Bool = false
 
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
 
+    @State private var accessRecord: PlusSessionRecord?
+    @State private var manualExerciseID = SeedData.exercises.first?.id ?? ""
+    @State private var manualSets = 3
+    @State private var manualReps = 8
+    @State private var sessionError: String?
     @State private var session: WorkoutSession?
     @State private var substitutionTarget: LoggedExercise?
     @State private var activeRestSeconds: Int?
@@ -41,6 +47,12 @@ struct WorkoutSessionView: View {
                     }
                 }
 
+                if let sessionError {
+                    Text(sessionError).foregroundStyle(CMSNColor.Semantic.destructive)
+                }
+                if manualMode || accessRecord?.coachingEnabled == false {
+                    manualExerciseControls
+                }
                 if let session {
                     let exercises = session.loggedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })
                     ForEach(Array(exercises.enumerated()), id: \.element.id) { index, loggedExercise in
@@ -55,7 +67,12 @@ struct WorkoutSessionView: View {
                                 readiness: readiness.readinessBand,
                                 unitPreference: athlete.unitPreference,
                                 onRequestSubstitution: { substitutionTarget = loggedExercise },
-                                onRestStart: { seconds in activeRestSeconds = seconds }
+                                onRestStart: { seconds in activeRestSeconds = seconds },
+                                coachingEnabled: accessRecord?.coachingEnabled ?? false,
+                                onSuggestionLogged: { setID, explanation in
+                                    accessRecord?.record(setID: setID, explanation: explanation)
+                                    saveSession()
+                                }
                             )
                         }
                     }
@@ -108,9 +125,16 @@ struct WorkoutSessionView: View {
             // a duplicate — starting fresh here would orphan any real work
             // already logged against it.
             session = existing
+            // Legacy sessions predate paid gates and keep their original coaching.
+            // Newly created manual sessions always have an explicit false record.
+            accessRecord = fetchAccess(existing.id) ?? createAccess(existing.id, enabled: true)
             return
         }
 
+        guard manualMode || appState.plus.allows(.planning) else {
+            sessionError = "This planned session needs CMSN+. You can still log a workout from Today."
+            return
+        }
         let newSession = WorkoutSession(
             splitFocus: resolvedDay.focus,
             equipmentProfileUsed: athlete.equipmentProfile,
@@ -138,11 +162,52 @@ struct WorkoutSessionView: View {
             )
         }
 
-        appState.workoutRepository.createSession(newSession)
+        modelContext.insert(newSession)
+        accessRecord = createAccess(newSession.id, enabled: !manualMode && appState.plus.allows(.coaching))
         session = newSession
+        saveSession()
+    }
+
+    private var manualExerciseControls: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            EyebrowLabel(text: "Your workout")
+            Picker("Exercise", selection: $manualExerciseID) {
+                ForEach(SeedData.exercises, id: \.id) { exercise in
+                    Text(exercise.name).tag(exercise.id)
+                }
+            }
+            Stepper("\(manualSets) sets", value: $manualSets, in: 1...12)
+            Stepper("\(manualReps) reps per set", value: $manualReps, in: 1...50)
+            Text(InjurySafetyLanguage.professionalCue).font(CMSNTypography.bodyQuiet())
+                .foregroundStyle(CMSNColor.Semantic.textSecondary)
+            Button("Add exercise") {
+                guard let session, let exercise = ExerciseCatalog.find(id: manualExerciseID) else { return }
+                let sets = (0..<manualSets).map {
+                    LoggedSet(setIndex: $0, plannedRepRangeLow: manualReps, plannedRepRangeHigh: manualReps, plannedWeightKG: nil)
+                }
+                session.loggedExercises.append(LoggedExercise(exerciseID: exercise.id, exerciseNameSnapshot: exercise.name,
+                                                               orderIndex: session.loggedExercises.count, loggedSets: sets))
+                saveSession()
+            }.buttonStyle(.cmsnGhost).accessibilityIdentifier("free.addExercise")
+        }.foregroundStyle(CMSNColor.Semantic.textPrimary)
+    }
+
+    private func fetchAccess(_ id: UUID) -> PlusSessionRecord? {
+        let descriptor = FetchDescriptor<PlusSessionRecord>(predicate: #Predicate { $0.sessionID == id })
+        return try? modelContext.fetch(descriptor).first
+    }
+    private func createAccess(_ id: UUID, enabled: Bool) -> PlusSessionRecord {
+        let record = PlusSessionRecord(sessionID: id, coachingEnabled: enabled)
+        modelContext.insert(record)
+        return record
+    }
+    private func saveSession() {
+        do { try modelContext.save(); sessionError = nil }
+        catch { sessionError = "Your latest changes could not be saved. Keep this session open and try again." }
     }
 
     private func substitute(_ loggedExercise: LoggedExercise, with replacement: Exercise) {
+        guard accessRecord?.coachingEnabled == true else { return }
         loggedExercise.wasSubstitutedFromExerciseID = loggedExercise.exerciseID
         loggedExercise.exerciseID = replacement.id
         loggedExercise.exerciseNameSnapshot = replacement.name

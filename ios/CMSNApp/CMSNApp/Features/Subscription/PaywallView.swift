@@ -7,6 +7,7 @@ import StoreKit
 struct PaywallView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedProductID = CMSNProductID.monthly
 
     var body: some View {
         ZStack {
@@ -14,6 +15,7 @@ struct PaywallView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
                     header
+                    exampleCard
                     featureList
                     productButtons
                     footer
@@ -31,9 +33,11 @@ struct PaywallView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 10) {
             EyebrowLabel(text: "CMSN+")
-            Text("Train with\nthe full system.")
+            Text("Coaching that reads your history.")
                 .font(CMSNTypography.displaySmall(40))
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
+            Text("The coach that knows how ready you are.")
+                .font(CMSNTypography.body()).foregroundStyle(CMSNColor.Semantic.textSecondary)
         }
     }
 
@@ -43,9 +47,10 @@ struct PaywallView: View {
     private var featureList: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach([
-                "Advanced strength & volume analytics",
-                "Apple Watch companion",
-                "Recovery-aware program adjustments",
+                "Progression coaching with the reason shown",
+                "Sessions planned around your equipment",
+                "Fueling built for prep — protein targets and repeatable meals, food as recovery",
+                "Your records stay yours whether you subscribe or not",
             ], id: \.self) { feature in
                 HStack(alignment: .top, spacing: 10) {
                     Text("·").foregroundStyle(CMSNColor.Semantic.textPrimary)
@@ -53,6 +58,29 @@ struct PaywallView: View {
                 }
             }
         }
+    }
+
+    private var exampleCard: some View {
+        let example = PlusPaywallExample.make()
+        return VStack(alignment: .leading, spacing: 16) {
+            EyebrowLabel(text: "Example · 80 kg × 12 at effort 8 · moderate readiness")
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 16) {
+                    exampleColumn("Without Plus", example.withoutPlus).frame(width: 140)
+                    exampleColumn("With Plus", example.withPlus).frame(width: 180)
+                }
+                VStack(alignment: .leading, spacing: 16) {
+                    exampleColumn("Without Plus", example.withoutPlus)
+                    exampleColumn("With Plus", example.withPlus)
+                }
+            }
+        }.padding(16).cmsnCard().accessibilityIdentifier("paywall.example")
+    }
+    private func exampleColumn(_ title: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(CMSNTypography.body()).bold()
+            Text(value).font(CMSNTypography.bodyQuiet()).fixedSize(horizontal: false, vertical: true)
+        }.foregroundStyle(CMSNColor.Semantic.textPrimary)
     }
 
     private var productButtons: some View {
@@ -69,6 +97,14 @@ struct PaywallView: View {
                 fallbackPrice: CMSNPlusDisplayPrice.annual,
                 accessibilityID: "paywall.annual"
             )
+
+            Button("Continue with \(selectedProductID == CMSNProductID.monthly ? "Monthly" : "Annual")") {
+                guard let product = appState.storeKitManager.products.first(where: { $0.id == selectedProductID }) else { return }
+                Task { await appState.storeKitManager.purchase(product) }
+            }
+            .buttonStyle(.cmsnPrimary)
+            .disabled(appState.storeKitManager.isPurchasing || !appState.storeKitManager.products.contains(where: { $0.id == selectedProductID }))
+            .accessibilityIdentifier("paywall.purchase")
 
             if appState.storeKitManager.isPurchasing {
                 ProgressView()
@@ -98,19 +134,24 @@ struct PaywallView: View {
         let product = appState.storeKitManager.products.first { $0.id == productID }
         let price = CMSNPlusDisplayPrice.resolve(storePrice: product?.displayPrice, fallback: fallbackPrice)
         return Button {
-            guard let product, !appState.storeKitManager.isPurchasing else { return }
-            Task { await appState.storeKitManager.purchase(product) }
+            guard !appState.storeKitManager.isPurchasing else { return }
+            selectedProductID = productID
         } label: {
             HStack {
+                Image(systemName: selectedProductID == productID ? "checkmark.circle.fill" : "circle")
                 Text(title)
                 Spacer()
                 Text(price)
+                if selectedProductID == productID { Text("Selected").font(.caption) }
             }
         }
-        .buttonStyle(.cmsnPrimary)
+        .buttonStyle(.cmsnGhost)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(selectedProductID == productID ? CMSNColor.Semantic.textPrimary : .clear, lineWidth: 2))
         .disabled(appState.storeKitManager.isPurchasing)
         .accessibilityIdentifier(accessibilityID)
         .accessibilityLabel("\(title), \(price)")
+        .accessibilityValue(selectedProductID == productID ? "Selected" : "Not selected")
+        .accessibilityAddTraits(selectedProductID == productID ? .isSelected : [])
     }
 
     /// Always on screen. Apple reviews the paywall whether or not StoreKit
@@ -123,6 +164,8 @@ struct PaywallView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier("paywall.trial")
 
+            Text("Your no-card first week begins after assessment. The App Store's 7-day subscription trial is separate and depends on eligibility.")
+                .font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text("CMSN+ is an auto-renewing subscription. Payment is charged to your Apple ID at confirmation of purchase. It renews unless you cancel at least 24 hours before the current period ends, and your account is charged for renewal within 24 hours before that period ends. Manage or cancel in iPhone Settings → your name → Subscriptions. Any unused portion of the free trial is forfeited if you subscribe before it ends.")
                 .font(CMSNTypography.bodyQuiet())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)

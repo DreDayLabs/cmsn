@@ -684,7 +684,15 @@ final class StoreKitPurchaseFlowTests: XCTestCase {
             try await within("refreshEntitlements", seconds: 6) {
                 await manager.refreshEntitlements()
             }
-            if manager.isSubscribed == subscribed { return }
+            if manager.isSubscribed == subscribed {
+                for capability in [PlusAccessPolicy.Capability.planning, .coaching, .fueling] {
+                    XCTAssertEqual(manager.entitlement.allows(capability), subscribed, "Feature access must follow verified StoreKit state.")
+                }
+                for capability in PlusAccessPolicy.Capability.allCases where !capability.requiresPlus {
+                    XCTAssertTrue(manager.entitlement.allows(capability))
+                }
+                return
+            }
             try await Task.sleep(nanoseconds: 200_000_000)
         }
         let version = ProcessInfo.processInfo.operatingSystemVersion

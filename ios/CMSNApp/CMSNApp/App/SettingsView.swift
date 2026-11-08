@@ -117,7 +117,7 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 settingsRow(
                     "CMSN+",
-                    value: appState.storeKitManager.isSubscribed ? "Active" : "Not active",
+                    value: appState.plus.state == .runway ? "First week" : (appState.plus.state == .plus ? "Active" : "Not active"),
                     showsChevron: true,
                     identifier: "settings.cmsnPlus",
                     valueIdentifier: "settings.cmsnPlus.status"

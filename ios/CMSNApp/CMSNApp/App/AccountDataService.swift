@@ -21,6 +21,13 @@ enum AccountDataService {
             "format": 2,
         ]
 
+        let coaching = try context.fetch(FetchDescriptor<PlusSessionRecord>())
+        root["workoutCoaching"] = try coaching.map { record -> [String: Any] in
+            let encoded = try JSONEncoder().encode(record.explanations)
+            return ["sessionID": record.sessionID.uuidString,
+                    "coachingEnabledAtStart": record.coachingEnabled,
+                    "explanations": try JSONSerialization.jsonObject(with: encoded)]
+        }
         let iso = ISO8601DateFormatter()
 
         if let athlete = (try? context.fetch(FetchDescriptor<Athlete>()))?.first {
@@ -203,6 +210,7 @@ enum AccountDataService {
             try deleteFetched(WeightEntry.self, in: context)
             try deleteFetched(WeightHistorySeedMarker.self, in: context)
             try deleteFetched(NutritionDietPreference.self, in: context)
+            try deleteFetched(PlusSessionRecord.self, in: context)
             try deleteFetched(Athlete.self, in: context)
             try save(context)
         } catch {

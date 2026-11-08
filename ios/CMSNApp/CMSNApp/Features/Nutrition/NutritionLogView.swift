@@ -10,6 +10,7 @@ struct NutritionLogView: View {
 
     @Query(sort: \WorkoutSession.date, order: .reverse) private var workoutSessions: [WorkoutSession]
 
+    @State private var showingManualFood = false
     @State private var log: NutritionLog?
     @State private var showingMealSuggestions = false
     @State private var mealResults: [MealSuggestion] = []
@@ -20,7 +21,9 @@ struct NutritionLogView: View {
         TrainingDayAdjustment.adjust(athlete: athlete, sessions: workoutSessions)
     }
 
-    private var targets: MacroTargets { adjustment.adjusted }
+    private var targets: MacroTargets {
+        appState.plus.allows(.fueling) ? adjustment.adjusted : MacroTargetCalculator.targets(for: athlete)
+    }
 
     private var targetSyncID: String {
         "\(targets.proteinGrams)-\(targets.carbGrams)-\(targets.fatGrams)-\(targets.calorieEstimate)"
@@ -37,16 +40,17 @@ struct NutritionLogView: View {
                     VStack(alignment: .leading, spacing: 22) {
                         header
                         macroSummary
-                        TrainingDayWhyCard(adjustment: adjustment)
+                        PlusFeature(capability: .fueling, title: "Fueling built for prep and recovery") {
+                            TrainingDayWhyCard(adjustment: adjustment)
+                        }
                         logFoodSection
                         quickAddRow
                         RestrictiveDietsSection(athleteID: athlete.id)
                         if !savedMeals.isEmpty { myMealsSection }
                         if !(log?.entries.isEmpty ?? true) { todaysEntries }
-                        mealEngineEntry
-
-                        if showingMealSuggestions {
-                            mealSuggestionsList
+                        PlusFeature(capability: .fueling, title: "High-protein prep suggestions") {
+                            mealEngineEntry
+                            if showingMealSuggestions { mealSuggestionsList }
                         }
                     }
                     .padding(20)
@@ -55,6 +59,16 @@ struct NutritionLogView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .task(id: targetSyncID) { loadLog() }
+            .sheet(isPresented: $showingManualFood) {
+                NavigationStack {
+                    ManualIngredientView(actionTitle: "Log food") { ingredient in
+                        guard let log else { return }
+                        let m = ingredient.macros
+                        appState.nutritionRepository.addEntry(NutritionEntry(label: ingredient.name, proteinGrams: m.protein,
+                            carbGrams: m.carbs, fatGrams: m.fat, calories: m.calories, source: .manual), to: log)
+                    }
+                }
+            }
             .sheet(isPresented: $showingMealBuilder) {
                 MealBuilderView { name, totals, ingredients, saveAsMeal in
                     logBuiltMeal(name: name, totals: totals, ingredients: ingredients, saveAsMeal: saveAsMeal)
@@ -199,11 +213,13 @@ struct NutritionLogView: View {
                 .foregroundStyle(CMSNColor.Semantic.textPrimary)
             HStack(spacing: 12) {
                 Button("High protein, low cost") {
+                    guard appState.plus.allows(.fueling) else { return }
                     mealResults = MealSuggestionEngine.highProteinLowCostNoCook()
                     showingMealSuggestions = true
                 }
                 .buttonStyle(.cmsnGhost)
                 Button("Under 15 min") {
+                    guard appState.plus.allows(.fueling) else { return }
                     mealResults = MealSuggestionEngine.under15Minutes()
                     showingMealSuggestions = true
                 }
@@ -232,18 +248,24 @@ struct NutritionLogView: View {
 
     private var logFoodSection: some View {
         VStack(alignment: .leading, spacing: 10) {
+            Button { showingManualFood = true } label: {
+                Label("Log food manually", systemImage: "plus")
+            }.buttonStyle(.cmsnPrimary).accessibilityIdentifier("free.logFood")
+            PlusFeature(capability: .fueling, title: "Build repeatable prep meals") {
             Button {
+                guard appState.plus.allows(.fueling) else { return }
                 showingMealBuilder = true
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "fork.knife")
-                    Text("Log food")
+                    Text("Build a prep meal")
                 }
             }
             .buttonStyle(.cmsnPrimary)
             .accessibilityLabel("Log Food")
 
-            Text("Scan a barcode, search, or build a meal")
+            }
+            Text("Manual food logging is always available.")
                 .font(.system(size: 13))
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 .frame(maxWidth: .infinity)
@@ -264,8 +286,9 @@ struct NutritionLogView: View {
                             .foregroundStyle(CMSNColor.Semantic.textSecondary)
                     }
                     Spacer()
-                    Button("Log") { logSavedMeal(meal) }
-                        .buttonStyle(.cmsnText)
+                    if appState.plus.allows(.fueling) {
+                        Button("Log") { logSavedMeal(meal) }.buttonStyle(.cmsnText)
+                    }
                 }
                 .padding(14)
                 .cmsnCard()
@@ -329,7 +352,7 @@ struct NutritionLogView: View {
     }
 
     private func logBuiltMeal(name: String, totals: MacroPortion, ingredients: [DraftIngredient], saveAsMeal: Bool) {
-        guard let log else { return }
+        guard appState.plus.allows(.fueling), let log else { return }
         let entry = NutritionEntry(
             label: name,
             proteinGrams: totals.protein,
@@ -346,7 +369,7 @@ struct NutritionLogView: View {
     }
 
     private func logSavedMeal(_ meal: SavedMeal) {
-        guard let log else { return }
+        guard appState.plus.allows(.fueling), let log else { return }
         let totals = meal.totals
         let entry = NutritionEntry(
             label: meal.name,
@@ -361,12 +384,17 @@ struct NutritionLogView: View {
 
     private func loadLog() {
         let t = targets
+        // Lapse must not overwrite the targets recorded while coaching was active.
+        if !appState.plus.allows(.fueling), let existing = appState.nutritionRepository.log(for: Date()) {
+            log = existing
+        } else {
         log = appState.nutritionRepository.createOrFetchToday(
             proteinTarget: t.proteinGrams,
             carbTarget: t.carbGrams,
             fatTarget: t.fatGrams,
             calorieEstimate: t.calorieEstimate
         )
+        }
         savedMeals = appState.nutritionRepository.savedMeals()
     }
 

@@ -1,9 +1,9 @@
 import Foundation
 import StoreKit
 import Observation
+import Network
 
-/// Product identifiers — placeholders until real App Store Connect
-/// products exist. Locked prices, confirmed in Family Meeting:
+/// Product identifiers verified against App Store Connect. Locked prices:
 /// $9.99/mo and $59.99/yr. The 7-day free trial is configured in App
 /// Store Connect / the local `.storekit` file, not in Swift.
 enum CMSNProductID {
@@ -27,11 +27,8 @@ enum CMSNPlusDisplayPrice {
     }
 }
 
-/// V0's StoreKit 2 scaffolding: local product loading, purchase, restore,
-/// and entitlement state — wired against `Resources/Configuration.storekit`
-/// for local testing. The full CMSN+ feature set this gates (unlimited
-/// video, Watch app, cloud sync) is V1 scope; this file only needs to prove
-/// the plumbing works end-to-end.
+/// Apple transaction transport. The shared PlusEntitlementService owns access
+/// policy; the local StoreKit configuration is only used for development.
 @Observable
 @MainActor
 final class StoreKitManager {
@@ -41,7 +38,11 @@ final class StoreKitManager {
     static let screenshotSubscribedArgument = "-CMSNScreenshotSubscribed"
 
     private(set) var products: [Product] = []
-    private(set) var isSubscribed: Bool = false
+    let entitlement: PlusEntitlementService
+    var isSubscribed: Bool { entitlement.policy.paidAccess }
+    private let network = NWPathMonitor()
+    private var isOnline = false
+    private var verificationGeneration: UInt = 0
     private(set) var isPurchasing: Bool = false
     private(set) var lastError: String?
 
@@ -53,8 +54,20 @@ final class StoreKitManager {
     /// `autoStart` is false in StoreKit tests that need a manager with no
     /// in-flight entitlement refresh. The app always uses the default.
     init(autoStart: Bool = true) {
+        // Hosted StoreKit tests never read or write the app's paid-access cache.
+        let defaults = Self.isRunningInsideTestHost ? UserDefaults(suiteName: "cmsn.tests.\(UUID().uuidString)")! : .standard
+        entitlement = PlusEntitlementService(defaults: defaults)
+        network.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor in
+                guard let self else { return }
+                let reconnected = !self.isOnline && path.status == .satisfied
+                self.isOnline = path.status == .satisfied
+                if reconnected && autoStart && !Self.isRunningInsideTestHost { await self.refreshEntitlements() }
+            }
+        }
+        network.start(queue: DispatchQueue(label: "cmsn.store.network"))
         if Self.prefersSubscribedScreenshot() {
-            isSubscribed = true
+            entitlement.applyVerifiedPaidAccess(true)
         }
         // The test host launches this manager before the test builds an
         // SKTestSession. A product request in that window comes back empty
@@ -92,6 +105,7 @@ final class StoreKitManager {
 
     deinit {
         transactionListenerTask?.cancel()
+        network.cancel()
     }
 
     func loadProducts() async {
@@ -164,17 +178,45 @@ final class StoreKitManager {
     /// is the single source of truth every feature-gate should read from
     /// (`appState.storeKitManager.isSubscribed`) rather than re-deriving it.
     func refreshEntitlements() async {
+        verificationGeneration &+= 1
+        let generation = verificationGeneration
         if Self.prefersSubscribedScreenshot() {
-            isSubscribed = true
+            entitlement.applyVerifiedPaidAccess(true)
             return
         }
-        var subscribed = false
+        var active = false
+        var revoked = false
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result, CMSNProductID.all.contains(transaction.productID) {
-                subscribed = true
+                if transaction.revocationDate != nil { revoked = true } else { active = true }
             }
         }
-        isSubscribed = subscribed
+        guard generation == verificationGeneration else { return }
+        // Apple's currentEntitlements includes active subscriptions and grace.
+        if active {
+            entitlement.applyVerifiedPaidAccess(true)
+            return
+        }
+        if revoked { entitlement.applyVerifiedPaidAccess(false); return }
+        // An absent cached transaction while offline is not a new verification.
+        guard isOnline || Self.isRunningInsideTestHost else { return }
+        do {
+            let statuses = try await Product.SubscriptionInfo.status(for: "22552778")
+            var hasAccess = false
+            var unverified = false
+            for status in statuses {
+                guard case .verified(let transaction) = status.transaction,
+                      case .verified = status.renewalInfo else { unverified = true; continue }
+                guard CMSNProductID.all.contains(transaction.productID) else { continue }
+                if transaction.revocationDate == nil && (status.state == .subscribed || status.state == .inGracePeriod) {
+                    hasAccess = true
+                }
+            }
+            guard generation == verificationGeneration else { return }
+            if hasAccess || !unverified { entitlement.applyVerifiedPaidAccess(hasAccess) }
+        } catch {
+            // Keep last-verified access when the store cannot verify a refresh.
+        }
     }
 
     private func listenForTransactions() -> Task<Void, Never> {
@@ -182,6 +224,9 @@ final class StoreKitManager {
             for await update in Transaction.updates {
                 if case .verified(let transaction) = update {
                     await transaction.finish()
+                    if transaction.revocationDate != nil, CMSNProductID.all.contains(transaction.productID) {
+                        await self?.entitlement.applyVerifiedPaidAccess(false)
+                    }
                     await self?.refreshEntitlements()
                 }
             }

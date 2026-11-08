@@ -75,6 +75,7 @@ struct OnboardingFlowView: View {
         // The profile weight is the first sample, unless migration (or a
         // previous pass through this wizard) already wrote one.
         appState.weightLogRepository.recordInitialWeightIfNeeded(for: athlete)
+        if let completed = athlete.onboardingCompletedAt { appState.plus.completeAssessment(at: completed) }
         onFinish()
     }
 

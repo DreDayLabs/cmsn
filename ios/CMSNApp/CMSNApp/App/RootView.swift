@@ -10,6 +10,7 @@ import SwiftData
 struct RootView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Query private var athletes: [Athlete]
 
     var body: some View {
@@ -22,6 +23,19 @@ struct RootView: View {
         }
         .tint(CMSNColor.Semantic.textPrimary)
         .onAppear(perform: CMSNChrome.apply)
+        .task(id: athletes.first?.onboardingCompletedAt) {
+            if let completed = athletes.first?.onboardingCompletedAt { appState.plus.completeAssessment(at: completed) }
+            while !Task.isCancelled {
+                appState.plus.refreshClock()
+                try? await Task.sleep(for: .seconds(30))
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                appState.plus.refreshClock()
+                Task { await appState.storeKitManager.refreshEntitlements() }
+            }
+        }
     }
 }
 

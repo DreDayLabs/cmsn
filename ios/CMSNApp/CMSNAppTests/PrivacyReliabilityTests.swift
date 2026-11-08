@@ -4,6 +4,17 @@ import XCTest
 
 @MainActor
 final class PrivacyReliabilityTests: XCTestCase {
+    func testFoodProviderRetentionIsDisclosed() throws {
+        XCTAssertTrue(LegalCopy.foodLookups.contains("three years"))
+        let data = try Data(contentsOf: repoFile("ios/CMSNApp/CMSNApp/PrivacyInfo.xcprivacy"))
+        let manifest = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+        let collected = try XCTUnwrap(manifest["NSPrivacyCollectedDataTypes"] as? [[String: Any]])
+        let diagnostic = try XCTUnwrap(collected.first { $0["NSPrivacyCollectedDataType"] as? String == "NSPrivacyCollectedDataTypeOtherDiagnosticData" })
+        XCTAssertEqual(diagnostic["NSPrivacyCollectedDataTypeLinked"] as? Bool, true)
+        XCTAssertEqual(diagnostic["NSPrivacyCollectedDataTypeTracking"] as? Bool, false)
+        XCTAssertEqual(Set(diagnostic["NSPrivacyCollectedDataTypePurposes"] as? [String] ?? []), Set(["NSPrivacyCollectedDataTypePurposeAppFunctionality", "NSPrivacyCollectedDataTypePurposeAnalytics"]))
+    }
+
     func testCalendarStaysOffUntilOptIn() {
         for authorization in [CalendarSplitService.AuthorizationState.notDetermined, .authorized, .denied] {
             XCTAssertEqual(
@@ -180,23 +191,23 @@ final class PrivacyReliabilityTests: XCTestCase {
         try assertChildGraphAbsent(in: reopened.mainContext)
     }
 
-    /// `CMSNSchemaV5` is the store `currentSchema()` opens. Every model in
+    /// `CMSNSchemaV6` is the store `currentSchema()` opens. Every model in
     /// that list is a `deleteFetched` target, and the full fixture probes
     /// the same set. This does not open a store.
     ///
     /// The erase list is the `deleteFetched(Type.self` names in the
     /// `eraseEverything` source, not a runtime trace of that function.
     /// A delete written another way is not counted. `currentSchema()` is
-    /// private, so the V5 binding is the source line
-    /// `Schema(versionedSchema: CMSNSchemaV5.self)`.
+    /// private, so the V6 binding is the source line
+    /// `Schema(versionedSchema: CMSNSchemaV6.self)`.
     func testEraseTargetsMatchCurrentSchema() throws {
-        let schemaNames = CMSNSchemaV5.models.map { EraseTargetProbe.modelName($0) }
+        let schemaNames = CMSNSchemaV6.models.map { EraseTargetProbe.modelName($0) }
         let probeNames = EraseTargetProbe.all.map { EraseTargetProbe.modelName($0.type) }
         let service = try String(contentsOf: repoFile("ios/CMSNApp/CMSNApp/App/AccountDataService.swift"), encoding: .utf8)
         let schemaSource = try String(contentsOf: repoFile("ios/CMSNApp/CMSNApp/Persistence/CMSNSchema.swift"), encoding: .utf8)
         let erased = eraseTargetNames(in: service)
 
-        XCTAssertTrue(schemaSource.contains("Schema(versionedSchema: CMSNSchemaV5.self)"))
+        XCTAssertTrue(schemaSource.contains("Schema(versionedSchema: CMSNSchemaV6.self)"))
         XCTAssertEqual(schemaNames.count, Set(schemaNames).count)
         XCTAssertEqual(probeNames.count, schemaNames.count)
         XCTAssertEqual(Set(probeNames), Set(schemaNames))
@@ -456,7 +467,7 @@ private struct OnDiskEraseFixture {
         )
     }
 
-    /// Two of every `CMSNSchemaV5` model. Workout rows are not attached to
+    /// Two of every `CMSNSchemaV6` model. Workout rows are not attached to
     /// an athlete. `Run.athleteID` and the other athlete ids below are stored
     /// values, not SwiftData relationships.
     ///
@@ -588,6 +599,7 @@ private struct OnDiskEraseFixture {
             challengeEntry.challenge = challenge
             challenge.entries = [challengeEntry]
 
+            context.insert(PlusSessionRecord(sessionID: session.id, coachingEnabled: true))
             context.insert(athlete)
             context.insert(session)
             context.insert(exercise)
@@ -732,7 +744,7 @@ private struct FullEraseGraph {
 }
 
 /// One probe per persistent model. `testEraseTargetsMatchCurrentSchema`
-/// fails if this list and `CMSNSchemaV5.models` diverge.
+/// fails if this list and `CMSNSchemaV6.models` diverge.
 @MainActor
 private struct EraseTargetProbe {
     var type: any PersistentModel.Type
@@ -755,6 +767,7 @@ private struct EraseTargetProbe {
 
     @MainActor
     static let all: [EraseTargetProbe] = [
+        EraseTargetProbe(type: PlusSessionRecord.self, count: { try $0.fetch(FetchDescriptor<PlusSessionRecord>()).count }),
         EraseTargetProbe(type: Athlete.self, count: { try $0.fetch(FetchDescriptor<Athlete>()).count }),
         EraseTargetProbe(type: CustomExercise.self, count: { try $0.fetch(FetchDescriptor<CustomExercise>()).count }),
         EraseTargetProbe(type: WorkoutSession.self, count: { try $0.fetch(FetchDescriptor<WorkoutSession>()).count }),

@@ -88,6 +88,12 @@ enum CMSNSchemaV5: VersionedSchema {
     }
 }
 
+/// V6: persistent per-session access and saved coaching explanations.
+enum CMSNSchemaV6: VersionedSchema {
+    static var versionIdentifier: Schema.Version = Schema.Version(6, 0, 0)
+    static var models: [any PersistentModel.Type] { CMSNSchemaV5.models + [PlusSessionRecord.self] }
+}
+
 enum CMSNMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
         [
@@ -96,6 +102,7 @@ enum CMSNMigrationPlan: SchemaMigrationPlan {
             CMSNSchemaV3.self,
             CMSNSchemaV4.self,
             CMSNSchemaV5.self,
+            CMSNSchemaV6.self,
         ]
     }
     static var stages: [MigrationStage] {
@@ -111,6 +118,7 @@ enum CMSNMigrationPlan: SchemaMigrationPlan {
             ),
             .lightweight(fromVersion: CMSNSchemaV3.self, toVersion: CMSNSchemaV4.self),
             .lightweight(fromVersion: CMSNSchemaV4.self, toVersion: CMSNSchemaV5.self),
+            .lightweight(fromVersion: CMSNSchemaV5.self, toVersion: CMSNSchemaV6.self),
         ]
     }
 }
@@ -343,6 +351,6 @@ enum CMSNModelContainerFactory {
     }
 
     private static func currentSchema() -> Schema {
-        Schema(versionedSchema: CMSNSchemaV5.self)
+        Schema(versionedSchema: CMSNSchemaV6.self)
     }
 }

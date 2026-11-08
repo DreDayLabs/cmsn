@@ -83,6 +83,7 @@ final class CMSNScreenSmokeTests: XCTestCase {
         tap("Continue")
         tap("Build My Plan")
         tap("Enter the App")
+        tap("Start my week")
 
         XCTAssertTrue(
             waitForAny(timeout: 30) {

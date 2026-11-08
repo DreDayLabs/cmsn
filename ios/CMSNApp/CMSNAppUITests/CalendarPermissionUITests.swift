@@ -135,7 +135,7 @@ final class CalendarPermissionUITests: XCTestCase {
         }
         if todayIsVisible() { return }
         tapInApp("welcome.getStarted", or: "Get Started")
-        for label in ["Skip", "Begin", "Continue", "Continue", "Start Training", "Continue", "Build My Plan", "Enter the App"] {
+        for label in ["Skip", "Begin", "Continue", "Continue", "Start Training", "Continue", "Build My Plan", "Enter the App", "Start my week"] {
             if todayIsVisible() { return }
             tapInApp(label, or: label)
         }

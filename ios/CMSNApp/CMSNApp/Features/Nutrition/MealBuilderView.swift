@@ -16,6 +16,7 @@ struct DraftIngredient: Identifiable, Hashable {
 struct MealBuilderView: View {
     let onLog: (_ name: String, _ totals: MacroPortion, _ ingredients: [DraftIngredient], _ saveAsMeal: Bool) -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppState.self) private var appState
 
     @State private var ingredients: [DraftIngredient] = []
     @State private var mealName = ""
@@ -33,6 +34,7 @@ struct MealBuilderView: View {
     private var totals: MacroPortion { ingredients.reduce(.zero) { $0 + $1.macros } }
 
     var body: some View {
+        PlusFeature(capability: .fueling, title: "Build repeatable prep meals") {
         NavigationStack {
             ZStack {
                 CMSNPageVideoBackground(clip: .mealBuilder, isActive: true)
@@ -84,6 +86,8 @@ struct MealBuilderView: View {
                 pendingProduct = nil
             }
         }
+    }
+
     }
 
     private var header: some View {
@@ -182,6 +186,7 @@ struct MealBuilderView: View {
     }
 
     private func logMeal() {
+        guard appState.plus.allows(.fueling) else { return }
         let fallback = ingredients.count == 1 ? ingredients[0].name : "Meal (\(ingredients.count) items)"
         let name = mealName.trimmingCharacters(in: .whitespaces).isEmpty ? fallback : mealName.trimmingCharacters(in: .whitespaces)
         onLog(name, totals, ingredients, saveAsMeal)
@@ -375,6 +380,7 @@ struct PortionEditorView: View {
 /// Hand-enter an ingredient the database doesn't have (or a home recipe
 /// where you already know the macros — "2 scoops whey, 50g protein").
 struct ManualIngredientView: View {
+    var actionTitle = "Add To Meal"
     let onAdd: (DraftIngredient) -> Void
     @Environment(\.dismiss) private var dismiss
 
@@ -408,7 +414,7 @@ struct ManualIngredientView: View {
                         numberField("Calories", text: $calories)
                     }
 
-                    Button("Add To Meal") {
+                    Button(actionTitle) {
                         let trimmedName = name.trimmingCharacters(in: .whitespaces)
                         guard !trimmedName.isEmpty else { return }
                         onAdd(DraftIngredient(

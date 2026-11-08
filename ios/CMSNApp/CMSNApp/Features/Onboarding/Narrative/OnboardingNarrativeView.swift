@@ -18,7 +18,7 @@ struct OnboardingNarrativeView: View {
 
     @State private var step: Step = .motivation
 
-    private enum Step { case motivation, whatsNew, joinCrew, profileIntake, about, workoutPlan, scoreIntro }
+    private enum Step { case motivation, whatsNew, joinCrew, profileIntake, about, workoutPlan, scoreIntro, runway }
 
     private var athlete: Athlete? { athletes.first ?? existingAthlete }
 
@@ -45,7 +45,9 @@ struct OnboardingNarrativeView: View {
                     ProgressView().onAppear { step = .scoreIntro }
                 }
             case .scoreIntro:
-                ScoreIntroView(onFinish: finish)
+                ScoreIntroView(onFinish: { step = .runway })
+            case .runway:
+                PlusRunwayIntroView(onContinue: finish)
             }
         }
     }

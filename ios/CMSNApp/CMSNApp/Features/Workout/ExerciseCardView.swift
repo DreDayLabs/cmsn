@@ -15,6 +15,8 @@ struct ExerciseCardView: View {
     let unitPreference: UnitPreference
     let onRequestSubstitution: () -> Void
     let onRestStart: (Int) -> Void
+    var coachingEnabled: Bool = true
+    var onSuggestionLogged: (UUID, SavedCoachingExplanation) -> Void = { _, _ in }
 
     @Environment(\.modelContext) private var modelContext
     @State private var showingCues = false
@@ -32,7 +34,11 @@ struct ExerciseCardView: View {
     }
 
     private var suggestion: SetSuggestion {
-        suggestionEngine.suggestNextSet(
+        guard coachingEnabled else {
+            return SetSuggestion(suggestedWeightKG: nil, suggestedRepRangeLow: nextPlannedSet.targetRepRangeLow,
+                                 suggestedRepRangeHigh: nextPlannedSet.targetRepRangeHigh, rationale: "")
+        }
+        return suggestionEngine.suggestNextSet(
             plannedSet: nextPlannedSet,
             exercise: exercise,
             recentHistory: recentHistory,
@@ -49,18 +55,26 @@ struct ExerciseCardView: View {
                 cuesSection
             }
 
+            if coachingEnabled {
             Text(suggestion.rationale)
                 .font(CMSNTypography.body())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
+            }
+
             ForEach(loggedExercise.loggedSets.sorted(by: { $0.setIndex < $1.setIndex })) { set in
+                let shownSuggestion = suggestion
                 SetRowView(
                     set: set,
                     isActive: set.id == activeSetID,
-                    suggestedWeightKG: suggestion.suggestedWeightKG,
+                    suggestedWeightKG: shownSuggestion.suggestedWeightKG,
                     unitPreference: unitPreference,
                     onLogged: { restSeconds in
+                        if coachingEnabled {
+                            onSuggestionLogged(set.id, SavedCoachingExplanation(exerciseName: exercise.name, setNumber: set.setIndex + 1,
+                                rationale: shownSuggestion.rationale, suggestedWeightKG: shownSuggestion.suggestedWeightKG))
+                        }
                         try? modelContext.save()
                         onRestStart(restSeconds)
                     }
@@ -90,6 +104,7 @@ struct ExerciseCardView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .layoutPriority(1)
                 Spacer(minLength: 12)
+                if coachingEnabled {
                 Button {
                     onRequestSubstitution()
                 } label: {
@@ -103,6 +118,7 @@ struct ExerciseCardView: View {
                 }
                 .buttonStyle(.plain)
                 .fixedSize()
+                }
             }
             Button(showingCues ? "Hide setup & cues" : "Setup & cues") {
                 showingCues.toggle()

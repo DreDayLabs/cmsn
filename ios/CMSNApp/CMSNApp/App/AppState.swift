@@ -26,6 +26,7 @@ final class AppState {
     let calendarService: CalendarSplitService
     let storeKitManager: StoreKitManager
     let suggestionEngine: SuggestionEngine
+    var plus: PlusEntitlementService { storeKitManager.entitlement }
 
     /// The active training program. V0 ships two seed programs and lets the
     /// athlete pick one in onboarding; there's no custom program builder yet

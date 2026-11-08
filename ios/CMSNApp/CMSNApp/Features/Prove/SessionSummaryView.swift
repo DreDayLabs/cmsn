@@ -31,8 +31,10 @@ struct SessionSummaryView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     header
                     completionSummary
-                    nutritionRemainder
-                    TrainingDayWhyCard(adjustment: adjustment)
+                    PlusFeature(capability: .fueling, title: "Fueling for recovery") {
+                        nutritionRemainder
+                        TrainingDayWhyCard(adjustment: adjustment)
+                    }
                     scoreSection
                     recoveryRecommendation
                     shareSection
@@ -53,6 +55,7 @@ struct SessionSummaryView: View {
             }
         }
         .task(id: targetSyncID) {
+            guard appState.plus.allows(.fueling) else { return }
             let targets = adjustment.adjusted
             appState.nutritionRepository.createOrFetchToday(
                 proteinTarget: targets.proteinGrams,

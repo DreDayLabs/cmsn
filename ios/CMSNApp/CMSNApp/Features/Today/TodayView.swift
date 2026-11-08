@@ -43,6 +43,7 @@ struct TodayView: View {
                 RecoveryLogView()
             }
             .onAppear { resolveToday() }
+            .onChange(of: appState.plus.hasPlus) { _, _ in resolveToday() }
             .task(id: targetSyncID) {
                 resolveToday()
                 daysInactive = appState.workoutRepository.daysSinceLastLoggedWork()
@@ -61,15 +62,24 @@ struct TodayView: View {
                 ReturnStateView(daysInactive: daysInactive)
             }
 
-            if let state = homeState {
+            NavigationLink("Log a workout manually") {
+                WorkoutSessionView(resolvedDay: ResolvedProgramDay(focus: .fullBody, resolvedExercises: [], isCalendarOverride: false,
+                    sourceCalendarEventIdentifier: nil, adjustmentNotes: [], estimatedMinutes: 0),
+                    readiness: readinessDraft.makeReadinessCheck(), athlete: athlete, manualMode: true)
+            }.buttonStyle(.cmsnGhost)
+            NavigationLink("Workout history") { WorkoutHistoryView() }.buttonStyle(.cmsnText)
+            if !appState.plus.allows(.planning) {
+                FreeTrainingView(athlete: athlete)
+            } else if let state = homeState {
                 sessionHero(state, proxy: proxy)
                 QuickPathActionBar { action in
                     startQuickPath(action)
                 }
                 sessionCard(state)
-                fuelCard(state)
-                TrainingDayWhyCard(adjustment: state.adjustment)
-                    .id(state.articleID)
+                PlusFeature(capability: .fueling, title: "Fueling for your training day") {
+                    fuelCard(state)
+                    TrainingDayWhyCard(adjustment: state.adjustment).id(state.articleID)
+                }
 
                 if state.showsReadinessCheck {
                     ReadinessCheckView(draft: $readinessDraft, showsSubmitButton: false) {
@@ -261,6 +271,7 @@ struct TodayView: View {
     }
 
     private func resolveToday() {
+        guard appState.plus.allows(.planning) else { resolvedDay = nil; return }
         let resolver = ProgramResolver(calendarService: appState.calendarService)
         let program = appState.activeProgram
         let lastIndex = lastCompletedDayIndex(program: program)
@@ -273,13 +284,14 @@ struct TodayView: View {
     }
 
     private func beginSession() {
-        guard let resolvedDay else { return }
+        guard appState.plus.allows(.planning), let resolvedDay else { return }
         pendingDay = resolvedDay
         pendingReadiness = readinessDraft.makeReadinessCheck()
         navigateToSession = true
     }
 
     private func startQuickPath(_ action: QuickPathAction) {
+        guard appState.plus.allows(.planning) else { return }
         let resolver = ProgramResolver(calendarService: appState.calendarService)
         let focus = resolvedDay?.focus ?? .fullBody
         pendingDay = action.resolve(currentFocus: focus, resolver: resolver, athlete: athlete)
@@ -299,6 +311,7 @@ struct TodayView: View {
     }
 
     private func syncTargets() {
+        guard appState.plus.allows(.fueling) else { return }
         let targets = adjustment.adjusted
         _ = appState.nutritionRepository.createOrFetchToday(
             proteinTarget: targets.proteinGrams,
