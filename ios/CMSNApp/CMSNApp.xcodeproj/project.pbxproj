@@ -30,6 +30,7 @@
 		16FCE7C88C77F5395B55FCD2 /* CMSNColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7B63F28BC226096D853C82 /* CMSNColor.swift */; };
 		1ACA49DD6962E77346C721B0 /* welcome-loop.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 88E124EE16CC97E3D49F44A5 /* welcome-loop.mp4 */; };
 		1B72E34541EA530AAEAC277F /* AutoPauseMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C1BE70FAFAF9DD2AC6CCA18 /* AutoPauseMachine.swift */; };
+		1C9C4299143CE79A67685ABC /* CalendarPermissionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677CA96E55397C9DFF2D4FE2 /* CalendarPermissionUITests.swift */; };
 		22105D09AFAE6EA71BC3A89C /* RunClubModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBE34D2CE67E956FEF17A4A4 /* RunClubModels.swift */; };
 		2380981170E45A179C3B1D1D /* NarrativeWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200A2914FF60E238A233FACC /* NarrativeWelcomeView.swift */; };
 		24EE23EFAB512353D8208DA3 /* SessionSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00454223542B15B2754F0C3 /* SessionSummaryView.swift */; };
@@ -87,10 +88,10 @@
 		7425BDF67BCA8AC9251E2393 /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F8BA1965E2A6B1DCE06819 /* SeedData.swift */; };
 		7659120D1BA21E70DA2325FB /* WeightLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51CD4DCEB8D8DA427B679442 /* WeightLogView.swift */; };
 		77705541AE2CD8CEA823FA1A /* TodayHomeStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06C48A9D4D3297214D237EB1 /* TodayHomeStateTests.swift */; };
+		7A485B14933F779BFF9B1367 /* PrivacyReliabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53388AE103AFA7DF6BDD0870 /* PrivacyReliabilityTests.swift */; };
 		7A9C408A19936D70D25C779E /* WorkoutPlanConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458A44AA45550057C37A7DC6 /* WorkoutPlanConfirmView.swift */; };
 		810351F1E147969867909EC6 /* WorkoutModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CC9C66921575F8C4723AF1 /* WorkoutModels.swift */; };
 		816D85128EE1073E162DF5C4 /* StoreRecoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C543EBE1D833745A016592D2 /* StoreRecoveryTests.swift */; };
-		E4A91C0B7D2F4A18B6C3D5E1 /* PrivacyReliabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C82D1A9E3B4C06A5D4E2F0 /* PrivacyReliabilityTests.swift */; };
 		822EAABEC2DCAF3F59ECC32B /* MacroTargetCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8D9786F59D75EEEACC7E5B /* MacroTargetCalculatorTests.swift */; };
 		87ABB2D0C5047DF55B804627 /* LoopingVideoBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E5366F55A6101F6427FA80 /* LoopingVideoBackground.swift */; };
 		882D36D3DF1E65A44D55BACC /* SupplementLibraryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2905396DE6BA294E59D6AA50 /* SupplementLibraryData.swift */; };
@@ -127,7 +128,6 @@
 		C4A40C73BD4A3DC4856D3E48 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD09D5FA5211652660222E92 /* PaywallView.swift */; };
 		C597BC8A32BF05E41E08B4BF /* today-loop.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = E40F53142CF734DE96823FCF /* today-loop.mp4 */; };
 		C625240BECFC38C660127D93 /* CMSNScreenSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB5064ED68BE8353ABA2093 /* CMSNScreenSmokeTests.swift */; };
-		F17A6C3E90B24D58A1C0E9B4 /* CalendarPermissionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83D1F6A47E25C09D4A8B712 /* CalendarPermissionUITests.swift */; };
 		C666996768609946D79A4DA0 /* StoreKitManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54A217F272968FB9C1E6547 /* StoreKitManagerTests.swift */; };
 		C97E216B03BCE4F4C927F6BF /* AccountDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EF6A771363706614002F085 /* AccountDataService.swift */; };
 		CA61EFCB2B737E937AC8704D /* EquipmentProfileStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28B0B5178F96DD8193B98D9 /* EquipmentProfileStepView.swift */; };
@@ -145,6 +145,7 @@
 		E4FC1C173D3D6267896EA89F /* RunHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9427849484778BBA29745A37 /* RunHistoryView.swift */; };
 		E8B4D38D3399715AA2452171 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9E74E46E4A09BE7D914B1368 /* PrivacyInfo.xcprivacy */; };
 		EAEC00D98D4FE15ACEC540E5 /* CMSNContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C79F679EDA01A8E3E265B84 /* CMSNContrastTests.swift */; };
+		EB11AAAD099B2CA2A5D9520B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C6FB6CB51F77BABABD5355DE /* Assets.xcassets */; };
 		F098823B8098B94E1B5FB8FA /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = DB4B9CB65508B1D29B1CF2C2 /* OFL.txt */; };
 		F1299C8A54237392CD468C27 /* MealSuggestionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1032855761941E22B6FFDDAA /* MealSuggestionEngine.swift */; };
 		F1C404547C52F5C8D9F2A773 /* LegalPages.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC154E2BEB3F1665406B38D9 /* LegalPages.swift */; };
@@ -237,6 +238,7 @@
 		4C30E8781C78D4D9456683ED /* RunShareCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunShareCard.swift; sourceTree = "<group>"; };
 		4E33DCA6CB853F9D5BC84988 /* TrainingProfileStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingProfileStepView.swift; sourceTree = "<group>"; };
 		51CD4DCEB8D8DA427B679442 /* WeightLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightLogView.swift; sourceTree = "<group>"; };
+		53388AE103AFA7DF6BDD0870 /* PrivacyReliabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyReliabilityTests.swift; sourceTree = "<group>"; };
 		57B73E26780385B37D8685CB /* AppReviewCopyRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewCopyRegressionTests.swift; sourceTree = "<group>"; };
 		5A1912488CAF2E3D54A111E7 /* LiveRunView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveRunView.swift; sourceTree = "<group>"; };
 		5B43F10DEDB480E2489FC296 /* CMSNAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CMSNAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -253,6 +255,7 @@
 		65702CBBE80AF6F5846EBEE4 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		663A31A3F06D714C1F0F8B29 /* StoreKitPurchaseFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitPurchaseFlowTests.swift; sourceTree = "<group>"; };
 		675355CB2F162D1491797CA2 /* OpenFoodFactsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFoodFactsService.swift; sourceTree = "<group>"; };
+		677CA96E55397C9DFF2D4FE2 /* CalendarPermissionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarPermissionUITests.swift; sourceTree = "<group>"; };
 		6A044D130E62A515976266A7 /* NutritionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionModels.swift; sourceTree = "<group>"; };
 		6C41CC8AED3EF58621B7AAA2 /* ConfettiBurst.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiBurst.swift; sourceTree = "<group>"; };
 		6D282CDB10C98FE6C3646AC9 /* Configuration.storekit */ = {isa = PBXFileReference; path = Configuration.storekit; sourceTree = "<group>"; };
@@ -299,7 +302,7 @@
 		BFAA8DD9984FB29DE890BFD3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C17FCBF7031945815C115FB1 /* PhotoBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoBackground.swift; sourceTree = "<group>"; };
 		C543EBE1D833745A016592D2 /* StoreRecoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreRecoveryTests.swift; sourceTree = "<group>"; };
-		F7C82D1A9E3B4C06A5D4E2F0 /* PrivacyReliabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyReliabilityTests.swift; sourceTree = "<group>"; };
+		C6FB6CB51F77BABABD5355DE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C7782FF43C5E872466294CED /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		C8770B7544FFE5924E0EEA8E /* RunSessionControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunSessionControllerTests.swift; sourceTree = "<group>"; };
 		C9976EA59E322578CB8A0965 /* RunSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunSummaryView.swift; sourceTree = "<group>"; };
@@ -308,7 +311,6 @@
 		CC15A9B4D590818C5C292C03 /* WeightLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightLogTests.swift; sourceTree = "<group>"; };
 		CC24E05D9A413AD71598F5F8 /* CMSNWordmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMSNWordmark.swift; sourceTree = "<group>"; };
 		CDB5064ED68BE8353ABA2093 /* CMSNScreenSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMSNScreenSmokeTests.swift; sourceTree = "<group>"; };
-		B83D1F6A47E25C09D4A8B712 /* CalendarPermissionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarPermissionUITests.swift; sourceTree = "<group>"; };
 		CDD2B46EE7CE064673E438F8 /* CMSNSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMSNSchema.swift; sourceTree = "<group>"; };
 		CEA513B2518E1BB27223A580 /* RestrictiveDietTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestrictiveDietTests.swift; sourceTree = "<group>"; };
 		CF6E1AB705200038A6B7DC87 /* RunModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunModels.swift; sourceTree = "<group>"; };
@@ -421,8 +423,8 @@
 		22DEB8723788C872292C2DE2 /* CMSNAppUITests */ = {
 			isa = PBXGroup;
 			children = (
+				677CA96E55397C9DFF2D4FE2 /* CalendarPermissionUITests.swift */,
 				CDB5064ED68BE8353ABA2093 /* CMSNScreenSmokeTests.swift */,
-				B83D1F6A47E25C09D4A8B712 /* CalendarPermissionUITests.swift */,
 			);
 			path = CMSNAppUITests;
 			sourceTree = "<group>";
@@ -461,6 +463,7 @@
 				CB8D9786F59D75EEEACC7E5B /* MacroTargetCalculatorTests.swift */,
 				35573510AE76EFB0D047CA31 /* OneRepMaxEstimatorTests.swift */,
 				9AF48317C85B079746B5E40C /* PageVideoCatalogTests.swift */,
+				53388AE103AFA7DF6BDD0870 /* PrivacyReliabilityTests.swift */,
 				FE0789D4A258F51440292B0E /* ProgramResolverTests.swift */,
 				EF1E77DE2F9DD32FDB5E6C52 /* ReadinessCheckTests.swift */,
 				8FD4305B62557FDE2F1ECCCA /* RemainingMacrosTests.swift */,
@@ -472,7 +475,6 @@
 				F54A217F272968FB9C1E6547 /* StoreKitManagerTests.swift */,
 				663A31A3F06D714C1F0F8B29 /* StoreKitPurchaseFlowTests.swift */,
 				C543EBE1D833745A016592D2 /* StoreRecoveryTests.swift */,
-				F7C82D1A9E3B4C06A5D4E2F0 /* PrivacyReliabilityTests.swift */,
 				64308FFF48EA3ABF3C117450 /* StoreUpgradeTests.swift */,
 				B2CE22497C9F737533084442 /* SuggestionEngineTests.swift */,
 				06C48A9D4D3297214D237EB1 /* TodayHomeStateTests.swift */,
@@ -504,6 +506,7 @@
 		77233E9EFA561A74E5B0E1D7 /* CMSNWatchApp */ = {
 			isa = PBXGroup;
 			children = (
+				C6FB6CB51F77BABABD5355DE /* Assets.xcassets */,
 				027803C1E25BEF883B86EC3E /* CMSNWatchApp.swift */,
 				3278F99D85A7CCFD9C1DBD22 /* Info.plist */,
 				43CC87422EB56424AFF8E26C /* PrivacyInfo.xcprivacy */,
@@ -865,6 +868,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB11AAAD099B2CA2A5D9520B /* Assets.xcassets in Resources */,
 				0AA95106BAAD1AE49134CC6C /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -905,7 +909,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C625240BECFC38C660127D93 /* CMSNScreenSmokeTests.swift in Sources */,
-				F17A6C3E90B24D58A1C0E9B4 /* CalendarPermissionUITests.swift in Sources */,
+				1C9C4299143CE79A67685ABC /* CalendarPermissionUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1041,6 +1045,7 @@
 				822EAABEC2DCAF3F59ECC32B /* MacroTargetCalculatorTests.swift in Sources */,
 				5C7A0422E73BCFA7A2387B6B /* OneRepMaxEstimatorTests.swift in Sources */,
 				3FB58B83F377480FC86CB443 /* PageVideoCatalogTests.swift in Sources */,
+				7A485B14933F779BFF9B1367 /* PrivacyReliabilityTests.swift in Sources */,
 				F54EB67008D1E601E5C51181 /* ProgramResolverTests.swift in Sources */,
 				4D10302CDF756D61B9E22065 /* ReadinessCheckTests.swift in Sources */,
 				2F9785AA6A70352F08006C9D /* RemainingMacrosTests.swift in Sources */,
@@ -1052,7 +1057,6 @@
 				C666996768609946D79A4DA0 /* StoreKitManagerTests.swift in Sources */,
 				A144CC20CC114DC7E091A054 /* StoreKitPurchaseFlowTests.swift in Sources */,
 				816D85128EE1073E162DF5C4 /* StoreRecoveryTests.swift in Sources */,
-				E4A91C0B7D2F4A18B6C3D5E1 /* PrivacyReliabilityTests.swift in Sources */,
 				3EB5C9916BB2DC8A9275265E /* StoreUpgradeTests.swift in Sources */,
 				B1F00499242937C9EA3BCC82 /* SuggestionEngineTests.swift in Sources */,
 				77705541AE2CD8CEA823FA1A /* TodayHomeStateTests.swift in Sources */,
@@ -1206,7 +1210,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = G2MXBX48PD;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1238,6 +1242,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_STANDALONE_ICON_BEHAVIOR = all;
 				CODE_SIGN_ENTITLEMENTS = CMSNWatchApp/CMSNWatchApp.entitlements;
 				INFOPLIST_FILE = CMSNWatchApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.earnyourcmsn.app.watchkitapp;
@@ -1251,6 +1256,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_STANDALONE_ICON_BEHAVIOR = all;
 				CODE_SIGN_ENTITLEMENTS = CMSNWatchApp/CMSNWatchApp.entitlements;
 				INFOPLIST_FILE = CMSNWatchApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.earnyourcmsn.app.watchkitapp;
@@ -1311,7 +1317,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = G2MXBX48PD;
 				ENABLE_PREVIEWS = YES;
