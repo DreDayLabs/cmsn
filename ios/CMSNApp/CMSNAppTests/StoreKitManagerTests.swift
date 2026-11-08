@@ -36,9 +36,12 @@ final class StoreKitManagerTests: XCTestCase {
         XCTAssertEqual(StoreKitManager.screenshotSubscribedArgument, "-CMSNScreenshotSubscribed")
         XCTAssertFalse(StoreKitManager.prefersSubscribedScreenshot([]))
         XCTAssertFalse(StoreKitManager.prefersSubscribedScreenshot(["-CMSNResetFirstRun"]))
-        XCTAssertTrue(
-            StoreKitManager.prefersSubscribedScreenshot([StoreKitManager.screenshotSubscribedArgument])
-        )
+        #if DEBUG
+        XCTAssertTrue(StoreKitManager.prefersSubscribedScreenshot([StoreKitManager.screenshotSubscribedArgument]))
+        #else
+        XCTAssertFalse(StoreKitManager.prefersSubscribedScreenshot([StoreKitManager.screenshotSubscribedArgument]),
+                       "Release must never grant access from a screenshot launch argument.")
+        #endif
     }
 
     func testPurchaseErrorCopyStaysClean() {
