@@ -115,12 +115,12 @@ struct RuleBasedSuggestionEngine: SuggestionEngine {
 
         if missedBottomOfRange || (rpe.map { $0 >= maxEffortRPEThreshold } ?? false) {
             targetWeight = lastWeight * regressionFraction
-            rationale = "Last time: \(Int(lastWeight.rounded()))×\(lastReps)\(rpeSuffix(rpe)) — that was a grind. Backing off slightly so you can hit the full range today."
+            rationale = "Last time: \(formattedWeight(lastWeight, unitPreference: unitPreference))×\(lastReps)\(rpeSuffix(rpe)) — that was a grind. Backing off slightly so you can hit the full range today."
         } else if hitTopOfRange && (rpe.map { $0 <= progressRPEThreshold } ?? true) {
             targetWeight = lastWeight * (1 + progressionIncrementFraction)
-            rationale = "Last time: \(Int(lastWeight.rounded()))×\(lastReps)\(rpeSuffix(rpe)) — you had room. Try \(Int(WeightRounding.round(targetWeight, to: increment).rounded())) today."
+            rationale = "Last time: \(formattedWeight(lastWeight, unitPreference: unitPreference))×\(lastReps)\(rpeSuffix(rpe)) — you had room."
         } else {
-            rationale = "Last time: \(Int(lastWeight.rounded()))×\(lastReps)\(rpeSuffix(rpe)) — same weight, aim for the top of the range."
+            rationale = "Last time: \(formattedWeight(lastWeight, unitPreference: unitPreference))×\(lastReps)\(rpeSuffix(rpe)) — same weight, aim for the top of the range."
         }
 
         if readiness == .low {
@@ -129,6 +129,9 @@ struct RuleBasedSuggestionEngine: SuggestionEngine {
         }
 
         let roundedWeight = WeightRounding.round(targetWeight, to: increment)
+        if hitTopOfRange && !missedBottomOfRange && (rpe.map { $0 <= progressRPEThreshold } ?? true) {
+            rationale += " Try \(formattedWeight(roundedWeight, unitPreference: unitPreference)) today."
+        }
 
         return SetSuggestion(
             suggestedWeightKG: roundedWeight,
@@ -136,6 +139,13 @@ struct RuleBasedSuggestionEngine: SuggestionEngine {
             suggestedRepRangeHigh: plannedSet.targetRepRangeHigh,
             rationale: rationale
         )
+    }
+
+    private func formattedWeight(_ kilograms: Double, unitPreference: UnitPreference) -> String {
+        let value = unitPreference.displayWeight(fromKilograms: kilograms)
+        let rounded = (value * 10).rounded() / 10
+        let number = rounded.truncatingRemainder(dividingBy: 1) == 0 ? String(Int(rounded)) : String(format: "%.1f", rounded)
+        return "\(number) \(unitPreference.weightUnitLabel)"
     }
 
     private func rpeSuffix(_ rpe: Double?) -> String {

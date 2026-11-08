@@ -71,6 +71,8 @@ final class PlusPersistenceAndOfferTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(example.suggestion.suggestedWeightKG), 82.5, accuracy: 0.001)
         XCTAssertTrue(example.withPlus.contains(example.suggestion.rationale))
         XCTAssertTrue(example.withPlus.contains("82.5 kg"))
+        XCTAssertTrue(example.suggestion.rationale.contains("Try 82.5 kg today."))
+        XCTAssertFalse(example.suggestion.rationale.contains("Try 83"))
         XCTAssertTrue(example.withoutPlus.contains("Choose your weight"))
         XCTAssertFalse(example.withPlus.contains("Tuesday"))
         XCTAssertFalse(example.withPlus.contains("86"))
