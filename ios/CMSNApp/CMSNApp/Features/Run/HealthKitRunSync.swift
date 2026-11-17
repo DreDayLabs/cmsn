@@ -43,6 +43,8 @@ final class HealthKitRunSync: HealthRunWriting {
     }
 
     func sync(run: Run, context: ModelContext) async {
+        AccountDataActivity.shared.beginHealthWrite()
+        defer { AccountDataActivity.shared.endHealthWrite() }
         guard run.status == .ended else { return }
         var state = liveAuthorizationState()
         var action = HealthSyncPolicy.nextAction(
@@ -89,8 +91,12 @@ final class HealthKitRunSync: HealthRunWriting {
     }
 
     func retryPending(in context: ModelContext) async {
+        let generation = AccountDataActivity.shared.generation
         let runs = (try? context.fetch(FetchDescriptor<Run>())) ?? []
-        for run in runs where run.status == .ended && run.healthSyncState != .synced && run.healthSyncState != .watchOwned {
+        for run in runs {
+            // Check before reading a possibly deleted SwiftData object.
+            guard generation == AccountDataActivity.shared.generation else { return }
+            guard run.status == .ended && run.healthSyncState != .synced && run.healthSyncState != .watchOwned else { continue }
             await sync(run: run, context: context)
         }
     }

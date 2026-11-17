@@ -430,7 +430,11 @@ final class RunSessionController {
         finishedRunID = run.id
         haptic(.success)
         let saved = run
-        Task { await health.sync(run: saved, context: context) }
+        let generation = AccountDataActivity.shared.generation
+        Task {
+            guard generation == AccountDataActivity.shared.generation else { return }
+            await health.sync(run: saved, context: context)
+        }
     }
 
     private func persist(now: Date) {

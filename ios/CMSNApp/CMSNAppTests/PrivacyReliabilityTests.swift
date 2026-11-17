@@ -50,6 +50,21 @@ final class PrivacyReliabilityTests: XCTestCase {
         XCTAssertTrue(source.contains("product.displayPrice"))
     }
 
+    func testErasureIsBlockedWhileHealthWriteIsInFlight() throws {
+        let activity = AccountDataActivity.shared
+        let context = ModelContext(CMSNModelContainerFactory.makeInMemory())
+        context.insert(Athlete(age: 28, heightCM: 178, weightKG: 82))
+        try context.save()
+        activity.beginHealthWrite()
+        XCTAssertThrowsError(try AccountDataService.eraseEverything(context: context))
+        activity.endHealthWrite()
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Athlete>()), 1)
+        let queuedGeneration = activity.generation
+        try AccountDataService.eraseEverything(context: context)
+        XCTAssertNotEqual(queuedGeneration, activity.generation)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Athlete>()), 0)
+    }
+
     func testFoodProviderRetentionIsDisclosed() throws {
         XCTAssertTrue(LegalCopy.foodLookups.contains("three years"))
         let data = try Data(contentsOf: repoFile("ios/CMSNApp/CMSNApp/PrivacyInfo.xcprivacy"))

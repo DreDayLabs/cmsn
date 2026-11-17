@@ -1,5 +1,26 @@
 import Foundation
 import SwiftData
+import Observation
+
+/// Coordinates local erasure with async Apple Health writes across the run
+/// controller, retry loop and Watch importer. MainActor serialization makes
+/// the erasure check and synchronous database transaction atomic to callers.
+@MainActor
+@Observable
+final class AccountDataActivity {
+    static let shared = AccountDataActivity()
+    private(set) var healthWrites = 0
+    private(set) var generation = 0
+
+    func beginHealthWrite() { healthWrites += 1 }
+    func endHealthWrite() { healthWrites -= 1 }
+    func prepareErasure() throws {
+        guard healthWrites == 0 else { throw CocoaError(.userCancelled) }
+        // Invalidates work queued before the erasure, including failed erasures.
+        // Existing live records can be retried later if the erase fails.
+        generation += 1
+    }
+}
 
 /// Export and erase — the two data-rights actions Settings offers.
 ///
@@ -182,6 +203,7 @@ enum AccountDataService {
         rollback: (ModelContext) -> Void = { $0.rollback() },
         cleanupCopies: (() throws -> Void)? = nil
     ) throws {
+        try AccountDataActivity.shared.prepareErasure()
         let autosaveWasEnabled = context.autosaveEnabled
         context.autosaveEnabled = false
         defer { context.autosaveEnabled = autosaveWasEnabled }
