@@ -177,7 +177,7 @@ struct PaywallView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier("paywall.trial")
 
-            Text("Your no-card first week begins after assessment. The App Store's 7-day subscription trial is separate and depends on eligibility.")
+            Text("Your no-card first week begins after assessment. Any App Store introductory offer is separate and depends on eligibility; review the offer shown by Apple before confirming.")
                 .font(CMSNTypography.bodyQuiet()).foregroundStyle(CMSNColor.Semantic.textSecondary)
             Text("Monthly and Annual are auto-renewing subscriptions. Lifetime is a one-time non-consumable purchase and does not renew. Payment is charged to your Apple ID at confirmation of purchase. Subscriptions renew unless you cancel at least 24 hours before the current period ends, and your account is charged for subscription renewal within 24 hours before that period ends. Manage or cancel in iPhone Settings → your name → Subscriptions. Any unused portion of the free trial is forfeited if you subscribe before it ends.")
                 .font(CMSNTypography.bodyQuiet())
