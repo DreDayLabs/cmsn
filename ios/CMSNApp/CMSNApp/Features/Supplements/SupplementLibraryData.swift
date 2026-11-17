@@ -6,9 +6,7 @@ import Foundation
 /// worded in hedged language on purpose; see `SupplementDisclaimer` and the
 /// non-negotiable copy rule in the plan.
 ///
-/// `lastReviewed` dates are placeholders for this initial ship — a real
-/// content-review process (with a named reviewer) should update these dates
-/// whenever the copy changes, per the product doc's "last review date" field.
+/// Review dates remain nil until a documented review with a named reviewer.
 enum SupplementLibraryData {
     static let entries: [SupplementEducationEntry] = [
         SupplementEducationEntry(
@@ -29,7 +27,7 @@ enum SupplementLibraryData {
             ],
             consultProfessionalWhen: ["You have kidney concerns.", "You're on medication that affects kidney function.", "You're pregnant or nursing."],
             sourceReferences: ["International Society of Sports Nutrition position stand on creatine (general reference — verify current version before citing in-app)"],
-            lastReviewed: Date(timeIntervalSince1970: 1_735_689_600) // 2025-01-01 placeholder
+            lastReviewed: nil
         ),
         SupplementEducationEntry(
             id: "protein-powder",
@@ -45,7 +43,7 @@ enum SupplementLibraryData {
             cautions: ["Whey-based products contain dairy.", "Check for lactose or specific allergens if sensitive."],
             consultProfessionalWhen: ["You have a diagnosed kidney condition.", "You have a known dairy or soy allergy and are unsure about a product's sourcing."],
             sourceReferences: ["General sports-nutrition literature on protein timing and totals (verify current consensus before citing in-app)"],
-            lastReviewed: Date(timeIntervalSince1970: 1_735_689_600)
+            lastReviewed: nil
         ),
         SupplementEducationEntry(
             id: "caffeine",
@@ -64,7 +62,7 @@ enum SupplementLibraryData {
             ],
             consultProfessionalWhen: ["You have a heart condition or high blood pressure.", "You're pregnant or nursing.", "You're sensitive to stimulants."],
             sourceReferences: ["General sports-nutrition literature on caffeine and exercise performance (verify current consensus before citing in-app)"],
-            lastReviewed: Date(timeIntervalSince1970: 1_735_689_600)
+            lastReviewed: nil
         ),
         SupplementEducationEntry(
             id: "electrolytes",
@@ -80,7 +78,7 @@ enum SupplementLibraryData {
             cautions: ["People managing blood pressure should be mindful of added sodium."],
             consultProfessionalWhen: ["You're on a sodium-restricted diet.", "You have kidney or heart conditions."],
             sourceReferences: ["General hydration and sports-nutrition guidance (verify current consensus before citing in-app)"],
-            lastReviewed: Date(timeIntervalSince1970: 1_735_689_600)
+            lastReviewed: nil
         ),
         SupplementEducationEntry(
             id: "omega-3",
@@ -96,7 +94,7 @@ enum SupplementLibraryData {
             cautions: ["Can interact with blood-thinning medication."],
             consultProfessionalWhen: ["You're on blood thinners or have a bleeding disorder.", "You have a seafood allergy and are considering a fish-oil (not algae-based) product."],
             sourceReferences: ["General nutrition literature on omega-3 fatty acids (verify current consensus before citing in-app)"],
-            lastReviewed: Date(timeIntervalSince1970: 1_735_689_600)
+            lastReviewed: nil
         ),
         SupplementEducationEntry(
             id: "vitamin-d",
@@ -112,7 +110,7 @@ enum SupplementLibraryData {
             cautions: ["Very high doses over long periods can cause issues — this is not a 'more is better' supplement."],
             consultProfessionalWhen: ["You want to know your actual vitamin D level (a blood test, not a guess, is the right way to find out).", "You're considering a high-dose product."],
             sourceReferences: ["General nutrition literature on vitamin D (verify current consensus before citing in-app)"],
-            lastReviewed: Date(timeIntervalSince1970: 1_735_689_600)
+            lastReviewed: nil
         ),
     ]
 }

@@ -16,7 +16,7 @@ struct SupplementBankGroup: Identifiable {
 
 enum SupplementBankData {
     /// Shared placeholder review date, same convention as the Core Six.
-    private static let reviewed = Date(timeIntervalSince1970: 1_735_689_600) // 2025-01-01 placeholder
+    private static let reviewed: Date? = nil // No documented content review yet.
     private static let defaultConsult = ["You're pregnant or nursing.", "You take prescription medication.", "You're managing a health condition."]
     private static let defaultReminder = "Follow the amount and timing on the product label — CMSN does not set a personalized dose."
     private static let defaultSources = ["NIH Office of Dietary Supplements fact sheet (general reference — verify current version before citing in-app)"]

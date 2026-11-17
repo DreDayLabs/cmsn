@@ -163,9 +163,10 @@ struct SettingsView: View {
                     }
                 }
                 divider
-                settingsRow("Delete Everything", value: "", showsChevron: true, destructive: true) {
+                settingsRow("Delete Everything", value: runBlocksErasure ? "Finish or cancel your run first" : "", showsChevron: true, destructive: true) {
                     confirmingErase = true
                 }
+                .disabled(runBlocksErasure)
             }
             .cmsnCard()
             Text(LegalCopy.yourData)
@@ -321,7 +322,15 @@ struct SettingsView: View {
         }
     }
 
+    private var runBlocksErasure: Bool {
+        switch appState.runSession.stage {
+        case .live, .countdown: return true
+        case .idle, .finished: return false
+        }
+    }
+
     private func eraseEverything() {
+        guard !runBlocksErasure else { return }
         do {
             try AccountDataService.eraseEverything(context: modelContext)
             deleteFailed = false

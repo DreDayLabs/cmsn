@@ -1,9 +1,7 @@
 import SwiftUI
 import StoreKit
 
-/// The CMSN+ paywall. Monthly $9.99 and annual $59.99 are locked.
-/// Both are display strings. They are not App Store Connect products.
-/// Positioning against Fitbod's $15.99/$95.99 is in `brand/08-app-strategy.md`.
+/// The CMSN+ paywall. Customer-facing prices come from StoreKit products.
 struct PaywallView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
@@ -92,17 +90,15 @@ struct PaywallView: View {
             planButton(
                 title: "Monthly",
                 productID: CMSNProductID.monthly,
-                fallbackPrice: CMSNPlusDisplayPrice.monthly,
                 accessibilityID: "paywall.monthly"
             )
             planButton(
                 title: "Annual",
                 productID: CMSNProductID.annual,
-                fallbackPrice: CMSNPlusDisplayPrice.annual,
                 accessibilityID: "paywall.annual"
             )
 
-            planButton(title: "Lifetime", productID: CMSNProductID.lifetime, fallbackPrice: CMSNPlusDisplayPrice.lifetime, accessibilityID: "paywall.lifetime")
+            planButton(title: "Lifetime", productID: CMSNProductID.lifetime, accessibilityID: "paywall.lifetime")
 
             Button("Continue with \(selectedPlanName)") {
                 guard let product = appState.storeKitManager.products.first(where: { $0.id == selectedProductID }) else { return }
@@ -136,9 +132,9 @@ struct PaywallView: View {
         }
     }
 
-    private func planButton(title: String, productID: String, fallbackPrice: String, accessibilityID: String) -> some View {
+    private func planButton(title: String, productID: String, accessibilityID: String) -> some View {
         let product = appState.storeKitManager.products.first { $0.id == productID }
-        let price = CMSNPlusDisplayPrice.resolve(storePrice: product?.displayPrice, fallback: fallbackPrice)
+        let price = product?.displayPrice ?? "Unavailable"
         return Button {
             guard !appState.storeKitManager.isPurchasing else { return }
             selectedProductID = productID
@@ -162,9 +158,20 @@ struct PaywallView: View {
 
     /// Always on screen. Apple reviews the paywall whether or not StoreKit
     /// has loaded products, so this is not gated on `products.isEmpty`.
+    private var selectedPlanDisclosure: String {
+        guard let product = appState.storeKitManager.products.first(where: { $0.id == selectedProductID }) else {
+            return "Pricing is unavailable. Connect to the App Store to see current pricing before purchasing."
+        }
+        if selectedProductID == CMSNProductID.lifetime {
+            return "CMSN+ Lifetime: \(product.displayPrice), one payment. No subscription or renewal. Restore your purchase with the same Apple ID."
+        }
+        let period = selectedProductID == CMSNProductID.monthly ? "month" : "year"
+        return "\(product.displayPrice) per \(period). Any eligible introductory offer is confirmed by the App Store before purchase. Cancel in Settings."
+    }
+
     private var footer: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(selectedProductID == CMSNProductID.lifetime ? "CMSN+ Lifetime: \(CMSNPlusDisplayPrice.lifetime), one payment. No subscription or renewal. Restore your purchase with the same Apple ID." : "7-day free trial, then \(CMSNPlusDisplayPrice.monthly) a month or \(CMSNPlusDisplayPrice.annual) a year. Cancel anytime in Settings.")
+            Text(selectedPlanDisclosure)
                 .font(CMSNTypography.bodyQuiet())
                 .foregroundStyle(CMSNColor.Semantic.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

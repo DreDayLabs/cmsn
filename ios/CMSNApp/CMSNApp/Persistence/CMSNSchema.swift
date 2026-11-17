@@ -153,7 +153,11 @@ enum CMSNModelContainerFactory {
     static func shouldResetPersistentStore(
         arguments: [String] = ProcessInfo.processInfo.arguments
     ) -> Bool {
-        arguments.contains(resetFirstRunArgument)
+        #if DEBUG
+        return arguments.contains(resetFirstRunArgument)
+        #else
+        return false
+        #endif
     }
 
     /// Deletes the store and its SQLite sidecars. Used only for the

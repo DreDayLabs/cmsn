@@ -212,7 +212,7 @@ private struct SupplementDetailView: View {
                     section(title: "Consult A Professional If", lines: entry.consultProfessionalWhen)
                     section(title: "Sources", lines: entry.sourceReferences)
 
-                    Text("Last reviewed \(entry.lastReviewed.formatted(date: .abbreviated, time: .omitted))")
+                    Text(entry.lastReviewed.map { "Last reviewed \($0.formatted(date: .abbreviated, time: .omitted))" } ?? "Content review pending. References and evidence labels have not been independently verified.")
                         .font(CMSNTypography.caption())
                         .foregroundStyle(CMSNColor.Semantic.textSecondary)
 
