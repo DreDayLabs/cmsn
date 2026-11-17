@@ -1,10 +1,31 @@
 import Foundation
 import SwiftData
+import Observation
+
+/// Coordinates local erasure with async Apple Health writes across the run
+/// controller, retry loop and Watch importer. MainActor serialization makes
+/// the erasure check and synchronous database transaction atomic to callers.
+@MainActor
+@Observable
+final class AccountDataActivity {
+    static let shared = AccountDataActivity()
+    private(set) var healthWrites = 0
+    private(set) var generation = 0
+
+    func beginHealthWrite() { healthWrites += 1 }
+    func endHealthWrite() { healthWrites -= 1 }
+    func prepareErasure() throws {
+        guard healthWrites == 0 else { throw CocoaError(.userCancelled) }
+        // Invalidates work queued before the erasure, including failed erasures.
+        // Existing live records can be retried later if the erase fails.
+        generation += 1
+    }
+}
 
 /// Export and erase — the two data-rights actions Settings offers.
 ///
 /// The app is local-first (no server, no account), so "your data" is
-/// exactly what's in the on-device SwiftData store. Export serializes it
+/// the on-device SwiftData store and app-managed recovery/export copies. Export serializes it
 /// to human-readable JSON; erase deletes every model type and lets
 /// `RootView`'s athlete gate drop the app back to first-run onboarding.
 @MainActor
@@ -30,7 +51,7 @@ enum AccountDataService {
         }
         let iso = ISO8601DateFormatter()
 
-        if let athlete = (try? context.fetch(FetchDescriptor<Athlete>()))?.first {
+        if let athlete = (try context.fetch(FetchDescriptor<Athlete>())).first {
             var profile: [String: Any] = [
                 "name": athlete.name ?? "",
                 "age": athlete.age,
@@ -41,7 +62,7 @@ enum AccountDataService {
                 "equipment": athlete.equipmentProfile.rawValue,
                 "trainingFrequencyPerWeek": athlete.trainingFrequencyPerWeek,
             ]
-            if let diets = (try? context.fetch(FetchDescriptor<NutritionDietPreference>()))?
+            if let diets = (try context.fetch(FetchDescriptor<NutritionDietPreference>()))
                 .first(where: { $0.athleteID == athlete.id }) {
                 profile["restrictiveDietIDs"] = diets.dietIDsRaw
                 if let window = diets.fastingWindowRaw {
@@ -51,7 +72,7 @@ enum AccountDataService {
             root["profile"] = profile
         }
 
-        let sessions = (try? context.fetch(FetchDescriptor<WorkoutSession>(sortBy: [SortDescriptor(\.date)]))) ?? []
+        let sessions = (try context.fetch(FetchDescriptor<WorkoutSession>(sortBy: [SortDescriptor(\.date)])))
         root["workoutSessions"] = sessions.map { session -> [String: Any] in
             [
                 "date": iso.string(from: session.date),
@@ -72,7 +93,7 @@ enum AccountDataService {
             ]
         }
 
-        let logs = (try? context.fetch(FetchDescriptor<NutritionLog>(sortBy: [SortDescriptor(\.date)]))) ?? []
+        let logs = (try context.fetch(FetchDescriptor<NutritionLog>(sortBy: [SortDescriptor(\.date)])))
         root["nutrition"] = logs.map { log -> [String: Any] in
             [
                 "date": iso.string(from: log.date),
@@ -91,7 +112,7 @@ enum AccountDataService {
             ]
         }
 
-        let meals = (try? context.fetch(FetchDescriptor<SavedMeal>())) ?? []
+        let meals = (try context.fetch(FetchDescriptor<SavedMeal>()))
         root["savedMeals"] = meals.map { meal -> [String: Any] in
             [
                 "name": meal.name,
@@ -108,10 +129,10 @@ enum AccountDataService {
             ]
         }
 
-        let supplements = (try? context.fetch(FetchDescriptor<CustomSupplement>())) ?? []
+        let supplements = (try context.fetch(FetchDescriptor<CustomSupplement>()))
         root["customSupplements"] = supplements.map { ["name": $0.name, "note": $0.note] }
 
-        let weights = (try? context.fetch(FetchDescriptor<WeightEntry>(sortBy: [SortDescriptor(\.recordedAt)]))) ?? []
+        let weights = (try context.fetch(FetchDescriptor<WeightEntry>(sortBy: [SortDescriptor(\.recordedAt)])))
         root["weightEntries"] = weights.map { entry -> [String: Any] in
             [
                 "date": iso.string(from: entry.recordedAt),
@@ -119,7 +140,7 @@ enum AccountDataService {
             ]
         }
 
-        let runs = (try? context.fetch(FetchDescriptor<Run>(sortBy: [SortDescriptor(\.startedAt)]))) ?? []
+        let runs = (try context.fetch(FetchDescriptor<Run>(sortBy: [SortDescriptor(\.startedAt)])))
         root["runs"] = runs.filter { $0.status == .ended }.map { run -> [String: Any] in
             var dict: [String: Any] = [
                 "startedAt": iso.string(from: run.startedAt),
@@ -140,7 +161,7 @@ enum AccountDataService {
             return dict
         }
 
-        let scoreEvents = (try? context.fetch(FetchDescriptor<ScoreEvent>(sortBy: [SortDescriptor(\.date)]))) ?? []
+        let scoreEvents = (try context.fetch(FetchDescriptor<ScoreEvent>(sortBy: [SortDescriptor(\.date)])))
         root["scoreEvents"] = scoreEvents.map { event -> [String: Any] in
             [
                 "date": iso.string(from: event.date),
@@ -152,7 +173,7 @@ enum AccountDataService {
 
         let data = try JSONSerialization.data(withJSONObject: root, options: [.prettyPrinted, .sortedKeys])
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("cmsn-export-\(Int(Date().timeIntervalSince1970)).json")
+            .appendingPathComponent("cmsn-export-\(UUID().uuidString).json")
         try data.write(to: url)
         return url
     }
@@ -162,7 +183,7 @@ enum AccountDataService {
     /// Shown in Settings when the erase cannot be saved. Support and the
     /// privacy page use this same sentence. It is a string, so it is not
     /// isolated to the main actor.
-    nonisolated static let deleteSaveFailedMessage = "Couldn't erase your data. Nothing was confirmed deleted."
+    nonisolated static let deleteSaveFailedMessage = "Couldn't finish erasing your data. Your active records were not confirmed deleted. Please try again."
 
     /// Deletes every stored record. Irreversible once `save` succeeds; the
     /// confirmation lives in the UI, not here. After a successful save,
@@ -173,13 +194,16 @@ enum AccountDataService {
     /// On the in-memory container at `383a817`, that batch plus `rollback()`
     /// still fetched zero athletes (`PrivacyReliabilityTests` line 83).
     /// Pending per-object deletes are what `rollback()` can discard.
-    /// A failed save therefore leaves the last successful save in place.
-    /// That is the guarantee behind `deleteSaveFailedMessage`.
+    /// A failed save leaves the live records in place. App-managed backup
+    /// or export copies may already have been removed, so the error makes
+    /// no claim that those copies remain.
     static func eraseEverything(
         context: ModelContext,
         save: (ModelContext) throws -> Void = { try $0.save() },
-        rollback: (ModelContext) -> Void = { $0.rollback() }
+        rollback: (ModelContext) -> Void = { $0.rollback() },
+        cleanupCopies: (() throws -> Void)? = nil
     ) throws {
+        try AccountDataActivity.shared.prepareErasure()
         let autosaveWasEnabled = context.autosaveEnabled
         context.autosaveEnabled = false
         defer { context.autosaveEnabled = autosaveWasEnabled }
@@ -212,10 +236,38 @@ enum AccountDataService {
             try deleteFetched(NutritionDietPreference.self, in: context)
             try deleteFetched(PlusSessionRecord.self, in: context)
             try deleteFetched(Athlete.self, in: context)
+            // Remove only app-owned recovery/export copies before committing
+            // the live records. If cleanup fails, the live records roll back,
+            // leaving the profile available so the user can retry deletion.
+            if let cleanupCopies { try cleanupCopies() }
+            else {
+                for configuration in context.container.configurations where !configuration.isStoredInMemoryOnly {
+                    try eraseLocalCopies(storeURL: configuration.url, activeRunURL: ActiveRunBackup.fileURL())
+                }
+            }
             try save(context)
         } catch {
             rollback(context)
             throw error
+        }
+    }
+
+    /// Excludes the active SQLite store and unrelated temporary files.
+    /// Copies explicitly saved/shared outside CMSN cannot be recalled.
+    static func eraseLocalCopies(
+        storeURL: URL,
+        temporaryDirectory: URL = FileManager.default.temporaryDirectory,
+        activeRunURL: URL? = nil,
+        fileManager: FileManager = .default
+    ) throws {
+        if let activeRunURL, fileManager.fileExists(atPath: activeRunURL.path) {
+            try fileManager.removeItem(at: activeRunURL)
+        }
+        let backups = storeURL.deletingLastPathComponent().appendingPathComponent("CMSNStoreBackups", isDirectory: true)
+        if fileManager.fileExists(atPath: backups.path) { try fileManager.removeItem(at: backups) }
+        let files = try fileManager.contentsOfDirectory(at: temporaryDirectory, includingPropertiesForKeys: nil)
+        for url in files where url.lastPathComponent.hasPrefix("cmsn-export-") && url.pathExtension == "json" {
+            try fileManager.removeItem(at: url)
         }
     }
 

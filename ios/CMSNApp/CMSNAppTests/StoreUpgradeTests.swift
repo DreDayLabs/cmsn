@@ -57,11 +57,11 @@ final class StoreUpgradeTests: XCTestCase {
         XCTAssertEqual(CMSNModelContainerFactory.resetFirstRunArgument, "-CMSNResetFirstRun")
         XCTAssertFalse(CMSNModelContainerFactory.shouldResetPersistentStore(arguments: []))
         XCTAssertFalse(CMSNModelContainerFactory.shouldResetPersistentStore(arguments: ["-AppleLanguages", "(en)"]))
-        XCTAssertTrue(
-            CMSNModelContainerFactory.shouldResetPersistentStore(
-                arguments: ["CMSNApp", "-CMSNResetFirstRun"]
-            )
-        )
+        #if DEBUG
+        XCTAssertTrue(CMSNModelContainerFactory.shouldResetPersistentStore(arguments: ["CMSNApp", "-CMSNResetFirstRun"]))
+        #else
+        XCTAssertFalse(CMSNModelContainerFactory.shouldResetPersistentStore(arguments: ["CMSNApp", "-CMSNResetFirstRun"]))
+        #endif
     }
 
     func testResetRemovesStoreSidecars() throws {

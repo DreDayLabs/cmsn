@@ -163,9 +163,10 @@ struct SettingsView: View {
                     }
                 }
                 divider
-                settingsRow("Delete Everything", value: "", showsChevron: true, destructive: true) {
+                settingsRow("Delete Everything", value: erasureWaitMessage, showsChevron: true, destructive: true) {
                     confirmingErase = true
                 }
+                .disabled(runBlocksErasure)
             }
             .cmsnCard()
             Text(LegalCopy.yourData)
@@ -321,7 +322,21 @@ struct SettingsView: View {
         }
     }
 
+    private var erasureWaitMessage: String {
+        if AccountDataActivity.shared.healthWrites > 0 { return "Wait for Apple Health sync to finish" }
+        return appState.runSession.isSessionOpen ? "Finish or cancel your run first" : ""
+    }
+
+    private var runBlocksErasure: Bool {
+        if AccountDataActivity.shared.healthWrites > 0 { return true }
+        switch appState.runSession.stage {
+        case .live, .countdown: return true
+        case .idle, .finished: return false
+        }
+    }
+
     private func eraseEverything() {
+        guard !runBlocksErasure else { return }
         do {
             try AccountDataService.eraseEverything(context: modelContext)
             deleteFailed = false

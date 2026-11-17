@@ -4,6 +4,67 @@ import XCTest
 
 @MainActor
 final class PrivacyReliabilityTests: XCTestCase {
+    func testEraseCopiesPreservesActiveStoreAndUnrelatedFiles() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = root.appendingPathComponent("default.store")
+        try Data("live".utf8).write(to: store)
+        let backup = try CMSNModelContainerFactory.backupPersistentStore(at: store)
+        let export = root.appendingPathComponent("cmsn-export-test.json")
+        let unrelated = root.appendingPathComponent("other.json")
+        let activeRun = root.appendingPathComponent("active-run.json")
+        try Data("route".utf8).write(to: activeRun)
+        try Data("private".utf8).write(to: export)
+        try Data("keep".utf8).write(to: unrelated)
+        try AccountDataService.eraseLocalCopies(storeURL: store, temporaryDirectory: root, activeRunURL: activeRun)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: backup.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: export.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: activeRun.path))
+        XCTAssertEqual(try Data(contentsOf: store), Data("live".utf8))
+        XCTAssertEqual(try Data(contentsOf: unrelated), Data("keep".utf8))
+        try AccountDataService.eraseLocalCopies(storeURL: store, temporaryDirectory: root, activeRunURL: activeRun)
+    }
+
+    func testCopyCleanupFailureRollsBackLiveRecords() throws {
+        let context = ModelContext(CMSNModelContainerFactory.makeInMemory())
+        context.insert(Athlete(age: 28, heightCM: 178, weightKG: 82))
+        try context.save()
+        var saved = false
+        XCTAssertThrowsError(try AccountDataService.eraseEverything(context: context, save: { _ in saved = true }, cleanupCopies: {
+            throw CocoaError(.fileWriteNoPermission)
+        }))
+        XCTAssertFalse(saved)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Athlete>()), 1)
+    }
+
+    func testExportDoesNotSilentlyOmitFailedFetches() throws {
+        let source = try String(contentsOf: repoFile("ios/CMSNApp/CMSNApp/App/AccountDataService.swift"), encoding: .utf8)
+        XCTAssertFalse(source.contains("try? context.fetch"))
+    }
+
+    func testPaywallDoesNotSubstituteUSDOrPromiseAnUnverifiedTrial() throws {
+        let source = try String(contentsOf: repoFile("ios/CMSNApp/CMSNApp/Features/Subscription/PaywallView.swift"), encoding: .utf8)
+        XCTAssertFalse(source.contains("CMSNPlusDisplayPrice"))
+        XCTAssertFalse(source.contains("7-day free trial, then"))
+        XCTAssertTrue(source.contains("product.displayPrice"))
+    }
+
+    func testErasureIsBlockedWhileHealthWriteIsInFlight() throws {
+        let activity = AccountDataActivity.shared
+        let context = ModelContext(CMSNModelContainerFactory.makeInMemory())
+        context.insert(Athlete(age: 28, heightCM: 178, weightKG: 82))
+        try context.save()
+        activity.beginHealthWrite()
+        XCTAssertThrowsError(try AccountDataService.eraseEverything(context: context))
+        activity.endHealthWrite()
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Athlete>()), 1)
+        let queuedGeneration = activity.generation
+        try AccountDataService.eraseEverything(context: context)
+        XCTAssertNotEqual(queuedGeneration, activity.generation)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Athlete>()), 0)
+    }
+
     func testFoodProviderRetentionIsDisclosed() throws {
         XCTAssertTrue(LegalCopy.foodLookups.contains("three years"))
         let data = try Data(contentsOf: repoFile("ios/CMSNApp/CMSNApp/PrivacyInfo.xcprivacy"))
@@ -129,7 +190,7 @@ final class PrivacyReliabilityTests: XCTestCase {
         XCTAssertEqual(remaining.map(\.id), [id])
         XCTAssertEqual(
             AccountDataService.deleteSaveFailedMessage,
-            "Couldn't erase your data. Nothing was confirmed deleted."
+            "Couldn't finish erasing your data. Your active records were not confirmed deleted. Please try again."
         )
     }
 

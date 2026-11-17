@@ -33,7 +33,8 @@ struct SupplementEducationEntry: Codable, Identifiable, Hashable {
     var cautions: [String]
     var consultProfessionalWhen: [String]
     var sourceReferences: [String]
-    var lastReviewed: Date
+    /// Nil until a documented content review has actually occurred.
+    var lastReviewed: Date?
 }
 
 enum SupplementDisclaimer {
